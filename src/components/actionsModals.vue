@@ -1,0 +1,1179 @@
+<template>
+  <div >
+    <v-btn
+      v-if="type === 'getRewards'"
+      :color="cosmosConfig[store.setChainSelected].color"
+      variant="text"
+      @click="openRewards"
+    >
+      <v-icon class="mr-2" :color="cosmosConfig[store.setChainSelected].color">mdi-download</v-icon>
+      Get rewards
+    </v-btn>
+
+    <v-btn
+      v-if="type === 'sendTokens'"
+      :color="cosmosConfig[store.setChainSelected].color"
+      variant="text"
+      @click="openSendTokens"
+    >
+      <v-icon class="mr-2" :color="cosmosConfig[store.setChainSelected].color">mdi-send-circle-outline</v-icon>
+      Send tokens
+    </v-btn> 
+    <v-btn
+      v-if="type === 'delegate'" 
+      variant="text"
+      @click="openDelegate"
+    >
+      <v-icon
+        size="large" 
+        class="mr-2"
+      >mdi-upload</v-icon>
+      Delegate  
+    </v-btn> 
+    <v-btn
+      v-if="type === 'validatorRewards'"
+      :color="cosmosConfig[store.setChainSelected].color"
+      variant="text"
+      @click="openValidatorRewards"
+    >
+      <v-icon :color="cosmosConfig[store.setChainSelected].color">mdi-send-circle-outline</v-icon>
+      Get validator Rewards
+    </v-btn>    
+
+    <v-btn
+      v-if="type === 'feeGrant'"
+      :color="cosmosConfig[store.setChainSelected].color"
+      variant="text"
+      @click="openFeeGrant"
+    >
+      <v-icon :color="cosmosConfig[store.setChainSelected].color">mdi-send-circle-outline</v-icon>
+      Grant Allowance
+    </v-btn>   
+
+    <v-btn
+      v-if="type === 'removeFeeGrant'" 
+      variant="text"
+      @click="openRemoveFeeGrant"
+    >
+ 
+      <v-icon
+        size="large"
+        color="red darken-1" 
+      >mdi-account-multiple-remove-outline</v-icon>      
+    </v-btn> 
+
+    <v-btn
+      v-if="type === 'voteGovernance'" 
+      variant="text"
+      @click="openVote"
+    >
+
+      <v-icon
+        size="large" 
+      >mdi-vote-outline</v-icon>
+      Vote now!  
+    </v-btn> 
+
+    <v-dialog
+        v-model="dialogSendTokens" 
+        width="500" 
+        transition="dialog-top-transition"
+        absolute
+      > 
+        <v-card> 
+          <v-toolbar
+            color="rgba(0, 0, 0, 0)"
+            theme="dark"
+          >
+            <template v-slot:prepend>
+              <v-avatar>
+                  <v-img
+                    max-width="32"
+                    max-height="32"
+                    :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+            </template>
+
+            <v-toolbar-title class="text-h6">
+              Send tokens
+            </v-toolbar-title>
+
+            <template v-slot:append>
+              <v-btn icon="mdi-close" @click="dialogSendTokens = false"></v-btn>
+            </template>
+          </v-toolbar> 
+          <v-card-text>            
+            <v-form
+              v-if="step1"
+              v-model="formSend" 
+              ref="formSend"
+            > 
+              <v-text-field
+                v-model="sendAmount" 
+                :rules="[rules.required, rules.checkAmount]"
+                class="mb-2" 
+                label="Amount to send"
+                placeholder="Enter amount"
+                variant="outlined" 
+              >
+              <template #append-inner>
+                <v-chip
+                  label
+                  small
+                  @click="getMax"
+                >
+                  Max
+                </v-chip>
+              </template>
+            </v-text-field>
+
+              <v-text-field
+                v-model="sendTo" 
+                :rules="[rules.required, rules.bech32, rules.bech32Prefix]" 
+                label="Address to send"
+                placeholder="Enter address"
+                variant="outlined"
+              >
+              <template #append-inner>
+                <v-chip
+                  label
+                  small
+                  @click="setAddress"
+                >
+                  Me
+                </v-chip>
+              </template>            
+            </v-text-field>
+            <!-- <h4 v-if="store.myFeeAllowances.length > 0"> Fee </h4>  
+            <v-select
+              v-model="feeAllowancesFrom" 
+              v-if="store.myFeeAllowances.length > 0"
+              label="Select"
+              :items="['', store.myFeeAllowances[0].granter]"
+              variant="outlined"
+            ></v-select> -->
+            </v-form>    
+            <div v-if="step2" class="ma-8 text-center">
+              <v-progress-circular                
+                :size="100"
+                :width="5"
+                :color="cosmosConfig[store.setChainSelected].color"
+                indeterminate 
+                justify="center"
+              ></v-progress-circular>   
+            </div>
+            <div v-if="step3" class="ma-8 text-center">
+              <v-icon
+                size="150"
+                color="green darken-2"
+              >
+                mdi-check-circle-outline
+              </v-icon>  
+              <br /><br />
+               {{ txResult.transactionHash }} 
+            </div>
+          </v-card-text>
+ 
+          <v-btn 
+            v-if="step1"
+            class="text-none ml-6 mr-6 mb-4"
+            :disabled="!formSend"
+            :color="cosmosConfig[store.setChainSelected].color" 
+            @click="sendNow()"
+            size="large"
+          >
+            Send now
+          </v-btn> 
+ 
+      </v-card>  
+    </v-dialog>
+    
+
+    <v-dialog
+        v-model="dialog" 
+        width="500" 
+        transition="dialog-top-transition"
+        absolute
+      >
+        <v-card> 
+          <v-toolbar
+            color="rgba(0, 0, 0, 0)"
+            theme="dark"
+          >
+            <template v-slot:prepend>
+              <v-avatar>
+                  <v-img
+                    max-width="32"
+                    max-height="32"
+                    :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+            </template>
+
+            <v-toolbar-title class="text-h6">
+              Get rewards
+            </v-toolbar-title>
+
+            <template v-slot:append>
+              <v-btn icon="mdi-close" @click="dialog = false"></v-btn>
+            </template>
+          </v-toolbar> 
+          <v-card-text>            
+            <v-table v-if="step1">
+              <tbody>
+                <tr>
+                  <td>Total rewards</td>
+                  <td> 
+                    {{ store.totalRewards }}
+                    <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
+                      {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
+                    </strong>                   
+                  </td>
+                </tr>
+                <tr>
+                  <td>Fee</td>
+                  <td>
+                    {{ gasFee.fee }}
+                    <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
+                      {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
+                    </strong>  
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>    
+            <div v-if="step2" class="ma-8 text-center">
+              <v-progress-circular                
+                :size="100"
+                :width="5"
+                :color="cosmosConfig[store.setChainSelected].color"
+                indeterminate 
+                justify="center"
+              ></v-progress-circular>   
+            </div>
+            <div v-if="step3" class="ma-8 text-center">
+              <v-icon
+                size="150"
+                color="green darken-2"
+              >
+                mdi-check-circle-outline
+              </v-icon>  
+              <br /><br />
+               {{ txResult.transactionHash }} 
+            </div>       
+          </v-card-text>
+ 
+          <v-btn 
+            v-if="step1"
+            class="text-none ma-4"
+            :color="cosmosConfig[store.setChainSelected].color"
+            prepend-icon="mdi-export-variant" 
+            @click="getRewards()"
+            size="large"
+          >
+            Claim
+          </v-btn> 
+ 
+        </v-card>
+      </v-dialog>
+      
+      <v-dialog
+        v-model="dialogFeeGrant" 
+        width="500" 
+        transition="dialog-top-transition"
+        absolute
+      >
+        <v-card> 
+          <v-toolbar
+            color="rgba(0, 0, 0, 0)"
+            theme="dark"
+          >
+            <template v-slot:prepend>
+              <v-avatar>
+                  <v-img
+                    max-width="32"
+                    max-height="32"
+                    :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+            </template>
+
+            <v-toolbar-title class="text-h6">
+              Grant Fee Allowance
+            </v-toolbar-title>
+
+            <template v-slot:append>
+              <v-btn icon="mdi-close" @click="dialogFeeGrant = false"></v-btn>
+            </template>
+          </v-toolbar> 
+          <v-card-text>     
+            <div v-if="step1">
+              <v-text-field
+                v-model="grantee" 
+                :rules="[rules.required, rules.bech32]" 
+                label="Gantee address"
+                placeholder="Enter address"
+                variant="outlined"
+              ></v-text-field>
+              <v-text-field
+                v-model="amountFeeGrant" 
+                :rules="[rules.required]"
+                class="mb-2" 
+                label="Amount to grant by tx"
+                placeholder="Enter amount"
+                variant="outlined" 
+              ></v-text-field>
+            </div>
+ 
+            <div v-if="step2" class="ma-8 text-center">
+              <v-progress-circular                
+                :size="100"
+                :width="5"
+                :color="cosmosConfig[store.setChainSelected].color"
+                indeterminate 
+                justify="center"
+              ></v-progress-circular>   
+            </div>
+            <div v-if="step3" class="ma-8 text-center">
+              <v-icon
+                size="150"
+                color="green darken-2"
+              >
+                mdi-check-circle-outline
+              </v-icon>  
+              <br /><br />
+               {{ txResult.transactionHash }} 
+            </div>       
+          </v-card-text>
+ 
+          <v-btn 
+            v-if="step1"
+            class="text-none ma-6"
+            :color="cosmosConfig[store.setChainSelected].color"
+            prepend-icon="mdi-export-variant" 
+            @click="sendFeeGrant()"
+            size="large"
+          >
+            Send Fee Grant
+          </v-btn> 
+ 
+        </v-card>
+      </v-dialog>      
+      <v-dialog
+        v-model="dialogRemoveFeeGrant" 
+        width="500" 
+        transition="dialog-top-transition"
+        absolute
+      >
+        <v-card> 
+          <v-toolbar
+            color="rgba(0, 0, 0, 0)"
+            theme="dark"
+          >
+            <template v-slot:prepend>
+              <v-avatar>
+                  <v-img
+                    max-width="32"
+                    max-height="32"
+                    :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+            </template>
+
+            <v-toolbar-title class="text-h6">
+              Remove Fee Allowance
+            </v-toolbar-title>
+
+            <template v-slot:append>
+              <v-btn icon="mdi-close" @click="dialogRemoveFeeGrant = false"></v-btn>
+            </template>
+          </v-toolbar> 
+          <v-card-text>     
+            <div v-if="step1">
+             Soon
+            </div>
+ 
+            <div v-if="step2" class="ma-8 text-center">
+              <v-progress-circular                
+                :size="100"
+                :width="5"
+                :color="cosmosConfig[store.setChainSelected].color"
+                indeterminate 
+                justify="center"
+              ></v-progress-circular>   
+            </div>
+            <div v-if="step3" class="ma-8 text-center">
+              <v-icon
+                size="150"
+                color="green darken-2"
+              >
+                mdi-check-circle-outline
+              </v-icon>  
+              <br /><br />
+               {{ txResult.transactionHash }} 
+            </div>       
+          </v-card-text>
+ 
+          <!-- <v-btn 
+            v-if="step1"
+            disabled="true"
+            class="text-none ma-4"
+            :color="cosmosConfig[store.setChainSelected].color"
+            prepend-icon="mdi-export-variant" 
+            @click="sendFeeGrant()"
+            size="large"
+          >
+            Remove FeeGrant
+          </v-btn>  -->
+ 
+        </v-card>
+      </v-dialog>   
+      <v-dialog
+        v-model="dialogVote" 
+        width="500" 
+        transition="dialog-top-transition" 
+      >
+        <v-card> 
+          <v-toolbar
+            color="rgba(0, 0, 0, 0)"
+            theme="dark"
+          >
+            <template v-slot:prepend>
+              <v-avatar>
+                  <v-img
+                    max-width="32"
+                    max-height="32"
+                    :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+            </template>
+
+            <v-toolbar-title class="text-h6">
+              Vote
+            </v-toolbar-title>
+
+            <template v-slot:append>
+              <v-btn icon="mdi-close" @click="dialogVote = false"></v-btn>
+            </template>
+          </v-toolbar> 
+          <v-card-text>     
+            <div v-if="step1">
+              <v-row dense>
+                  <v-col
+                    class="mx-auto"
+                    v-for="vote in voteList"
+                    :key="vote.title"
+                    :cols="vote.flex"
+                    @click="voteNow(vote.title)"
+                  >
+                    <v-sheet border class="ma-2 pa-2" rounded="lg">
+                      <v-card-title v-text="vote.title"></v-card-title>
+ 
+                    </v-sheet>
+                  </v-col>
+                </v-row>
+            </div>
+ 
+            <div v-if="step2" class="ma-8 text-center">
+              <v-progress-circular                
+                :size="100"
+                :width="5"
+                :color="cosmosConfig[store.setChainSelected].color"
+                indeterminate 
+                justify="center"
+              ></v-progress-circular>   
+            </div>
+            <div v-if="step3" class="ma-8 text-center">
+              <v-icon
+                size="150"
+                color="green darken-2"
+              >
+                mdi-check-circle-outline
+              </v-icon>  
+              <br /><br />
+               {{ txResult.transactionHash }} 
+            </div>       
+          </v-card-text>
+ 
+          <!-- <v-btn 
+            v-if="step1"
+            disabled="true"
+            class="text-none ma-4"
+            :color="cosmosConfig[store.setChainSelected].color"
+            prepend-icon="mdi-export-variant" 
+            @click="sendFeeGrant()"
+            size="large"
+          >
+            Remove FeeGrant
+          </v-btn>  -->
+ 
+        </v-card>
+      </v-dialog>   
+      <v-dialog
+        v-model="dialogDelegate" 
+        width="500" 
+        transition="dialog-top-transition" 
+      >
+        <v-card> 
+          <v-toolbar
+            color="rgba(0, 0, 0, 0)"
+            theme="dark"
+          >
+            <template v-slot:prepend>
+              <v-avatar>
+                  <v-img
+                    max-width="32"
+                    max-height="32"
+                    :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+            </template>
+
+            <v-toolbar-title class="text-h6">
+              Delegate
+            </v-toolbar-title>
+
+            <template v-slot:append>
+              <v-btn icon="mdi-close" @click="dialogDelegate = false"></v-btn>
+            </template>
+          </v-toolbar> 
+          <v-card-text>     
+            <div v-if="step1">
+              <span class="mr-2">Select an validator</span>
+              <v-sheet 
+                v-for="item in store.allValidators" 
+                border="md" 
+                class="ma-2 pa-2" 
+                @click="selectDelValidator(item)"
+              >
+                <v-list lines="one">
+                <v-list-item 
+                  :key="item.title"
+                  :title="item.description.moniker"
+                  :subtitle="'Commission: ' + item.commission.commission_rates.rate * 100 + '%'"
+                >
+                <!-- {{ item.commission.commission_rates.rate }} -->
+              </v-list-item>
+              </v-list>   
+              </v-sheet>
+       
+            </div>
+            
+            <div v-if="step2" class="ma-2 ">
+              <!-- {{ selectedValDel }} -->
+
+
+              <v-form 
+              v-model="formDelegate" 
+              ref="formDelegate"
+            > 
+              <v-text-field
+                v-model="delegateAmount" 
+                :rules="[rules.required, rules.checkAmount]"
+                class="mb-4 mt-2" 
+                label="Amount to delegate"
+                placeholder="Enter amount"
+                variant="outlined" 
+              >
+              <template #append-inner>
+                <v-chip
+                  label
+                  small
+                  @click="getMax"
+                >
+                  Max
+                </v-chip>
+              </template>
+            </v-text-field>
+
+              <v-text-field
+                v-model="delegateTo"  
+                label="Address to delegate"
+                placeholder="Enter address"
+                variant="outlined"
+                class="mt-4"
+              >
+            </v-text-field>
+            <!-- <h4 v-if="store.myFeeAllowances.length > 0"> Fee </h4>  
+            <v-select
+              v-model="feeAllowancesFrom" 
+              v-if="store.myFeeAllowances.length > 0"
+              label="Select"
+              :items="['', store.myFeeAllowances[0].granter]"
+              variant="outlined"
+            ></v-select> -->
+
+            </v-form>   
+          <v-btn   
+            :disabled="!formDelegate"  
+            :color="cosmosConfig[store.setChainSelected].color"
+            @click="delegateNow()"
+            block
+          >
+            Delegate
+          </v-btn> 
+            </div>
+            <div v-if="step3" class="ma-8 text-center">
+              <v-progress-circular                
+                :size="100"
+                :width="5"
+                :color="cosmosConfig[store.setChainSelected].color"
+                indeterminate 
+                justify="center"
+              ></v-progress-circular>   
+            </div>
+            <div v-if="step4" class="ma-8 text-center">
+              <v-icon
+                size="150"
+                color="green darken-2"
+              >
+                mdi-check-circle-outline
+              </v-icon>  
+              <br /><br />
+               {{ txResult.transactionHash }} 
+            </div>       
+          </v-card-text>
+ 
+          <!-- <v-btn 
+            v-if="step1"
+            disabled="true"
+            class="text-none ma-4"
+            :color="cosmosConfig[store.setChainSelected].color"
+            prepend-icon="mdi-export-variant" 
+            @click="sendFeeGrant()"
+            size="large"
+          >
+            Remove FeeGrant
+          </v-btn>  -->
+ 
+        </v-card>
+      </v-dialog>   
+  </div>  
+</template>
+
+<script>
+import {
+  defaultRegistryTypes,
+  assertIsDeliverTxSuccess,
+  SigningStargateClient,
+  GasPrice,
+  calculateFee,
+} from "@cosmjs/stargate";
+import {
+  coin,
+  coins,
+} from "@cosmjs/proto-signing";
+import bech32 from "bech32";
+
+import { selectSigner } from "../libs/signer";
+import { BasicAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/feegrant";
+import { MsgGrantAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/tx";
+
+import { useAppStore } from '@/store/app'
+import cosmosConfig from '../cosmos.config' 
+
+function checkBech32Address(address) {
+  try {
+    bech32.decode(address);
+    return true;
+  } catch (error) {
+    return false;
+  }
+} 
+function checkBech32Prefix(address, chainId) {
+  try {
+    const { prefix } = bech32.decode(address);
+    console.log(prefix);
+    console.log(chainId.coinLookup.addressPrefix);
+    if (prefix === chainId.coinLookup.addressPrefix) {
+      return true;
+    }
+    // return prefix === cosmosConfig[store.setChainSelected].prefix;
+  } catch (error) {
+    return false;
+  }
+}
+function converteToValidator(address) {
+  try {
+    const { prefix, words } = bech32.decode(address);
+    console.log(words);
+    return bech32.encode(prefix + 'valoper', words);
+    // return prefix === cosmosConfig[store.setChainSelected].prefix;
+  } catch (error) {
+    return false;
+  }
+}
+
+
+export default {
+  name: 'App', 
+  props: ['type', 'chain', 'spendableBalances', 'propData'],
+  data: (store) => ({
+    cosmosConfig: cosmosConfig,
+    dialog: false,
+    type: store.type,
+    gasFee: 0,
+    dialogSendTokens: false,
+    dialogFeeGrant: false,
+    dialogRemoveFeeGrant: false,
+    dialogDelegate: false,
+    dialogVote: false,
+    sendAmount: '',
+    sendTo: '',
+    delegateAmount: '',
+    delegateTo: '',
+    formSend: false,
+    formDelegate: false,
+    grantee: '',
+    amountFeeGrant: '',
+    feeAllowancesFrom: '',
+    selectedValDel: '',
+    rules: {
+      required: value => !!value || 'Required.',
+      checkAmount: value => value <= store.spendableBalances || ' Not enough funds, you need: ' + store.spendableBalances,
+      counter: value => value.length <= 20 || 'Max 20 characters', 
+      bech32: value => checkBech32Address(value) || 'Bad address (bech32)', 
+      bech32Prefix: value => checkBech32Prefix(value, store.chain) || 'Bad prefix', 
+    },
+    step1: true,
+    step2: false,
+    step3: false,
+    txResult: '',
+    voteList: [
+        { title: 'Yes', flex: 5 },
+        { title: 'No', flex: 5 },
+        { title: 'NoWithVeto', flex: 5 },
+        { title: 'Abstain', flex: 5 },
+      ],  
+    voteValue: null,
+  }),
+  setup() {
+    const store = useAppStore()
+    console.log(store.spendableBalances)
+    return {
+      store
+    }
+  },
+  watch: { 
+  },
+  mounted() {
+ 
+  },
+  computed: {
+
+  },
+  methods: { 
+
+    getMax() {
+      this.sendAmount = this.store.spendableBalances
+    },
+    setAddress() {
+      this.sendTo = this.store.addrWallet
+    },
+    openVote() {
+      this.dialogVote = true
+    },
+    selectDelValidator(item) {
+      console.log(item)
+      this.step1 = false;
+      this.step2 = true;
+      this.step3 = false;
+      this.selectedValDel = item
+      this.delegateTo = this.selectedValDel.operator_address
+ 
+    },
+    openDelegate() {
+      this.selectedValDel = ''
+      this.step1 = true;
+      this.step2 = false;
+      this.step3 = false;
+      this.dialogDelegate = true
+      
+    },
+    async delegateNow() {
+      this.step1 = false;
+      this.step2 = true;
+
+      if (this.delegateNow) { 
+        console.log(this.delegateAmount)
+        console.log(this.delegateTo)
+        
+        let signer = await selectSigner(this.store.setChainSelected)
+        const foundMsgType = defaultRegistryTypes.find(
+            (element) =>
+              element[0] ===
+              "/cosmos.staking.v1beta1.MsgDelegate"
+          );
+          console.log(foundMsgType)
+          
+/*           const amount = coins(this.sendAmount * 1000000, cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom);
+          const finalMsg = {
+          typeUrl: foundMsgType[0],
+            value: foundMsgType[1].fromPartial({
+              fromAddress: signer.accounts[0].address,
+              toAddress: this.sendTo,
+              amount: amount,
+            }),
+          }     
+          console.log('sendTx', finalMsg)
+
+          // Fee/Gas
+          const gasEstimation = await signer.client.simulate(
+            signer.accounts[0].address,
+            [finalMsg],
+            'Send Tokens'
+          ); 
+          const usedFee = calculateFee(
+            Math.round(gasEstimation * cosmosConfig[this.store.setChainSelected].feeMultiplier),
+            GasPrice.fromString(
+              cosmosConfig[this.store.setChainSelected].gasPrice +
+                cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom
+            )
+          );
+          this.gasFee = { fee: (usedFee.amount[0].amount / 1000000), gas: usedFee.gas };
+          
+          const feeAmount = coins(usedFee.amount[0].amount, cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom);
+          let finalFee = {
+            amount: feeAmount,
+            gas: usedFee.gas,
+            granter: this.feeAllowancesFrom,
+          }
+          console.log(finalFee) 
+        try {          
+          const result = await signer.client.signAndBroadcast(signer.accounts[0].address, [finalMsg], finalFee, '')
+          assertIsDeliverTxSuccess(result)
+          console.log(result)
+          this.txResult = result
+          this.step2 = false;
+          this.step3 = true;
+        } catch (error) {
+          console.error(error); 
+          this.step2 = false;
+          this.step1 = true;
+        } */
+      }
+
+    },
+    async voteNow(vote) {
+      this.step1 = false;
+      this.step2 = true;
+      
+      switch (vote) {
+        case 'Yes':
+          this.voteValue = 1
+          break;
+        case 'No':
+          this.voteValue = 3
+          break;
+        case 'NoWithVeto':
+          this.voteValue = 4
+          break;
+        case 'Abstain':
+          this.voteValue = 2
+          break;      
+        default:
+          break;
+      }
+      console.log(this.propData)
+
+      let signer = await selectSigner(this.store.setChainSelected) 
+ 
+      
+
+        const foundMsgType = defaultRegistryTypes.find(
+          (element) =>
+            element[0] ===
+            "/cosmos.gov.v1beta1.MsgVote"
+        );
+        const finalMsg = {
+          typeUrl: foundMsgType[0],
+          value: foundMsgType[1].fromPartial({           
+            proposalId: this.propData.proposal_id,
+            voter: signer.accounts[0].address,
+            option: this.voteValue,
+          }),
+        };
+        console.log(finalMsg)
+        
+        try {
+          const result = await signer.client.signAndBroadcast(
+            signer.accounts[0].address,
+            [finalMsg],
+            "auto",
+            ""
+          );
+          assertIsDeliverTxSuccess(result);
+          console.log(result)
+          console.log(result)
+          this.txResult = result
+          this.step2 = false;
+          this.step3 = true;
+        } catch (error) {
+          console.error(error); 
+          this.step2 = false;
+          this.step1 = true;
+        } 
+
+
+
+    },
+    async openSendTokens() {
+      this.dialogSendTokens = true
+      this.sendAmount = ''
+      this.sendTo = ''
+    },
+    async sendNow() {
+      this.step1 = false;
+      this.step2 = true;
+
+      const { valid } = await this.$refs.formSend.validate()
+      console.log(valid)
+      if (this.formSend) { 
+        console.log(this.sendAmount)
+        console.log(this.sendTo)
+
+        let signer = await selectSigner(this.store.setChainSelected)
+        const foundMsgType = defaultRegistryTypes.find(
+            (element) =>
+              element[0] ===
+              "/cosmos.bank.v1beta1.MsgSend"
+          );
+          
+          const amount = coins(this.sendAmount * 1000000, cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom);
+          const finalMsg = {
+          typeUrl: foundMsgType[0],
+            value: foundMsgType[1].fromPartial({
+              fromAddress: signer.accounts[0].address,
+              toAddress: this.sendTo,
+              amount: amount,
+            }),
+          }     
+          console.log('sendTx', finalMsg)
+
+          // Fee/Gas
+          const gasEstimation = await signer.client.simulate(
+            signer.accounts[0].address,
+            [finalMsg],
+            'Send Tokens'
+          ); 
+          const usedFee = calculateFee(
+            Math.round(gasEstimation * cosmosConfig[this.store.setChainSelected].feeMultiplier),
+            GasPrice.fromString(
+              cosmosConfig[this.store.setChainSelected].gasPrice +
+                cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom
+            )
+          );
+          this.gasFee = { fee: (usedFee.amount[0].amount / 1000000), gas: usedFee.gas };
+          
+          const feeAmount = coins(usedFee.amount[0].amount, cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom);
+          let finalFee = {
+            amount: feeAmount,
+            gas: usedFee.gas,
+            granter: this.feeAllowancesFrom,
+          }
+          console.log(finalFee) 
+        try {          
+          const result = await signer.client.signAndBroadcast(signer.accounts[0].address, [finalMsg], finalFee, '')
+          assertIsDeliverTxSuccess(result)
+          console.log(result)
+          this.txResult = result
+          this.step2 = false;
+          this.step3 = true;
+        } catch (error) {
+          console.error(error); 
+          this.step2 = false;
+          this.step1 = true;
+        }
+      }
+
+    },
+    async openValidatorRewards() {   
+      let signer = await selectSigner(this.store.setChainSelected)
+      const foundMsgType = defaultRegistryTypes.find(
+          (element) =>
+            element[0] ===
+            "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission"
+        );
+        let valAddress = converteToValidator(signer.accounts[0].address) 
+          
+        const withdrawValidatorCommissionMsg = {
+        typeUrl: foundMsgType[0],
+          value: foundMsgType[1].fromPartial({
+            validatorAddress: valAddress
+          }),
+        }    
+        
+        const gasEstimation = await signer.client.simulate(
+          signer.accounts[0].address,
+          [withdrawValidatorCommissionMsg],
+          'withdrawValidatorCommissionMsg'
+        ); 
+        const usedFee = calculateFee(
+          Math.round(gasEstimation * cosmosConfig[this.store.setChainSelected].feeMultiplier),
+          GasPrice.fromString(
+            cosmosConfig[this.store.setChainSelected].gasPrice +
+              cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom
+          )
+        );
+        this.gasFee = { fee: (usedFee.amount[0].amount / 1000000), gas: usedFee.gas };
+        console.log(usedFee)
+            
+        try {          
+          const result = await signer.client.signAndBroadcast(signer.accounts[0].address, [withdrawValidatorCommissionMsg], usedFee, '')
+          assertIsDeliverTxSuccess(result)
+          console.log(result)
+        } catch (error) {
+          console.error(error); 
+        }
+    },
+    async openRewards() {
+      this.dialog = true
+      let signer = await selectSigner(this.store.setChainSelected)
+      const foundMsgType = defaultRegistryTypes.find(
+          (element) =>
+            element[0] ===
+            "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward"
+        );
+        const finalMsg = [];
+        this.store.totalDelegationsRewards.forEach(function (item) {
+          finalMsg.push({
+            typeUrl: foundMsgType[0],
+            value: foundMsgType[1].fromPartial({
+              delegatorAddress: signer.accounts[0].address,
+              validatorAddress: item.validatorAddress,
+            }),
+          });
+        });
+        const gasEstimation = await signer.client.simulate(
+          signer.accounts[0].address,
+          finalMsg,
+          ''
+        );
+        const usedFee = calculateFee(
+          Math.round(gasEstimation * cosmosConfig[this.store.setChainSelected].feeMultiplier),
+          GasPrice.fromString(
+            cosmosConfig[this.store.setChainSelected].gasPrice +
+              cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom
+          )
+        );
+        this.gasFee = { fee: (usedFee.amount[0].amount / 1000000), gas: usedFee.gas };
+        if(this.store.spendableBalances < this.gasFee.fee) {
+          this.canRewards = false;
+        } else {
+          this.canRewards = true;
+        } 
+        console.log(this.store.spendableBalances, this.gasFee.fee)
+    },
+    async getRewards() {
+        this.step1 = false;
+        this.step2 = true;
+        let signer = await selectSigner(this.store.setChainSelected) 
+        console.log( signer.accounts)
+        const foundMsgType = defaultRegistryTypes.find(
+          (element) =>
+            element[0] ===
+            "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward"
+        );
+        const copieDelegator = [];
+        this.store.totalDelegationsRewards.forEach(function (item) {
+          
+          copieDelegator.push({
+            typeUrl: foundMsgType[0],
+            value: foundMsgType[1].fromPartial({
+              delegatorAddress: signer.accounts[0].address,
+              validatorAddress: item.validatorAddress,
+            }),
+          });
+        }); 
+
+        try {
+          const result = await signer.client.signAndBroadcast(
+            signer.accounts[0].address,
+            copieDelegator,
+            "auto",
+            ""
+          );
+          assertIsDeliverTxSuccess(result);
+          console.log(result)
+          console.log(result)
+          this.txResult = result
+          this.step2 = false;
+          this.step3 = true;
+        } catch (error) {
+          console.error(error); 
+          this.step2 = false;
+          this.step1 = true;
+        }
+    },
+    openRemoveFeeGrant() {
+      this.dialogRemoveFeeGrant = true
+      this.step1 = true;
+      this.step2 = false;
+      this.step3 = false;
+    },
+    async openFeeGrant() {
+      this.dialogFeeGrant = true
+      this.step1 = true;
+      this.step2 = false;
+      this.step3 = false;
+      this.grantee = ''
+      this.amountFeeGrant = ''
+    },
+    async sendFeeGrant() {
+      this.step1 = false;
+      this.step2 = true;
+      console.log(this.grantee)
+      console.log(this.amountFeeGrant)
+
+      let signer = await selectSigner(this.store.setChainSelected)
+        // Create feegrant allowance
+        const allowance = {
+          typeUrl: "/cosmos.feegrant.v1beta1.BasicAllowance",
+          value: Uint8Array.from(
+            BasicAllowance.encode({
+              spendLimit: [
+                {
+                  denom: cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom,
+                  amount: (this.amountFeeGrant * 1000000).toString(),
+                },
+              ],
+            }).finish(),
+          ),
+        }; 
+        
+        
+        const grantMsg = {
+          typeUrl: "/cosmos.feegrant.v1beta1.MsgGrantAllowance",
+          value: MsgGrantAllowance.fromPartial({
+            granter: signer.accounts[0].address, // Signer is the granter
+            grantee: this.grantee, // The address of the grantee
+            allowance: allowance,
+          }),
+        };
+        console.log(grantMsg)  
+        //const fee = 1.5; // See https://github.com/cosmos/cosmos-sdk/issues/16020
+        // const grantResult = await signer.client.signAndBroadcast(signer.accounts[0].address, [grantMsg], 'auto', "Create allowance");  
+        try {
+          const result = await signer.client.signAndBroadcast(signer.accounts[0].address, [grantMsg], 'auto', "");  
+          assertIsDeliverTxSuccess(result);
+          console.log(result) 
+          this.txResult = result
+          this.step2 = false;
+          this.step3 = true;
+        } catch (error) {
+          console.error(error); 
+          this.step2 = false;
+          this.step1 = true;
+        }
+
+
+    },
+  }
+}   
+</script>

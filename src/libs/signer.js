@@ -1,0 +1,31 @@
+import {
+  defaultRegistryTypes,
+  assertIsDeliverTxSuccess,
+  SigningStargateClient,
+  GasPrice,
+  calculateFee,
+} from "@cosmjs/stargate";
+import cosmosConfig from '../cosmos.config'
+
+
+export async function selectSigner(chain) { 
+  // Keplr connect
+  const chainId = cosmosConfig[chain].chainId;
+  await window.keplr.enable(chainId);
+  const offlineSigner = await window.getOfflineSignerAuto(chainId);
+ 
+  const accounts = await offlineSigner.getAccounts();
+
+  const client = await SigningStargateClient.connectWithSigner(
+    cosmosConfig[chain].rpcURL,
+    offlineSigner,
+    {
+      gasPrice: GasPrice.fromString(
+        cosmosConfig[chain].gasPrice +
+          cosmosConfig[chain].coinLookup.chainDenom
+      ),
+    }
+  );
+
+  return { client, accounts };
+}
