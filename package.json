@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "lint": "eslint . --fix --ignore-path .gitignore",
     "git": "npm run build && git add . && git commit -m",
-    "postgit": "git push && git subtree push --prefix dist origin gh-pages"
+    "postgit": "git push && git subtree push --prefix dist origin main"
   },
   "dependencies": {
     "@cosmjs/cosmwasm-stargate": "^0.31.0",
