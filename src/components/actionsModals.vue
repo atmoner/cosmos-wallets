@@ -74,6 +74,20 @@
       Vote now!  
     </v-btn> 
 
+    <v-btn
+      v-if="type === 'addAuthz'" 
+      variant="text"
+      @click="openAddAuthz"
+    >
+
+      <v-icon
+        size="large" 
+      >mdi-vote-outline</v-icon>
+      Add authZ 
+    </v-btn>     
+    
+
+
     <v-dialog
         v-model="dialogSendTokens" 
         width="500" 
@@ -654,6 +668,122 @@
  
         </v-card>
       </v-dialog>   
+      <v-dialog
+        v-model="dialogAddAuthz" 
+        width="500" 
+        transition="dialog-top-transition" 
+      >
+        <v-card> 
+          <v-toolbar
+            color="rgba(0, 0, 0, 0)"
+            theme="dark"
+          >
+            <template v-slot:prepend>
+              <v-avatar>
+                  <v-img
+                    max-width="32"
+                    max-height="32"
+                    :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+            </template>
+
+            <v-toolbar-title class="text-h6">
+              Add authz
+            </v-toolbar-title>
+
+            <template v-slot:append>
+              <v-btn icon="mdi-close" @click="dialogAddAuthz = false"></v-btn>
+            </template>
+          </v-toolbar> 
+          <v-card-text>     
+            <div v-if="step1">
+              Add authZ
+
+              <v-select
+                label="Select"
+                :items="['Generic', 'send', 'delegate', 'unbond', 'redelegate']"
+              ></v-select>    
+            </div>
+            <v-btn 
+              v-if="step1"
+              class="text-none ma-4"
+              :color="cosmosConfig[store.setChainSelected].color"
+              prepend-icon="mdi-export-variant" 
+              @click="sendAddAuthz()"
+              size="large"  
+            />
+            
+            <div v-if="step2" class="ma-2 ">
+              <!-- {{ selectedValDel }} -->
+
+
+              <v-form 
+              v-model="formDelegate" 
+              ref="formDelegate"
+            > 
+              <v-text-field
+                v-model="delegateAmount" 
+                :rules="[rules.required, rules.checkAmount]"
+                class="mb-4 mt-2" 
+                label="Amount to delegate"
+                placeholder="Enter amount"
+                variant="outlined" 
+              >
+              <template #append-inner>
+                <v-chip
+                  label
+                  small
+                  @click="getMax"
+                >
+                  Max
+                </v-chip>
+              </template>
+            </v-text-field>
+
+              <v-text-field
+                v-model="delegateTo"  
+                label="Address to delegate"
+                placeholder="Enter address"
+                variant="outlined"
+                class="mt-4"
+              >
+            </v-text-field>
+
+            </v-form>   
+          <v-btn   
+            :disabled="!formDelegate"  
+            :color="cosmosConfig[store.setChainSelected].color"
+            @click="delegateNow()"
+            block
+          >
+            Delegate
+          </v-btn> 
+            </div>
+            <div v-if="step3" class="ma-8 text-center">
+              <v-progress-circular                
+                :size="100"
+                :width="5"
+                :color="cosmosConfig[store.setChainSelected].color"
+                indeterminate 
+                justify="center"
+              ></v-progress-circular>   
+            </div>
+            <div v-if="step4" class="ma-8 text-center">
+              <v-icon
+                size="150"
+                color="green darken-2"
+              >
+                mdi-check-circle-outline
+              </v-icon>  
+              <br /><br />
+               {{ txResult.transactionHash }} 
+            </div>       
+          </v-card-text>
+
+        </v-card>
+      </v-dialog> 
   </div>  
 </template>
 
@@ -674,6 +804,7 @@ import bech32 from "bech32";
 import { selectSigner } from "../libs/signer";
 import { BasicAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/feegrant";
 import { MsgGrantAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/tx";
+import { GenericAuthorization, GrantAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
 
 import { useAppStore } from '@/store/app'
 import cosmosConfig from '../cosmos.config' 
@@ -724,6 +855,7 @@ export default {
     dialogRemoveFeeGrant: false,
     dialogDelegate: false,
     dialogVote: false,
+    dialogAddAuthz: false,
     sendAmount: '',
     sendTo: '',
     delegateAmount: '',
@@ -785,16 +917,68 @@ export default {
       this.step2 = true;
       this.step3 = false;
       this.selectedValDel = item
-      this.delegateTo = this.selectedValDel.operator_address
- 
+      this.delegateTo = this.selectedValDel.operator_address 
+    },
+    openAddAuthz() {
+      this.step1 = true;
+      this.step2 = false;
+      this.step3 = false;
+      this.dialogAddAuthz = true      
     },
     openDelegate() {
       this.selectedValDel = ''
       this.step1 = true;
       this.step2 = false;
       this.step3 = false;
-      this.dialogDelegate = true
-      
+      this.dialogDelegate = true      
+    },
+    async sendAddAuthz () {
+        let signer = await selectSigner(this.store.setChainSelected)     
+
+        const foundMsgType = defaultRegistryTypes.find(
+          (element) =>
+            element[0] ===
+            "/cosmos.authz.v1beta1.MsgGrant"
+        ); 
+ 
+        const authzMsg = {
+          typeUrl: "/cosmos.authz.v1beta1.GenericAuthorization",
+          value: GenericAuthorization.fromPartial({
+            msg: '/cosmos.bank.v1beta1.MsgSend' 
+          }),
+        };
+
+        console.log(foundMsgType)
+
+        const finalMsg = {
+          typeUrl: foundMsgType[0],
+          value: foundMsgType[1].fromPartial({           
+            granter: signer.accounts[0].address,
+            grantee: 'bcna1sw8xa00s68szlyvgp8l2fzqj95w5gjm5auc3le',
+            grant: {
+              authorization: authzMsg
+            } 
+          }),
+        };
+        console.log(finalMsg)
+        
+        try {
+          const result = await signer.client.signAndBroadcast(
+            signer.accounts[0].address,
+            [finalMsg],
+            "auto",
+            ""
+          );
+          assertIsDeliverTxSuccess(result);
+          console.log(result) 
+          this.txResult = result
+          this.step2 = false;
+          this.step3 = true;
+        } catch (error) {
+          console.error(error); 
+          this.step2 = false;
+          this.step1 = true;
+        }
     },
     async delegateNow() {
       this.step1 = false;
