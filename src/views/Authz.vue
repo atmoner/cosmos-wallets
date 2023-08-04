@@ -23,6 +23,7 @@
             </template> 
           </v-data-table>
       </v-col>
+      <actionsModals type="addAuthz" /> 
     </v-row>
   </v-container>
 </template>
@@ -30,9 +31,11 @@
 <script>
 import { useAppStore } from '@/store/app'
 import cosmosConfig from '../cosmos.config'
+import actionsModals from '@/components/actionsModals.vue'
 
 export default {
   name: 'App', 
+  components: { actionsModals },
   data: () => ({
     cosmosConfig: cosmosConfig,
     headers: [
