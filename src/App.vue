@@ -374,7 +374,7 @@ export default {
       await this.store.getFeeGrantModule()
       await this.store.checkIsValidator()
       await this.store.getWalletAmount()
-      await this.store.getChainStats()
+      //await this.store.getChainStats()
       await this.store.getApr()
     },
     async keplrConnect() {

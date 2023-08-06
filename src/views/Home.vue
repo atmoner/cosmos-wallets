@@ -12,16 +12,17 @@
           sm="6"
         >
           <v-sheet class="text-h6 pa-2">
-            My Wallet value
+            RewardsByStaking <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}</strong> Yearly   
           </v-sheet>
         </v-col>
         <v-col
           cols="12"
           sm="6"
         >
-          <v-sheet class="text-right text-h6 pa-2">
-            ${{ formatNum(store.fiatWalletValue) }} 
+          <v-sheet class="text-right pa-2">
+            <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((store.totalDelegations * 18.90)/100) }}</strong>(${{ formatNum(((store.totalDelegations * 18.90)/100) * store.chainSelectedPrice) }})              
           </v-sheet>
+          
         </v-col>
 
       </v-row> 
@@ -49,78 +50,14 @@
             {{ formatNum(store.totalTokens) }} 
             <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
               {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-            </strong>            
+            </strong> / ${{ formatNum(store.totalTokens* store.chainSelectedPrice) }}           
           </v-sheet>
         </v-col>
 
       </v-row> 
     </v-sheet>
     </v-col>
-<!--     <v-col
-      v-if="store.isValidator"
-      cols="12"
-      sm="12"
-    >      
-        <v-sheet min-height="300" class="ma-2 pa-2" rounded="lg">      
-          <v-row no-gutters>
-            <v-col
-              cols="12"
-              sm="6"
-            >
-              <v-sheet class="text-h6 pa-2">
-                My Validator
-              </v-sheet>
-            </v-col>
-          </v-row>  
-          
-          <v-row>
-            <v-col
-              cols="12"
-              sm="6"
-            >
-              <v-sheet class="text-h6 pa-2">
-                <h3></h3>
- 
-                <v-table> 
-                  <tbody>
-                    <tr>
-                      <td>Moniker</td>
-                      <td>{{ store.myValidatorData?.validator.description.moniker }}</td>
-                    </tr>
-                    <tr>
-                      <td>Website</td>
-                      <td>{{ store.myValidatorData?.validator.description.website }}</td>
-                    </tr>
-                    <tr>
-                      <td>commission</td>
-                      <td>{{ store.myValidatorData?.validator.commission.commission_rates.rate * 100 }}%</td>
-                    </tr>
-                    <tr>
-                      <td>tokens</td>
-                      <td>{{ store.myValidatorData?.validator.tokens }}</td>
-                    </tr>
-                    <tr>
-                      <td>status</td>
-                      <td>{{ store.myValidatorData?.validator.status }}</td>
-                    </tr>
-                    
-                    
-                  </tbody>
-                </v-table>
-              </v-sheet>
-            </v-col>
-            <v-col
-              cols="12"
-              sm="6"
-            >
-              <v-sheet class="text-h6 pa-2">
-                {{ store.isValidator }}
-              </v-sheet>
-            </v-col>            
-          </v-row>
-          
-        </v-sheet>
-      </v-col> -->
+
       <v-col
         cols="12"
         sm="4"

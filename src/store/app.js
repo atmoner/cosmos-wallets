@@ -58,6 +58,7 @@ export const useAppStore = defineStore('app', {
     communityPool: 0,
     aprNow: 0,
     finalStats: {}
+
   }),
   actions: {
     resetData() {
@@ -133,7 +134,7 @@ export const useAppStore = defineStore('app', {
       const inflation = await axios(
         cosmosConfig[this.setChainSelected].apiURL + "/cosmos/mint/v1beta1/inflation"
       );
-  
+        
       let foundSupply = totalSupply.data.supply.find(
         (element) =>
           element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom
@@ -144,6 +145,7 @@ export const useAppStore = defineStore('app', {
         100
       ).toFixed(1);
       this.aprNow = finalApr
+      
       console.log('aprNow',this.aprNow)
       console.log('test', foundSupply.amount)
       // commit("setAprNow", finalApr);
@@ -338,7 +340,7 @@ export const useAppStore = defineStore('app', {
     async getChainStats() {  
 
       const inflation = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/mint/v1beta1/inflation') 
-      const totalSupply = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/bank/v1beta1/supply/ubcna') 
+      const totalSupply = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/bank/v1beta1/supply?pagination.reverse=true') 
       const communityPool = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/distribution/v1beta1/community_pool')      
 
       const querystaking = new staking.QueryClientImpl(this.rpcClient); 
