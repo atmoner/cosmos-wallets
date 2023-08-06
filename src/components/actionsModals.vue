@@ -1039,7 +1039,7 @@ export default {
           typeUrl: foundMsgType[0],
           value: foundMsgType[1].fromPartial({           
             granter: signer.accounts[0].address,
-            grantee: 'bcna1sw8xa00s68szlyvgp8l2fzqj95w5gjm5auc3le',
+            grantee: 'bcna1vu9utpwncwae87dfy6z8kl7dh4lz5403m6903d',
             grant: {
               authorization: authzMsg
             } 
