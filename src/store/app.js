@@ -55,6 +55,7 @@ export const useAppStore = defineStore('app', {
     totalTokens: 0,
     totalSupply: 0,
     totalSupplyPrice: 0,
+    totalChainSupply: 0,
     communityPool: 0,
     aprNow: 0,
     finalStats: {}
@@ -145,6 +146,7 @@ export const useAppStore = defineStore('app', {
         100
       ).toFixed(1);
       this.aprNow = finalApr
+      this.totalChainSupply = foundSupply.amount
       
       console.log('aprNow',this.aprNow)
       console.log('test', foundSupply.amount)
