@@ -189,11 +189,9 @@
                 <br>Total supply: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.totalSupply }} </strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
                 <br>Total supply price: $ <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.totalSupplyPrice }}</strong> 
                 <br>Totalsupplybonded: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.bondedTokens }}</strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-<<<<<<< HEAD
+
                 <br>Infaltion: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.finalInflation }}</strong> %
-=======
-                <br>Infaltion: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.finalStats.Inflation }}</strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
->>>>>>> 39b7d1dca1b7a6fd6397b67cd67c25ddfd162f52
+
               </v-sheet>              
             </v-col>
             
