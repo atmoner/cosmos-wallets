@@ -11,11 +11,21 @@
           > 
             <template v-slot:item="{ item }"> 
               <tr>
-                <td> {{ item.columns['authorization'].typeUrl }} </td>
-                <td> {{ item.columns['finaleAuthzType'].msg }} </td> 
+                <!-- <td> {{ item.columns['authorization'].typeUrl }} </td>
+                <td> {{ item.columns['finaleAuthzType'].msg }} </td>  -->
+                <td>  
+                  <v-chip
+                    class="ma-2"
+                    :color="cosmosConfig[store.setChainSelected].color"
+                    label
+                    text-color="white"
+                  >
+                    <v-icon start icon="mdi-label"></v-icon>
+                      {{ item.columns['finalData'].titleMsg }}
+                  </v-chip>                
+                </td> 
                 <td>{{ item.columns['grantee'] }}</td>
-                <td>{{ item.columns['granter'] }}</td>
-                <td>{{ item.columns['expiration'] }}</td>
+                <td>{{ item.columns['granter'] }}</td> 
                 
                 <td><actionsModals type="removeAuthz" :authZdata="item.columns" /></td>
                 
@@ -39,16 +49,10 @@ export default {
   data: () => ({
     cosmosConfig: cosmosConfig,
     headers: [
-      {
-        align: 'start',
-        key: 'authorization',
-        sortable: false,
-        title: 'Tx type', 
-      },
-      { key: 'finaleAuthzType', title: 'Authz' },
+      { key: 'finalData', title: 'Data' },
       { key: 'grantee', title: 'grantee' },
       { key: 'granter', title: 'granter' },  
-      { key: 'expiration', title: 'expiration' },
+      { key: '', title: 'Actions' },
     ], 
  
   }),

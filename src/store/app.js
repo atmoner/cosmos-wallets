@@ -9,6 +9,7 @@ import { buildQuery } from "@cosmjs/tendermint-rpc/build/tendermint37/requests.j
 import { decodeTxRaw } from "@cosmjs/proto-signing";
 import cosmosConfig from '../cosmos.config'
 import { setMsg } from "../libs/msgType";
+import { setAuthzMsg } from "../libs/msgAuthzType";
 
 
 import * as bank from "cosmjs-types/cosmos/bank/v1beta1/query"; 
@@ -247,6 +248,12 @@ export const useAppStore = defineStore('app', {
         console.log('Authz', queryAuthzResult.grants[i])
         console.log('Authz', GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)) 
         queryAuthzResult.grants[i].finaleAuthzType = GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)
+
+        
+
+        let finalsTxs = setAuthzMsg(queryAuthzResult.grants[i].finaleAuthzType); 
+        queryAuthzResult.grants[i].finalData = finalsTxs
+        console.log('finalsTxs', finalsTxs)
       }
       
       this.allAuthz = queryAuthzResult.grants
