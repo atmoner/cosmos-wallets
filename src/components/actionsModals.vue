@@ -85,8 +85,19 @@
       >mdi-vote-outline</v-icon>
       Add authZ 
     </v-btn>     
-    
 
+    <v-btn
+      v-if="type === 'removeAuthz'" 
+      variant="text"
+      @click="openRemoveAuthz"
+    >
+ 
+      <v-icon
+        size="large"
+        color="red darken-1" 
+      >mdi-account-multiple-remove-outline</v-icon>      
+    </v-btn> 
+    
 
     <v-dialog
         v-model="dialogSendTokens" 
@@ -375,7 +386,80 @@
           </v-btn> 
  
         </v-card>
-      </v-dialog>      
+      </v-dialog>  
+          
+      <v-dialog
+        v-model="dialogRemoveAuthz" 
+        width="500" 
+        transition="dialog-top-transition"
+        absolute
+      >
+        <v-card> 
+          <v-toolbar
+            color="rgba(0, 0, 0, 0)"
+            theme="dark"
+          >
+            <template v-slot:prepend>
+              <v-avatar>
+                  <v-img
+                    max-width="32"
+                    max-height="32"
+                    :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+            </template>
+
+            <v-toolbar-title class="text-h6">
+              Remove Authz
+            </v-toolbar-title>
+
+            <template v-slot:append>
+              <v-btn icon="mdi-close" @click="dialogRemoveAuthz = false"></v-btn>
+            </template>
+          </v-toolbar> 
+          <v-card-text>     
+            <div v-if="step1">
+             Soon
+            </div>
+ 
+            <div v-if="step2" class="ma-8 text-center">
+              <v-progress-circular                
+                :size="100"
+                :width="5"
+                :color="cosmosConfig[store.setChainSelected].color"
+                indeterminate 
+                justify="center"
+              ></v-progress-circular>   
+            </div>
+            <div v-if="step3" class="ma-8 text-center">
+              <v-icon
+                size="150"
+                color="green darken-2"
+              >
+                mdi-check-circle-outline
+              </v-icon>  
+              <br /><br />
+               {{ txResult.transactionHash }} 
+            </div>       
+          </v-card-text>
+ 
+          <!-- <v-btn 
+            v-if="step1"
+            disabled="true"
+            class="text-none ma-4"
+            :color="cosmosConfig[store.setChainSelected].color"
+            prepend-icon="mdi-export-variant" 
+            @click="sendFeeGrant()"
+            size="large"
+          >
+            Remove FeeGrant
+          </v-btn>  -->
+ 
+        </v-card>
+      </v-dialog> 
+      
+      
       <v-dialog
         v-model="dialogRemoveFeeGrant" 
         width="500" 
@@ -856,6 +940,7 @@ export default {
     dialogDelegate: false,
     dialogVote: false,
     dialogAddAuthz: false,
+    dialogRemoveAuthz: false,
     sendAmount: '',
     sendTo: '',
     delegateAmount: '',
@@ -943,9 +1028,9 @@ export default {
  
         const authzMsg = {
           typeUrl: "/cosmos.authz.v1beta1.GenericAuthorization",
-          value: GenericAuthorization.fromPartial({
-            msg: '/cosmos.bank.v1beta1.MsgSend' 
-          }),
+          value: GenericAuthorization.encode(GenericAuthorization.fromPartial({
+            msg: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward' 
+          })).finish(),
         };
 
         console.log(foundMsgType)
@@ -1294,6 +1379,12 @@ export default {
           this.step2 = false;
           this.step1 = true;
         }
+    },
+    openRemoveAuthz() {
+      this.dialogRemoveAuthz = true
+      this.step1 = true;
+      this.step2 = false;
+      this.step3 = false;
     },
     openRemoveFeeGrant() {
       this.dialogRemoveFeeGrant = true

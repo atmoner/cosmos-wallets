@@ -8,16 +8,16 @@
             :headers="headers"
             :items="store.allAuthz"
             :search="search"
-          >
+          > 
             <template v-slot:item="{ item }"> 
               <tr>
-                <td> {{ item.columns['authorization'].typeUrl }}
-                </td> 
+                <td> {{ item.columns['authorization'].typeUrl }} </td>
+                <td> {{ item.columns['finaleAuthzType'].msg }} </td> 
                 <td>{{ item.columns['grantee'] }}</td>
                 <td>{{ item.columns['granter'] }}</td>
                 <td>{{ item.columns['expiration'] }}</td>
                 
-                <td></td>
+                <td><actionsModals type="removeAuthz" /></td>
                 
               </tr>
             </template> 
@@ -45,6 +45,7 @@ export default {
         sortable: false,
         title: 'Tx type', 
       },
+      { key: 'finaleAuthzType', title: 'Authz' },
       { key: 'grantee', title: 'grantee' },
       { key: 'granter', title: 'granter' },  
       { key: 'expiration', title: 'expiration' },

@@ -10,12 +10,14 @@ import { decodeTxRaw } from "@cosmjs/proto-signing";
 import cosmosConfig from '../cosmos.config'
 import { setMsg } from "../libs/msgType";
 
+
 import * as bank from "cosmjs-types/cosmos/bank/v1beta1/query"; 
 import * as staking from "cosmjs-types/cosmos/staking/v1beta1/query";
 import * as distrib from "cosmjs-types/cosmos/distribution/v1beta1/query";
 import * as gov from "cosmjs-types/cosmos/gov/v1beta1/query";
 import * as authz from "cosmjs-types/cosmos/authz/v1beta1/query";
 import * as feegrant from "cosmjs-types/cosmos/feegrant/v1beta1/query";
+import { GenericAuthorization, GrantAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
 
 export const useAppStore = defineStore('app', {
   state: () => ({ 
@@ -214,6 +216,15 @@ export const useAppStore = defineStore('app', {
     async getAuthzModule() { 
       const queryAuthz = new authz.QueryClientImpl(this.rpcClient);      
       const queryAuthzResult = await queryAuthz.GranterGrants({ granter: this.addrWallet });  
+
+      // console.log('Authz', queryAuthzResult)
+
+      for (let i = 0; i < queryAuthzResult.grants.length; i++) {
+        console.log('Authz', queryAuthzResult.grants[i])
+        console.log('Authz', GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)) 
+        queryAuthzResult.grants[i].finaleAuthzType = GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)
+      }
+      
       this.allAuthz = queryAuthzResult.grants
     }, 
     async getFeeGrantModule() { 
