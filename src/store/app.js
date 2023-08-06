@@ -10,12 +10,14 @@ import { decodeTxRaw } from "@cosmjs/proto-signing";
 import cosmosConfig from '../cosmos.config'
 import { setMsg } from "../libs/msgType";
 
+
 import * as bank from "cosmjs-types/cosmos/bank/v1beta1/query"; 
 import * as staking from "cosmjs-types/cosmos/staking/v1beta1/query";
 import * as distrib from "cosmjs-types/cosmos/distribution/v1beta1/query";
 import * as gov from "cosmjs-types/cosmos/gov/v1beta1/query";
 import * as authz from "cosmjs-types/cosmos/authz/v1beta1/query";
 import * as feegrant from "cosmjs-types/cosmos/feegrant/v1beta1/query";
+import { GenericAuthorization, GrantAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
 
 export const useAppStore = defineStore('app', {
   state: () => ({ 
@@ -54,6 +56,8 @@ export const useAppStore = defineStore('app', {
     totalSupply: 0,
     totalSupplyPrice: 0,
     communityPool: 0,
+    aprNow: 0,
+    finalStats: {}
   }),
   actions: {
     resetData() {
@@ -121,6 +125,28 @@ export const useAppStore = defineStore('app', {
         "https://api.coingecko.com/api/v3/simple/price?ids=" + allChainPrice + "&vs_currencies=usd"  
       ); 
       this.allPrice = allPrice.data
+    },
+    async getApr() {
+      const totalSupply = await axios(
+        cosmosConfig[this.setChainSelected].apiURL + "/cosmos/bank/v1beta1/supply?pagination.reverse=true"
+      );
+      const inflation = await axios(
+        cosmosConfig[this.setChainSelected].apiURL + "/cosmos/mint/v1beta1/inflation"
+      );
+  
+      let foundSupply = totalSupply.data.supply.find(
+        (element) =>
+          element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom
+      );
+      
+      let finalApr = (
+        ((foundSupply.amount * inflation.data.inflation) / this.finalStats.bondedTokens) *
+        100
+      ).toFixed(1);
+      this.aprNow = finalApr
+      console.log('aprNow',this.aprNow)
+      console.log('test', foundSupply.amount)
+      // commit("setAprNow", finalApr);
     },
     async setChainPrice() {
       const foundPrice = this.allPrice[cosmosConfig[this.setChainSelected].coingeckoId] 
@@ -214,6 +240,15 @@ export const useAppStore = defineStore('app', {
     async getAuthzModule() { 
       const queryAuthz = new authz.QueryClientImpl(this.rpcClient);      
       const queryAuthzResult = await queryAuthz.GranterGrants({ granter: this.addrWallet });  
+
+      // console.log('Authz', queryAuthzResult)
+
+      for (let i = 0; i < queryAuthzResult.grants.length; i++) {
+        console.log('Authz', queryAuthzResult.grants[i])
+        console.log('Authz', GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)) 
+        queryAuthzResult.grants[i].finaleAuthzType = GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)
+      }
+      
       this.allAuthz = queryAuthzResult.grants
     }, 
     async getFeeGrantModule() { 
@@ -302,11 +337,11 @@ export const useAppStore = defineStore('app', {
     },
     async getChainStats() {  
 
-      const inflation = await axios('https://lcd.bitcanna.io/cosmos/mint/v1beta1/inflation') 
-      const totalSupply = await axios('https://lcd.bitcanna.io/cosmos/bank/v1beta1/supply/ubcna') 
-      const communityPool = await axios('https://lcd.bitcanna.io/cosmos/distribution/v1beta1/community_pool')      
+      const inflation = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/mint/v1beta1/inflation') 
+      const totalSupply = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/bank/v1beta1/supply/ubcna') 
+      const communityPool = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/distribution/v1beta1/community_pool')      
 
-      const querystaking = new staking.QueryClientImpl(state.rpcClient); 
+      const querystaking = new staking.QueryClientImpl(this.rpcClient); 
       let allValidators = await querystaking.Validators({ status: 'BOND_STATUS_BONDED' }); 
       let tokenBounded = 0
       for (let i = 0; i < allValidators.validators.length; i++) {
@@ -327,7 +362,8 @@ export const useAppStore = defineStore('app', {
         communityPool: finalCommunityPool
       }
       console.log(finalStats)
-       
+      this.finalStats = finalStats
+      console.log(this.finalStats)
       // commit('updateChainsStats', finalStats)
     }, 
     /*async getTransactions() { 

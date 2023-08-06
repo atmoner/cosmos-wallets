@@ -1,6 +1,35 @@
 <template> 
   <v-row no-gutters>
-    
+    <v-col
+        cols="12"
+        sm="4"
+      >
+        <v-sheet border class="ma-2 pa-2" rounded="lg">
+          <v-row no-gutters>
+            <v-col
+              cols="12"
+              sm="6"
+            >
+              <v-sheet class="text-h6 pa-2">
+                Price
+              </v-sheet>
+            </v-col> 
+          </v-row>      
+          <v-row no-gutters>  
+            <v-col
+              cols="12"
+              sm="12"
+              class="text-end"
+            >
+              <v-sheet class="pa-2">
+                
+ $ <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.chainSelectedPrice }}</strong>
+              </v-sheet>              
+            </v-col>
+          </v-row>  
+        
+        </v-sheet>
+      </v-col>
       <v-col
         cols="12"
         sm="4"
@@ -23,10 +52,9 @@
               class="text-end"
             >
               <v-sheet class="pa-2">
-                {{ store.totalDelegations }} 
-                <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
-                  {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-                </strong>
+                
+                <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ parseFloat(store.totalDelegations) }}</strong>   {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
+                 / $ <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ parseFloat(store.totalDelegations) * store.chainSelectedPrice }}</strong>
               </v-sheet>              
             </v-col>
           </v-row>  
@@ -55,11 +83,10 @@
               class="text-end"
             >
               <v-sheet class="pa-2">
-                {{ store.totalRewards }} 
-                <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
-                  {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-                </strong>
-              </v-sheet>              
+              <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ parseFloat(store.totalRewards) }}</strong>
+                {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }} / $ <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.totalRewards * store.chainSelectedPrice }}</strong>              
+              </v-sheet>
+                           
             </v-col>
           </v-row>  
         </v-sheet>
@@ -75,7 +102,8 @@
               sm="6"
             >
               <v-sheet class="text-h6 pa-2">
-                My total delegations
+                My total delegations: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
+                 {{ store.totalMyValidators }} </strong> 
               </v-sheet>
             </v-col> 
           </v-row> 
@@ -86,10 +114,9 @@
               class="text-end"
             >
               <v-sheet class="pa-2">
-                {{ store.totalMyValidators }} 
-                <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
-                  Delegations
-                </strong>
+               
+                 Name supply vote
+                
               </v-sheet>              
             </v-col>
           </v-row>  
@@ -162,7 +189,11 @@
                 <br>Total supply: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.totalSupply }} </strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
                 <br>Total supply price: $ <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.totalSupplyPrice }}</strong> 
                 <br>Totalsupplybonded: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.bondedTokens }}</strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
+<<<<<<< HEAD
                 <br>Infaltion: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.finalInflation }}</strong> %
+=======
+                <br>Infaltion: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.finalStats.Inflation }}</strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
+>>>>>>> 39b7d1dca1b7a6fd6397b67cd67c25ddfd162f52
               </v-sheet>              
             </v-col>
             
@@ -174,7 +205,7 @@
       cols="12"
       sm="12"
     >
-    Total validators {{ store.countAllValidators }}
+    
     <v-table class="ma-2 pa-2" rounded="lg" style="border-radius: 7px;">
       
       <thead class="">
