@@ -17,7 +17,7 @@
                 <td>{{ item.columns['granter'] }}</td>
                 <td>{{ item.columns['expiration'] }}</td>
                 
-                <td><actionsModals type="removeAuthz" /></td>
+                <td><actionsModals type="removeAuthz" :authZdata="item.columns" /></td>
                 
               </tr>
             </template> 

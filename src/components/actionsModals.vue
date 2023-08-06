@@ -420,7 +420,21 @@
           </v-toolbar> 
           <v-card-text>     
             <div v-if="step1">
-             Soon
+
+             <v-table theme="dark">
+ 
+              <tbody>
+                <tr>
+                  <td>AuthZ type</td>
+                  <td>{{ authZdata.finaleAuthzType.msg }}</td>
+                </tr>
+                <tr>
+                  <td>From grantee</td>
+                  <td>{{ authZdata.grantee }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+
             </div>
  
             <div v-if="step2" class="ma-8 text-center">
@@ -444,17 +458,16 @@
             </div>       
           </v-card-text>
  
-          <!-- <v-btn 
-            v-if="step1"
-            disabled="true"
+          <v-btn 
+            v-if="step1" 
             class="text-none ma-4"
             :color="cosmosConfig[store.setChainSelected].color"
             prepend-icon="mdi-export-variant" 
-            @click="sendFeeGrant()"
+            @click="sendRemoveAuthz()"
             size="large"
           >
-            Remove FeeGrant
-          </v-btn>  -->
+            Remove this authZ
+          </v-btn>
  
         </v-card>
       </v-dialog> 
@@ -783,12 +796,19 @@
           </v-toolbar> 
           <v-card-text>     
             <div v-if="step1">
-              Add authZ
-
               <v-select
-                label="Select"
-                :items="['Generic', 'send', 'delegate', 'unbond', 'redelegate']"
-              ></v-select>    
+                v-model="selectedAuhz"
+                label="Select authz"
+                :items="['Send', 'Delegate', 'Unbond', 'Redelegate', 'Vote', 'MultiSend']"
+                variant="outlined"  
+              ></v-select>  
+              <v-text-field
+                v-model="authzSendGrantee" 
+                :rules="[rules.required, rules.bech32]" 
+                label="Gantee address"
+                placeholder="Enter address"
+                variant="outlined"  
+              />
             </div>
             <v-btn 
               v-if="step1"
@@ -889,6 +909,7 @@ import { selectSigner } from "../libs/signer";
 import { BasicAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/feegrant";
 import { MsgGrantAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/tx";
 import { GenericAuthorization, GrantAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
+import { MsgRevoke } from "cosmjs-types/cosmos/authz/v1beta1/tx";
 
 import { useAppStore } from '@/store/app'
 import cosmosConfig from '../cosmos.config' 
@@ -928,11 +949,12 @@ function converteToValidator(address) {
 
 export default {
   name: 'App', 
-  props: ['type', 'chain', 'spendableBalances', 'propData'],
+  props: ['type', 'chain', 'spendableBalances', 'propData', 'authZdata'],
   data: (store) => ({
     cosmosConfig: cosmosConfig,
     dialog: false,
     type: store.type,
+    selectedAuhz: '',
     gasFee: 0,
     dialogSendTokens: false,
     dialogFeeGrant: false,
@@ -951,6 +973,7 @@ export default {
     amountFeeGrant: '',
     feeAllowancesFrom: '',
     selectedValDel: '',
+    authzSendGrantee: '',
     rules: {
       required: value => !!value || 'Required.',
       checkAmount: value => value <= store.spendableBalances || ' Not enough funds, you need: ' + store.spendableBalances,
@@ -1017,6 +1040,42 @@ export default {
       this.step3 = false;
       this.dialogDelegate = true      
     },
+    async sendRemoveAuthz() {
+      let signer = await selectSigner(this.store.setChainSelected)     
+
+      const foundMsgType = defaultRegistryTypes.find(
+        (element) =>
+          element[0] ===
+          "/cosmos.authz.v1beta1.MsgRevoke"
+      );  
+      const finalMsg = {
+        typeUrl: foundMsgType[0],
+        value: MsgRevoke.fromPartial({           
+          granter: this.authZdata.granter,
+          grantee: this.authZdata.grantee,
+          msgTypeUrl: this.authZdata.finaleAuthzType.msg
+        }),
+      };
+      
+
+      try {
+        const result = await signer.client.signAndBroadcast(
+          signer.accounts[0].address,
+          [finalMsg],
+          "auto",
+          ""
+        );
+        assertIsDeliverTxSuccess(result);
+        console.log(result) 
+        this.txResult = result
+        this.step2 = false;
+        this.step3 = true;
+      } catch (error) {
+        console.error(error); 
+        this.step2 = false;
+        this.step1 = true;
+      } 
+    },
     async sendAddAuthz () {
         let signer = await selectSigner(this.store.setChainSelected)     
 
@@ -1026,20 +1085,43 @@ export default {
             "/cosmos.authz.v1beta1.MsgGrant"
         ); 
  
+        console.log(defaultRegistryTypes)
+        let finalType = ''
+        switch (this.selectedAuhz) {
+          case 'Send':
+            finalType = '/cosmos.bank.v1beta1.MsgSend'
+            break;
+          case 'Delegate':
+            finalType = '/cosmos.staking.v1beta1.MsgDelegate'
+            break;
+          case 'Unbond':
+            finalType = '/cosmos.staking.v1beta1.MsgUndelegate'
+            break;
+          case 'Redelegate':
+            finalType = '/cosmos.staking.v1beta1.MsgBeginRedelegate'
+            break;   
+          case 'Vote':
+            finalType = '/cosmos.gov.v1beta1.MsgVote'
+            break;                                          
+          case 'MultiSend':
+            finalType = '/cosmos.bank.v1beta1.MsgMultiSend'
+            break; 
+          default:
+            break;
+        }
+
         const authzMsg = {
           typeUrl: "/cosmos.authz.v1beta1.GenericAuthorization",
           value: GenericAuthorization.encode(GenericAuthorization.fromPartial({
-            msg: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward' 
+            msg: finalType
           })).finish(),
         };
-
-        console.log(foundMsgType)
 
         const finalMsg = {
           typeUrl: foundMsgType[0],
           value: foundMsgType[1].fromPartial({           
             granter: signer.accounts[0].address,
-            grantee: 'bcna1vu9utpwncwae87dfy6z8kl7dh4lz5403m6903d',
+            grantee: this.authzSendGrantee,
             grant: {
               authorization: authzMsg
             } 
