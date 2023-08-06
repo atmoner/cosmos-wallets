@@ -77,6 +77,10 @@ export function setMsg(data, timestamp, txhash, all) {
       titleMsg = "Undelegate"
       //console.log(finalData)
       break;
+    case "/cosmos.staking.v1beta1.MsgUndelegate":
+      titleMsg = "Undelegate"
+      //console.log(finalData)
+      break;      
     case "/cosmos.gov.v1beta1.MsgVote":
         titleMsg = "Voting" 
         finalData = {
@@ -136,11 +140,14 @@ export function setMsg(data, timestamp, txhash, all) {
         }, 
       };
       break;    
-    case "/gitopia.gitopia.gitopia.MsgCreateRepository":  
-      titleMsg = "Create Repository"
+    case "/cosmos.authz.v1beta1.MsgGrant":  
+      titleMsg = "Authz Grant"
       //console.log(finalData)
       break;    
-      
+    case "/cosmos.authz.v1beta1.MsgRevoke":  
+      titleMsg = "Authz Revoke"
+      //console.log(finalData)
+      break;       
       
     default:
       console.log("Sorry, dont know " + finalType + ".");

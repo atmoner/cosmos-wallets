@@ -426,11 +426,11 @@
               <tbody>
                 <tr>
                   <td>AuthZ type</td>
-                  <td>{{ authZdata.finaleAuthzType.msg }}</td>
+                  <td>{{ authZdata.finalData.titleMsg }}</td>
                 </tr>
                 <tr>
                   <td>From grantee</td>
-                  <td>{{ authZdata.grantee }}</td>
+                  <td>{{ truncate(authZdata.grantee) }}</td>
                 </tr>
               </tbody>
             </v-table>
@@ -819,53 +819,8 @@
               size="large"  
             />
             
-            <div v-if="step2" class="ma-2 ">
-              <!-- {{ selectedValDel }} -->
-
-
-              <v-form 
-              v-model="formDelegate" 
-              ref="formDelegate"
-            > 
-              <v-text-field
-                v-model="delegateAmount" 
-                :rules="[rules.required, rules.checkAmount]"
-                class="mb-4 mt-2" 
-                label="Amount to delegate"
-                placeholder="Enter amount"
-                variant="outlined" 
-              >
-              <template #append-inner>
-                <v-chip
-                  label
-                  small
-                  @click="getMax"
-                >
-                  Max
-                </v-chip>
-              </template>
-            </v-text-field>
-
-              <v-text-field
-                v-model="delegateTo"  
-                label="Address to delegate"
-                placeholder="Enter address"
-                variant="outlined"
-                class="mt-4"
-              >
-            </v-text-field>
-
-            </v-form>   
-          <v-btn   
-            :disabled="!formDelegate"  
-            :color="cosmosConfig[store.setChainSelected].color"
-            @click="delegateNow()"
-            block
-          >
-            Delegate
-          </v-btn> 
-            </div>
-            <div v-if="step3" class="ma-8 text-center">
+ 
+            <div v-if="step2" class="ma-8 text-center">
               <v-progress-circular                
                 :size="100"
                 :width="5"
@@ -874,7 +829,7 @@
                 justify="center"
               ></v-progress-circular>   
             </div>
-            <div v-if="step4" class="ma-8 text-center">
+            <div v-if="step3" class="ma-8 text-center">
               <v-icon
                 size="150"
                 color="green darken-2"
@@ -1041,19 +996,22 @@ export default {
       this.dialogDelegate = true      
     },
     async sendRemoveAuthz() {
+      this.step1 = false;
+      this.step2 = true;
+
       let signer = await selectSigner(this.store.setChainSelected)     
 
       const foundMsgType = defaultRegistryTypes.find(
         (element) =>
           element[0] ===
           "/cosmos.authz.v1beta1.MsgRevoke"
-      );  
+      );   
       const finalMsg = {
         typeUrl: foundMsgType[0],
         value: MsgRevoke.fromPartial({           
           granter: this.authZdata.granter,
           grantee: this.authZdata.grantee,
-          msgTypeUrl: this.authZdata.finaleAuthzType.msg
+          msgTypeUrl: this.authZdata.finalData.finalType
         }),
       };
       
@@ -1067,6 +1025,7 @@ export default {
         );
         assertIsDeliverTxSuccess(result);
         console.log(result) 
+        await this.store.getAuthzModule()
         this.txResult = result
         this.step2 = false;
         this.step3 = true;
@@ -1077,6 +1036,8 @@ export default {
       } 
     },
     async sendAddAuthz () {
+      this.step1 = false;
+      this.step2 = true;
         let signer = await selectSigner(this.store.setChainSelected)     
 
         const foundMsgType = defaultRegistryTypes.find(
@@ -1138,9 +1099,11 @@ export default {
           );
           assertIsDeliverTxSuccess(result);
           console.log(result) 
+          await this.store.getAuthzModule()
           this.txResult = result
           this.step2 = false;
           this.step3 = true;
+          
         } catch (error) {
           console.error(error); 
           this.step2 = false;
@@ -1528,9 +1491,22 @@ export default {
           this.step2 = false;
           this.step1 = true;
         }
-
-
     },
+    truncate(
+      fullStr,
+      strLen = 16,
+      separator = ".........",
+      frontChars = 8,
+      backChars = 8
+    ) {
+      if (fullStr.length <= strLen) return fullStr;
+
+      return (
+        fullStr.substr(0, frontChars) +
+        separator +
+        fullStr.substr(fullStr.length - backChars)
+      );
+    }    
   }
 }   
 </script>

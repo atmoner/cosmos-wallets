@@ -24,6 +24,9 @@ export function setAuthzMsg(data) {
     case "/cosmos.staking.v1beta1.MsgUndelegate":
       titleMsg = "Undelegate"
       break; 
+    case "/cosmos.bank.v1beta1.MsgMultiSend":
+      titleMsg = "Multi Send"
+      break; 
 
     // Gitopia msg
     case "/gitopia.gitopia.gitopia.MsgAddRepositoryBackupRef":

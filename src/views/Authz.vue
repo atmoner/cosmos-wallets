@@ -24,8 +24,9 @@
                       {{ item.columns['finalData'].titleMsg }}
                   </v-chip>                
                 </td> 
+                <td>Me</td> 
                 <td>{{ item.columns['grantee'] }}</td>
-                <td>{{ item.columns['granter'] }}</td> 
+                
                 
                 <td><actionsModals type="removeAuthz" :authZdata="item.columns" /></td>
                 
@@ -33,8 +34,9 @@
             </template> 
           </v-data-table>
       </v-col>
-      <actionsModals type="addAuthz" /> 
+     
     </v-row>
+    <actionsModals type="addAuthz" /> 
   </v-container>
 </template>
  
@@ -50,8 +52,9 @@ export default {
     cosmosConfig: cosmosConfig,
     headers: [
       { key: 'finalData', title: 'Data' },
-      { key: 'grantee', title: 'grantee' },
+
       { key: 'granter', title: 'granter' },  
+      { key: 'grantee', title: 'grantee' },
       { key: '', title: 'Actions' },
     ], 
  
