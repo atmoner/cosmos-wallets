@@ -55,7 +55,6 @@ export const useAppStore = defineStore('app', {
     totalTokens: 0,
     totalSupply: 0,
     totalSupplyPrice: 0,
-    totalChainSupply: 0,
     communityPool: 0,
     aprNow: 0,
     finalStats: {}
@@ -135,21 +134,22 @@ export const useAppStore = defineStore('app', {
       const inflation = await axios(
         cosmosConfig[this.setChainSelected].apiURL + "/cosmos/mint/v1beta1/inflation"
       );
-        
+      const boundedsupply = await axios(
+        cosmosConfig[this.setChainSelected].apiURL + "/cosmos/staking/v1beta1/pool"
+      );
+
       let foundSupply = totalSupply.data.supply.find(
         (element) =>
           element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom
       );
       
       let finalApr = (
-        ((foundSupply.amount * inflation.data.inflation) / this.finalStats.bondedTokens) *
-        100
-      ).toFixed(1);
+        ((this.totalSupplyPrice * this.finalStats.inflation) / boundedsupply.data.pool.bonded_tokens) * 100
+      );
       this.aprNow = finalApr
-      this.totalChainSupply = foundSupply.amount
-      
+      console.log ('boundedsupply.data.pool.bonded_tokens',boundedsupply.data.pool.bonded_tokens)
       console.log('aprNow',this.aprNow)
-      console.log('test', foundSupply.amount)
+      //console.log('test', foundSupply.amount)
       // commit("setAprNow", finalApr);
     },
     async setChainPrice() {
@@ -164,7 +164,7 @@ export const useAppStore = defineStore('app', {
         Number(this.totalUnbound) + 
         Number(this.totalRewards)
 
-      console.log('totalToken', totalToken)
+      //console.log('totalToken', totalToken)
       this.totalTokens = (totalToken).toFixed(6)
       this.fiatWalletValue = totalToken * this.chainSelectedPrice
     },
@@ -182,7 +182,7 @@ export const useAppStore = defineStore('app', {
         returnValue = 0
       }
 
-      console.log(allBalances)
+      //console.log(allBalances)
 
       let totalSupply = await queryBank.SupplyOf({ denom: cosmosConfig[this.setChainSelected].coinLookup.chainDenom }) 
       this.spendableBalances = returnValue 
@@ -198,8 +198,8 @@ export const useAppStore = defineStore('app', {
         limit: Long.fromNumber(200, true),
         reverse: false,
       }}); 
-      console.log(queryStaking)
-      console.log(delegatorValidators)
+      //console.log(queryStaking)
+      //console.log(delegatorValidators)
       let total = 0;  
       let allUnbound = await queryStaking.DelegatorUnbondingDelegations({ delegatorAddr: this.addrWallet });       
       let totalUnbound = 0;
@@ -342,9 +342,9 @@ export const useAppStore = defineStore('app', {
     async getChainStats() {  
 
       const inflation = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/mint/v1beta1/inflation') 
-      const totalSupply = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/bank/v1beta1/supply?pagination.reverse=true') 
+      const totalSupply = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/bank/v1beta1/supply') 
       const communityPool = await axios(cosmosConfig[this.setChainSelected].apiURL + '/cosmos/distribution/v1beta1/community_pool')      
-
+      //const boundedtokens = await axios(cosmosConfig[this.setChainSelected].apiURL + 'cosmos/staking/v1beta1/pool') 
       const querystaking = new staking.QueryClientImpl(this.rpcClient); 
       let allValidators = await querystaking.Validators({ status: 'BOND_STATUS_BONDED' }); 
       let tokenBounded = 0
@@ -354,20 +354,22 @@ export const useAppStore = defineStore('app', {
       }
 
       let finalInflation = inflation.data.inflation * 100
-      let finalTotalSupply = totalSupply.data.amount.amount / 1000000
+      let finalTotalSupply = totalSupply.data.amount / 1000000
       let finalCommunityPool = communityPool.data.pool[0].amount / 1000000
       let finalBondedTokens = tokenBounded / 1000000
-      
+      //let bouncetokens = data.bonded_tokens
+
       let finalStats = {
         inflation: finalInflation,
         totalSupply: finalTotalSupply,
         bondedTokens: finalBondedTokens,
         notBondedTokens: finalTotalSupply - finalBondedTokens,
-        communityPool: finalCommunityPool
+        communityPool: finalCommunityPool,
+        //bouncetokens: supply,
       }
-      console.log(finalStats)
+      //console.log(finalStats)
       this.finalStats = finalStats
-      console.log(this.finalStats)
+      //console.log(this.finalStats)
       // commit('updateChainsStats', finalStats)
     }, 
     /*async getTransactions() { 

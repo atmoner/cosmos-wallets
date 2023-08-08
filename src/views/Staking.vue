@@ -189,8 +189,9 @@
                 <br>Total supply: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.totalSupply) }} </strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
                 <br>Total supply price: $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.totalSupplyPrice) }}</strong> 
               <br> APR: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.aprNow)}}</strong> %
-              <br> Inflation: {{ store.finalApr}} %
-              </v-sheet>              
+              <br> Inflation:  <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.finalStats.inflation) }}</strong> %
+              <br> Bounded: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.finalStats.bondedTokens) }}</strong>   
+            </v-sheet>              
             </v-col>
             
           </v-row>  

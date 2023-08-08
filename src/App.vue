@@ -88,7 +88,7 @@
         >
         <div class="d-flex flex-column fill-height justify-center align-center text-white">
           <h1 class="text-h4 mb-4">
-            {{ cosmosConfig[store.setChainSelected].name }}
+            {{ cosmosConfig[store.setChainSelected].name }} 
           </h1>
           <!-- <h4 class="subheading">
             Build your application today!
@@ -130,7 +130,8 @@
                   <v-sheet class="ma-2 pa-2" rounded="lg">
                     {{ store.nameWallet.name }}
                     {{ this.truncateString(store.addrWallet, 15) }}
-                  </v-sheet>
+                    
+                  </v-sheet>          
                 </v-col>
               </v-row>
             </v-sheet>
@@ -374,7 +375,7 @@ export default {
       await this.store.getFeeGrantModule()
       await this.store.checkIsValidator()
       await this.store.getWalletAmount()
-      //await this.store.getChainStats()
+      await this.store.getChainStats()
       await this.store.getApr()
     },
     async keplrConnect() {

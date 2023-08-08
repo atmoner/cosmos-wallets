@@ -11,7 +11,7 @@
           cols="12"
           sm="6"
         >
-          <v-sheet class="text-h6 pa-2">
+          <v-sheet class="text-h6 pa-2 text-left">
             RewardsByStaking <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}</strong> Yearly   
           </v-sheet>
         </v-col>
@@ -19,7 +19,7 @@
           cols="12"
           sm="6"
         >
-          <v-sheet class="text-right pa-2">
+          <v-sheet class="text-h6 text-right pa-2">
             <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((store.totalDelegations * 18.90)/100) }}</strong>(${{ formatNum(((store.totalDelegations * 18.90)/100) * store.chainSelectedPrice) }})              
           </v-sheet>
           
@@ -64,11 +64,13 @@
       > 
         <v-sheet border min-height="400" class="ma-2 pa-2" rounded="lg">
           <v-sheet class="text-h6 pa-2">
-                Wallet distridution
+                Wallet & Actions 
                 
               
               <div class="text-right">
-
+                Price:<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
+                    ${{ formatNum(store?.chainSelectedPrice) }}
+                  </strong>
                 </div></v-sheet>
                 <v-divider />
           <v-row no-gutters>
@@ -113,12 +115,7 @@
             >
               <v-sheet class="pa-2 mt-4 mb-4">
                 ${{ (store.fiatWalletValue).toFixed(3) }} 
-                <!-- (
-                  <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
-                    ${{ formatNum(store?.chainSelectedPrice) }}
-                  </strong>
-                  
-                ) -->
+                 
               </v-sheet>
               <v-sheet class="pa-2">
                 {{ formatNum(store.spendableBalances) }} 
@@ -172,7 +169,7 @@
               sm="6"
             >
               <v-sheet class="text-h6 pa-2">
-                Wallet distridution
+                Klackos qui sert à rien 
               </v-sheet>
             </v-col> 
           </v-row>   
