@@ -344,8 +344,8 @@ export default {
       await this.store.getAuthzModule()
       await this.store.getFeeGrantModule()
       await this.store.checkIsValidator()
-      await this.store.getChainStats()
-      await this.store.getApr()
+      //await this.store.getChainStats()
+      //await this.store.getApr()
 
       //await this.store.getAllPrice()
     })
@@ -374,8 +374,8 @@ export default {
       await this.store.getFeeGrantModule()
       await this.store.checkIsValidator()
       await this.store.getWalletAmount()
-      await this.store.getChainStats()
-      await this.store.getApr()
+      //await this.store.getChainStats()
+      //await this.store.getApr()
     },
     async keplrConnect() {
       await this.store.keplrConnect()
@@ -393,8 +393,8 @@ export default {
       await this.store.checkIsValidator()
       await this.store.setChainPrice()
       await this.store.getWalletAmount()
-      await this.store.getChainStats()
-      await this.store.getApr()
+      //await this.store.getChainStats()
+      //await this.store.getApr()
     },
     addNewChain() {
       console.log('addNewChain')

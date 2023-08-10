@@ -171,6 +171,12 @@
                 </v-chip>
               </template>            
             </v-text-field>
+            <v-select
+              v-model="finalFeeGranter" 
+              label="Select fee granter" 
+              :items="store.formFeeGranter"
+              variant="outlined"
+            ></v-select>         
             <!-- <h4 v-if="store.myFeeAllowances.length > 0"> Fee </h4>  
             <v-select
               v-model="feeAllowancesFrom" 
@@ -929,6 +935,7 @@ export default {
     feeAllowancesFrom: '',
     selectedValDel: '',
     authzSendGrantee: '',
+    finalFeeGranter: '',
     rules: {
       required: value => !!value || 'Required.',
       checkAmount: value => value <= store.spendableBalances || ' Not enough funds, you need: ' + store.spendableBalances,
@@ -958,7 +965,7 @@ export default {
   watch: { 
   },
   mounted() {
- 
+
   },
   computed: {
 
@@ -967,6 +974,7 @@ export default {
 
     getMax() {
       this.sendAmount = this.store.spendableBalances
+      this.delegateAmount = this.store.spendableBalances
     },
     setAddress() {
       this.sendTo = this.store.addrWallet
@@ -1126,22 +1134,27 @@ export default {
           );
           console.log(foundMsgType)
           
-/*           const amount = coins(this.sendAmount * 1000000, cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom);
+          //const amount = coins(this.delegateAmount * 1000000, cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom);
+ 
+          const finalAmount =  {
+              denom: cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom,
+              amount: (this.delegateAmount * 1000000).toString(),
+          }
           const finalMsg = {
           typeUrl: foundMsgType[0],
             value: foundMsgType[1].fromPartial({
-              fromAddress: signer.accounts[0].address,
-              toAddress: this.sendTo,
-              amount: amount,
+              delegatorAddress: signer.accounts[0].address,
+              validatorAddress: this.delegateTo,
+              amount: finalAmount,
             }),
           }     
-          console.log('sendTx', finalMsg)
+          console.log('delegateTx', finalMsg)
 
           // Fee/Gas
           const gasEstimation = await signer.client.simulate(
             signer.accounts[0].address,
             [finalMsg],
-            'Send Tokens'
+            'Delegate Tokens'
           ); 
           const usedFee = calculateFee(
             Math.round(gasEstimation * cosmosConfig[this.store.setChainSelected].feeMultiplier),
@@ -1170,7 +1183,7 @@ export default {
           console.error(error); 
           this.step2 = false;
           this.step1 = true;
-        } */
+        }
       }
 
     },
@@ -1289,7 +1302,7 @@ export default {
           let finalFee = {
             amount: feeAmount,
             gas: usedFee.gas,
-            granter: this.feeAllowancesFrom,
+            granter: this.finalFeeGranter,
           }
           console.log(finalFee) 
         try {          

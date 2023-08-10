@@ -46,6 +46,7 @@ export const useAppStore = defineStore('app', {
     allProposals: [], 
     allAuthz: [],
     myFeeAllowances: [],
+    formFeeGranter: '',
     myFeeGrants: [],
     isValidator: false,
     myValidatorData: null,
@@ -101,13 +102,9 @@ export const useAppStore = defineStore('app', {
         cosmosConfig[this.setChainSelected].apiURL +
           "/cosmos/base/tendermint/v1beta1/node_info"
       );
-
-      console.log(getSdk.data.application_version.build_deps);
-      
       for (let i of getSdk.data.application_version.build_deps) {
         let position = i.path.search("ibc-go");
         if (position !== -1) {
-          console.log(i)
           this.ibcVersion = i.version
         }
         
@@ -145,13 +142,10 @@ export const useAppStore = defineStore('app', {
         100
       ).toFixed(1);
       this.aprNow = finalApr
-      console.log('aprNow',this.aprNow)
-      console.log('test', foundSupply.amount)
       // commit("setAprNow", finalApr);
     },
     async setChainPrice() {
       const foundPrice = this.allPrice[cosmosConfig[this.setChainSelected].coingeckoId] 
-      console.log('setPricechain', foundPrice.usd)
       this.chainSelectedPrice = foundPrice.usd
     },
     async getWalletAmount() {
@@ -161,7 +155,6 @@ export const useAppStore = defineStore('app', {
         Number(this.totalUnbound) + 
         Number(this.totalRewards)
 
-      console.log('totalToken', totalToken)
       this.totalTokens = (totalToken).toFixed(6)
       this.fiatWalletValue = totalToken * this.chainSelectedPrice
     },
@@ -179,8 +172,6 @@ export const useAppStore = defineStore('app', {
         returnValue = 0
       }
 
-      console.log(allBalances)
-
       let totalSupply = await queryBank.SupplyOf({ denom: cosmosConfig[this.setChainSelected].coinLookup.chainDenom }) 
       this.spendableBalances = returnValue 
       this.totalSupply = totalSupply.amount.amount 
@@ -195,8 +186,7 @@ export const useAppStore = defineStore('app', {
         limit: Long.fromNumber(200, true),
         reverse: false,
       }}); 
-      console.log(queryStaking)
-      console.log(delegatorValidators)
+
       let total = 0;  
       let allUnbound = await queryStaking.DelegatorUnbondingDelegations({ delegatorAddr: this.addrWallet });       
       let totalUnbound = 0;
@@ -245,15 +235,10 @@ export const useAppStore = defineStore('app', {
       // console.log('Authz', queryAuthzResult)
 
       for (let i = 0; i < queryAuthzResult.grants.length; i++) {
-        console.log('Authz', queryAuthzResult.grants[i])
-        console.log('Authz', GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)) 
-        queryAuthzResult.grants[i].finaleAuthzType = GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)
-
-        
+        queryAuthzResult.grants[i].finaleAuthzType = GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)       
 
         let finalsTxs = setAuthzMsg(queryAuthzResult.grants[i].finaleAuthzType); 
         queryAuthzResult.grants[i].finalData = finalsTxs
-        console.log('finalsTxs', finalsTxs)
       }
       
       this.allAuthz = queryAuthzResult.grants
@@ -264,7 +249,15 @@ export const useAppStore = defineStore('app', {
       const queryAllowancesByGranterResult = await queryFeegrant.AllowancesByGranter({ granter: this.addrWallet });  
       this.myFeeAllowances = queryFeegrantResult.allowances 
       this.myFeeGrants = queryAllowancesByGranterResult.allowances
+      console.log('myFeeAllowances', this.myFeeAllowances)
 
+      let finalGranter = []
+      for (let i = 0; i < this.myFeeAllowances.length; i++) {
+        
+        finalGranter[i] = this.myFeeAllowances[i].granter    
+      }
+      console.log(finalGranter)  
+      this.formFeeGranter = finalGranter
     }, 
     async getAllProps() {
       // List of proposal from the blockchain
@@ -368,9 +361,7 @@ export const useAppStore = defineStore('app', {
         notBondedTokens: finalTotalSupply - finalBondedTokens,
         communityPool: finalCommunityPool
       }
-      console.log(finalStats)
       this.finalStats = finalStats
-      console.log(this.finalStats)
       // commit('updateChainsStats', finalStats)
     }, 
     /*async getTransactions() { 
@@ -486,7 +477,6 @@ export const useAppStore = defineStore('app', {
       const offlineSigner = await window.getOfflineSignerAuto(chainId);
       const accounts = await offlineSigner.getAccounts();
       const getKey = await window.keplr.getKey(chainId);
-      console.log('addr: '+accounts[0].address)
       this.addrWallet = accounts[0].address
       this.nameWallet = getKey
       this.isLogged = true
