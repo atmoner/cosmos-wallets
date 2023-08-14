@@ -29,3 +29,9 @@ export async function selectSigner(chain) {
 
   return { client, accounts };
 }
+
+export async function calculFee(msg) { 
+  // calcul Fee
+
+  return { msg };
+}

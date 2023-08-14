@@ -22,11 +22,13 @@
     <v-btn
       v-if="type === 'delegate'" 
       variant="text"
+      :color="cosmosConfig[store.setChainSelected].color"
       @click="openDelegate"
     >
       <v-icon
         size="large" 
         class="mr-2"
+        :color="cosmosConfig[store.setChainSelected].color"
       >mdi-upload</v-icon>
       Delegate  
     </v-btn> 
@@ -171,12 +173,6 @@
                 </v-chip>
               </template>            
             </v-text-field>
-            <v-select
-              v-model="finalFeeGranter" 
-              label="Select fee granter" 
-              :items="store.formFeeGranter"
-              variant="outlined"
-            ></v-select>         
             <!-- <h4 v-if="store.myFeeAllowances.length > 0"> Fee </h4>  
             <v-select
               v-model="feeAllowancesFrom" 
@@ -185,8 +181,52 @@
               :items="['', store.myFeeAllowances[0].granter]"
               variant="outlined"
             ></v-select> -->
-            </v-form>    
-            <div v-if="step2" class="ma-8 text-center">
+            </v-form>   
+            <div v-if="step2">
+            <v-row>
+              <v-col>
+                <v-sheet class="pa-2" border>                                 
+                  <v-row>
+                    <v-col>
+                      <v-sheet class="pa-2 ma-2">
+                        Fee
+                      </v-sheet>
+                    </v-col>
+                    <v-col>
+                      <v-sheet class="pa-2 ma-2">
+                        {{ gasFee.fee }}
+                      </v-sheet>
+                    </v-col>
+                  </v-row>                  
+                </v-sheet>
+              </v-col>
+              <v-col>
+                <v-sheet class="pa-2" border>
+                  <v-row>
+                    <v-col>
+                      <v-sheet class="pa-2 ma-2">
+                        Gas
+                      </v-sheet>
+                    </v-col>
+                    <v-col>
+                      <v-sheet class="pa-2 ma-2">
+                         {{ gasFee.gas }}
+                      </v-sheet>
+                    </v-col>
+                  </v-row>  
+                  
+                </v-sheet>
+              </v-col>
+            </v-row>   
+            <br />
+            <span v-if="store.myFeeAllowances.length > 0" class="mt-4">Select your fee payer</span>   
+            <v-sheet v-if="store.myFeeAllowances.length > 0" class="mt-4 pa-2" border>     
+              <v-radio-group v-model="finalFeeGranter" >
+                <v-radio v-for="addr in store.formFeeGranter" :label="truncate(addr)" :value="addr"></v-radio>
+              </v-radio-group> 
+            </v-sheet> 
+          </div> 
+            <div v-if="step3" class="ma-8 text-center">
               <v-progress-circular                
                 :size="100"
                 :width="5"
@@ -195,7 +235,7 @@
                 justify="center"
               ></v-progress-circular>   
             </div>
-            <div v-if="step3" class="ma-8 text-center">
+            <div v-if="step4" class="ma-8 text-center">
               <v-icon
                 size="150"
                 color="green darken-2"
@@ -206,9 +246,18 @@
                {{ txResult.transactionHash }} 
             </div>
           </v-card-text>
- 
           <v-btn 
             v-if="step1"
+            class="text-none ml-6 mr-6 mb-4"
+            :disabled="!formSend"
+            :color="cosmosConfig[store.setChainSelected].color" 
+            @click="calculateSendFee()"
+            size="large"
+          >
+            Check fee
+          </v-btn> 
+          <v-btn 
+            v-if="step2"
             class="text-none ml-6 mr-6 mb-4"
             :disabled="!formSend"
             :color="cosmosConfig[store.setChainSelected].color" 
@@ -866,7 +915,7 @@ import {
 } from "@cosmjs/proto-signing";
 import bech32 from "bech32";
 
-import { selectSigner } from "../libs/signer";
+import { selectSigner, calculFee } from "../libs/signer";
 import { BasicAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/feegrant";
 import { MsgGrantAllowance } from "cosmjs-types/cosmos/feegrant/v1beta1/tx";
 import { GenericAuthorization, GrantAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
@@ -946,6 +995,7 @@ export default {
     step1: true,
     step2: false,
     step3: false,
+    step4: false,
     txResult: '',
     voteList: [
         { title: 'Yes', flex: 5 },
@@ -1123,6 +1173,8 @@ export default {
       this.step2 = true;
 
       if (this.delegateNow) { 
+        this.step2 = false
+        this.step3 = true
         console.log(this.delegateAmount)
         console.log(this.delegateTo)
         
@@ -1177,12 +1229,12 @@ export default {
           assertIsDeliverTxSuccess(result)
           console.log(result)
           this.txResult = result
-          this.step2 = false;
-          this.step3 = true;
+          this.step3 = false;
+          this.step4 = true;
         } catch (error) {
           console.error(error); 
-          this.step2 = false;
-          this.step1 = true;
+          this.step3 = false;
+          this.step2 = true;
         }
       }
 
@@ -1254,13 +1306,56 @@ export default {
       this.dialogSendTokens = true
       this.sendAmount = ''
       this.sendTo = ''
+      this.step1 = true;
+      this.step2 = false;
+      this.step3 = false;
+      this.step4 = false;
     },
-    async sendNow() {
+    async calculateSendFee () {
       this.step1 = false;
       this.step2 = true;
+      let signer = await selectSigner(this.store.setChainSelected)
 
-      const { valid } = await this.$refs.formSend.validate()
-      console.log(valid)
+      const foundMsgType = defaultRegistryTypes.find(
+        (element) =>
+          element[0] ===
+            "/cosmos.bank.v1beta1.MsgSend"
+      );
+          
+        const amount = coins(1 * 1000000, cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom);
+        const finalMsg = {
+        typeUrl: foundMsgType[0],
+          value: foundMsgType[1].fromPartial({
+            fromAddress: signer.accounts[0].address,
+            toAddress: signer.accounts[0].address,
+            amount: amount,
+          }),
+        }     
+        console.log('sendTx', finalMsg)
+
+        // Fee/Gas
+        const gasEstimation = await signer.client.simulate(
+          signer.accounts[0].address,
+          [finalMsg],
+          'Send Tokens'
+        ); 
+        const usedFee = calculateFee(
+          Math.round(gasEstimation * cosmosConfig[this.store.setChainSelected].feeMultiplier),
+          GasPrice.fromString(
+            cosmosConfig[this.store.setChainSelected].gasPrice +
+              cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom
+          )
+        );
+        this.gasFee = { fee: (usedFee.amount[0].amount / 1000000), gas: usedFee.gas };
+
+
+    },
+    async sendNow() {
+      this.step2 = false;
+      this.step3 = true;
+
+      //const { valid } = await this.$refs.formSend.validate()
+      //console.log(valid)
       if (this.formSend) { 
         console.log(this.sendAmount)
         console.log(this.sendTo)
@@ -1310,12 +1405,12 @@ export default {
           assertIsDeliverTxSuccess(result)
           console.log(result)
           this.txResult = result
-          this.step2 = false;
-          this.step3 = true;
+          this.step3 = false;
+          this.step4 = true;
         } catch (error) {
           console.error(error); 
-          this.step2 = false;
-          this.step1 = true;
+          this.step3 = false;
+          this.step2 = true;
         }
       }
 

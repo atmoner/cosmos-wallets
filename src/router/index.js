@@ -123,6 +123,16 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/allChains',
+    children: [
+      {
+        path: '',
+        name: 'AllChains',
+        component: () => import('@/views/AllChains.vue'),
+      },
+    ],
+  },
   
 ]
 

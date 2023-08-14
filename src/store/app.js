@@ -236,7 +236,6 @@ export const useAppStore = defineStore('app', {
 
       for (let i = 0; i < queryAuthzResult.grants.length; i++) {
         queryAuthzResult.grants[i].finaleAuthzType = GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)       
-
         let finalsTxs = setAuthzMsg(queryAuthzResult.grants[i].finaleAuthzType); 
         queryAuthzResult.grants[i].finalData = finalsTxs
       }
@@ -248,20 +247,17 @@ export const useAppStore = defineStore('app', {
       const queryFeegrantResult = await queryFeegrant.Allowances({ grantee: this.addrWallet }); 
       const queryAllowancesByGranterResult = await queryFeegrant.AllowancesByGranter({ granter: this.addrWallet });  
       this.myFeeAllowances = queryFeegrantResult.allowances 
-      this.myFeeGrants = queryAllowancesByGranterResult.allowances
-      console.log('myFeeAllowances', this.myFeeAllowances)
+      this.myFeeGrants = queryAllowancesByGranterResult.allowances 
 
       let finalGranter = []
       for (let i = 0; i < this.myFeeAllowances.length; i++) {
         
         finalGranter[i] = this.myFeeAllowances[i].granter    
-      }
-      console.log(finalGranter)  
+      } 
       this.formFeeGranter = finalGranter
     }, 
     async getAllProps() {
-      // List of proposal from the blockchain
-      console.log(this.sdkVersion.substring(0,5))
+      // List of proposal from the blockchain 
       let finalVersion = 'v1beta1'
       if(this.sdkVersion.substring(0,5) === 'v0.47') {        
         finalVersion = 'v1'
@@ -273,9 +269,41 @@ export const useAppStore = defineStore('app', {
         cosmosConfig[this.setChainSelected].apiURL + '/cosmos/distribution/v1beta1/community_pool'
       ); 
 
-      let finalPool = communityPool.data.pool.find(element => element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom)
+      
 
-      this.allProposals = allProposals.data.proposals.reverse();
+      let finalPool = communityPool.data.pool.find(element => element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom)
+      let allProps = allProposals.data.proposals.reverse();
+
+      let finalProps = []
+      allProps.forEach(element => {        
+        if(finalVersion === 'v1') {
+          finalProps.push({ 
+            proposal_id: element.id,
+            title: element.title,
+            status: element.status,
+            final_tally_result: {
+              yes: element.final_tally_result.yes_count,
+              no: element.final_tally_result.no_count,
+              no_with_veto: element.final_tally_result.no_with_veto_count,
+              abstain: element.final_tally_result.abstain_count,
+            }
+          })
+        } else {
+          finalProps.push({ 
+            proposal_id: element.proposal_id,
+            title: element.content.title,
+            status: element.status,
+            final_tally_result: {
+              yes: element.final_tally_result.yes,
+              no: element.final_tally_result.no,
+              no_with_veto: element.final_tally_result.no_with_veto,
+              abstain: element.final_tally_result.abstain,
+            }
+          })
+        }        
+      });
+
+      this.allProposals = finalProps;
       this.communityPool = finalPool?.amount / 1000000     
     },
     async getHomeProps() {
@@ -287,13 +315,102 @@ export const useAppStore = defineStore('app', {
       const allProposals = await axios(
         cosmosConfig[this.setChainSelected].apiURL + '/cosmos/gov/'+finalVersion+'/proposals?pagination.limit=12&pagination.reverse=true'
       ) 
-      this.allHomeProposals = allProposals.data.proposals ;
+      let allProps = allProposals.data.proposals.reverse();
+      let finalProps = []
+      allProps.forEach(element => {        
+        if(finalVersion === 'v1') {
+          finalProps.push({ 
+            proposal_id: element.id,
+            title: element.title,
+            status: element.status,
+            final_tally_result: {
+              yes: element.final_tally_result.yes_count,
+              no: element.final_tally_result.no_count,
+              no_with_veto: element.final_tally_result.no_with_veto_count,
+              abstain: element.final_tally_result.abstain_count,
+            }
+          })
+        } else {
+          finalProps.push({ 
+            proposal_id: element.proposal_id,
+            title: element.content.title,
+            status: element.status,
+            final_tally_result: {
+              yes: element.final_tally_result.yes,
+              no: element.final_tally_result.no,
+              no_with_veto: element.final_tally_result.no_with_veto,
+              abstain: element.final_tally_result.abstain,
+            }
+          })
+        }        
+      });
+      
+      this.allHomeProposals = finalProps;
     },
     async getProposalId(id) {
+      let finalVersion = 'v1beta1'
+      if(this.sdkVersion.substring(0,5) === 'v0.47') {        
+        finalVersion = 'v1'
+      } 
       const getPropoId = await axios(
-        cosmosConfig[this.setChainSelected].apiURL + '/cosmos/gov/v1beta1/proposals/' + id
+        cosmosConfig[this.setChainSelected].apiURL + '/cosmos/gov/'+finalVersion+'/proposals/' + id
       ); 
-      return getPropoId.data.proposal
+
+      let finalDataPropId = getPropoId.data.proposal
+
+
+
+      
+
+      let finalProp = []
+      if(finalVersion === 'v1') {
+        let typeMsg = ''
+        if (finalDataPropId.messages[0]['@type'] !== '/cosmos.gov.v1.MsgExecLegacyContent') {
+            typeMsg = finalDataPropId.messages[0]['@type']
+        } else {
+          typeMsg = finalDataPropId.messages[0].content['@type']
+
+        }
+            
+
+        finalProp = { 
+          proposal_id: finalDataPropId.id,
+          type: typeMsg,
+          title: finalDataPropId.title,
+          description: finalDataPropId.summary,
+          status: finalDataPropId.status,
+          deposit_end_time: finalDataPropId.deposit_end_time,
+          submit_time: finalDataPropId.submit_time,
+          voting_end_time: finalDataPropId.voting_end_time,
+          voting_start_time: finalDataPropId.voting_start_time,
+          final_tally_result: {
+            yes: finalDataPropId.final_tally_result.yes_count,
+            no: finalDataPropId.final_tally_result.no_count,
+            no_with_veto: finalDataPropId.final_tally_result.no_with_veto_count,
+            abstain: finalDataPropId.final_tally_result.abstain_count,
+          }
+        }
+      } else {
+        finalProp = { 
+          proposal_id: finalDataPropId.proposal_id,
+          type: finalDataPropId.content['@type'],
+          title: finalDataPropId.content.title,
+          description: finalDataPropId.content.description,
+          status: finalDataPropId.status,
+          deposit_end_time: finalDataPropId.deposit_end_time,
+          submit_time: finalDataPropId.submit_time,
+          voting_end_time: finalDataPropId.voting_end_time,
+          voting_start_time: finalDataPropId.voting_start_time,
+          final_tally_result: {
+            yes: finalDataPropId.final_tally_result.yes,
+            no: finalDataPropId.final_tally_result.no,
+            no_with_veto: finalDataPropId.final_tally_result.no_with_veto,
+            abstain: finalDataPropId.final_tally_result.abstain,
+          }
+        }
+      } 
+      //return getPropoId.data.proposal
+      return finalProp
     },
     async getProposalIdVote(id) {
       const getPropoIdVote = await axios(

@@ -9,7 +9,6 @@
       >
       <router-link tag="li" style="text-decoration: none; color: inherit;" :to="'/proposal/' + n.proposal_id">
  
-
         <v-sheet border class="ma-2 pa-2" rounded="lg">          
           <v-row no-gutters>
             <v-col
@@ -21,7 +20,7 @@
                   class="d-inline-block text-truncate"
                   style="max-width: 300px;" 
                 >
-                #{{ n.proposal_id }} - {{ n.content.title }} 
+                #{{ n.proposal_id }} - {{ n.title }} 
                 </span>
                 
               </v-sheet>
@@ -44,6 +43,17 @@
               class="text-end"
             >
               <v-sheet class="pa-2"> 
+                <v-chip
+                v-if="n.status === 'PROPOSAL_STATUS_VOTING_PERIOD'" 
+                  color="orange"
+                  text-color="white"
+                  label
+                >
+                  <v-icon class="mr-1">
+                    mdi-checkbox-marked-circle
+                  </v-icon>
+                  PROPOSAL VOTING PERIOD
+                </v-chip> 
                 <v-chip
                 v-if="n.status === 'PROPOSAL_STATUS_PASSED'" 
                   color="green"

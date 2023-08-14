@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@babel/parser@^7.18.4":
+  version "7.22.10"
+  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.22.10.tgz#e37634f9a12a1716136c44624ef54283cabd3f55"
+  integrity sha512-lNbdGsQb9ekfsnjFGhEiF4hfFqGgfOP3H3d27re3n+CGhNuTSUEQdfWk556sTLNTloczcdM5TYF2LhzmDQKyvQ==
+
 "@babel/parser@^7.20.15", "@babel/parser@^7.21.3":
   version "7.22.5"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.22.5.tgz#721fd042f3ce1896238cf1b341c77eb7dee7dbea"
@@ -436,6 +441,15 @@
     "@vue/compiler-core" "3.3.4"
     "@vue/shared" "3.3.4"
 
+"@vue/compiler-sfc@2.7.14":
+  version "2.7.14"
+  resolved "https://registry.yarnpkg.com/@vue/compiler-sfc/-/compiler-sfc-2.7.14.tgz#3446fd2fbb670d709277fc3ffa88efc5e10284fd"
+  integrity sha512-aNmNHyLPsw+sVvlQFQ2/8sjNuLtK54TC6cuKnVzAY93ks4ZBrvwQSnkkIh7bsbNhum5hJBS00wSDipQ937f5DA==
+  dependencies:
+    "@babel/parser" "^7.18.4"
+    postcss "^8.4.14"
+    source-map "^0.6.1"
+
 "@vue/compiler-sfc@3.3.4":
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/@vue/compiler-sfc/-/compiler-sfc-3.3.4.tgz#b19d942c71938893535b46226d602720593001df"
@@ -742,7 +756,7 @@ cssesc@^3.0.0:
   resolved "https://registry.yarnpkg.com/cssesc/-/cssesc-3.0.0.tgz#37741919903b868565e1c09ea747445cd18983ee"
   integrity sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==
 
-csstype@^3.1.1, csstype@latest:
+csstype@^3.1.0, csstype@^3.1.1, csstype@latest:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/csstype/-/csstype-3.1.2.tgz#1d4bf9d572f11c14031f0436e1c10bc1f571f50b"
   integrity sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==
@@ -1605,6 +1619,15 @@ postcss@^8.1.10, postcss@^8.4.23:
     picocolors "^1.0.0"
     source-map-js "^1.0.2"
 
+postcss@^8.4.14:
+  version "8.4.27"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.27.tgz#234d7e4b72e34ba5a92c29636734349e0d9c3057"
+  integrity sha512-gY/ACJtJPSmUFPDCHtX78+01fHa64FaU4zaaWfuh1MhGJISufJAH4cun6k/8fwsHYeK4UQmENQK+tRLCFJE8JQ==
+  dependencies:
+    nanoid "^3.3.6"
+    picocolors "^1.0.0"
+    source-map-js "^1.0.2"
+
 prelude-ls@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
@@ -1734,6 +1757,11 @@ shebang-regex@^3.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.0.2.tgz#adbc361d9c62df380125e7f161f71c826f1e490c"
   integrity sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==
+
+source-map@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
+  integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
 
 strip-ansi@^6.0.1:
   version "6.0.1"
@@ -1913,6 +1941,21 @@ vue3-markdown-it@^1.0.10:
     markdown-it-task-lists "^2.1.1"
     markdown-it-toc-done-right "^4.2.0"
 
+vue3trend@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/vue3trend/-/vue3trend-1.0.0.tgz#821065cd4d5edd12be750b98f9a92b8ef5538320"
+  integrity sha512-gMfhZed4cBUXnQ29Rk/TaqfVkfF6vJRMZ/B/DA4GeW9xi1u1KYyJ0agpS6x6RVVp4ekGWGaFRP+RIbktWKWEaw==
+  dependencies:
+    vue "^2.6.14"
+
+vue@^2.6.14:
+  version "2.7.14"
+  resolved "https://registry.yarnpkg.com/vue/-/vue-2.7.14.tgz#3743dcd248fd3a34d421ae456b864a0246bafb17"
+  integrity sha512-b2qkFyOM0kwqWFuQmgd4o+uHGU7T+2z3T+WQp8UBjADfEv2n4FEMffzBmCKNP0IGzOEEfYjvtcC62xaSKeQDrQ==
+  dependencies:
+    "@vue/compiler-sfc" "2.7.14"
+    csstype "^3.1.0"
+
 vue@^3.0.0, vue@^3.2.0:
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.3.4.tgz#8ed945d3873667df1d0fcf3b2463ada028f88bd6"
@@ -1928,6 +1971,11 @@ vuetify@^3.0.0:
   version "3.3.5"
   resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-3.3.5.tgz#b927214d106122240e79f4d65e49bfec0e86e189"
   integrity sha512-vkfPgPmKfSJa+jq6Ov+CTg7L1t2jLPKa7Slef9OrVHcLqg+gLuIj0z4PJE6E9HjFTUbgZShShOGxps52REJRIA==
+
+vuetrend@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/vuetrend/-/vuetrend-0.3.4.tgz#35e1dafb0f7cf4d66f69e289ee7028b9e12783d9"
+  integrity sha512-UaOJhMnkoiRBlGB9k2FX5GqotJyoyYUpyTAjfBiB7K5ESt3KzRoaplfG7j7SAnH4ITk4DjVDC9WB2IX80TVYmQ==
 
 webfontloader@^1.0.0:
   version "1.6.28"
