@@ -18,7 +18,7 @@ export default [
     explorerUrl: 'https://www.mintscan.io/cosmos/txs/',
     coingeckoId: 'cosmos',
     color: "#0091EA",
-    colorChart: ["#20212b", "#2E3148", "#0091EA", "#004d38"],
+    colorChart: ['#20212b', '#2E3148', '#0091EA', '#004d38'],
     modules: {
       feeGrant: true,
       authz: true,
@@ -203,7 +203,7 @@ export default [
       wasm: false,
     }
   },
-  {
+/*   {
     chainId: 'dydx-testnet-1',
     name: 'DYdX Testnet',
     slot: "dydx",
@@ -227,5 +227,5 @@ export default [
       authz: true,
       wasm: false,
     }
-  },
+  }, */
 ]

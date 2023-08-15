@@ -95,12 +95,16 @@
           </h4> -->
         </div>
       </v-img>
+      
       <v-container>
 
-
-        <v-row v-if="store.isLogged" class="mt-4" >
+        <v-breadcrumbs
+              :items="breadcrumbsItems"
+              divider="-"
+            ></v-breadcrumbs>
+        <v-row v-if="store.isLogged" > 
           <v-col
-            v-if="currentPage !== 'txDetail'"
+            v-if="viewLeftMenu"
             cols="12"
             sm="2"
           >
@@ -134,6 +138,34 @@
                 </v-col>
               </v-row>
             </v-sheet>
+            <v-sheet
+              border
+              rounded="lg"
+              class="mb-4 mt-2"
+            >
+              <v-row no-gutters>
+                <v-col
+                  cols="12"
+                  sm="3"
+                >
+                  <v-sheet class="mt-3 ma-2 pa-2" rounded="lg">
+                    <v-avatar>
+                      <actionsModals type="delegatorWithdrawAddress" /> 
+                    </v-avatar>
+                  </v-sheet>
+                </v-col>
+                <v-col
+                  cols="12"
+                  sm="9"
+                >
+                  <v-sheet class="ma-2 pa-2" rounded="lg">
+                    Withdraw Address 
+                    {{ this.truncateString(store.myDelegatorWithdrawAddress, 15) }} 
+                  </v-sheet>
+                </v-col>
+              </v-row>
+            </v-sheet>            
+            
             <v-sheet
               border
               rounded="lg"
@@ -187,7 +219,17 @@
             >
 
               <v-list rounded="lg">
-                <span class="ma-4 text-h6 ">Select chain</span>
+                <span class="ma-4 text-h6">Select chain</span>
+                <v-list-item to="/allchains">
+                  <template v-slot:prepend>
+                    <v-icon
+                      class="ml-2"
+                      size="large" 
+                      icon="mdi-border-all"
+                    ></v-icon>                   
+                  </template>                  
+                  All chains
+                </v-list-item>
                 <v-list-item
                   v-model="chainSelected"
                   v-for="(item, i) in cosmosConfig"
@@ -229,8 +271,10 @@
 
           <v-col
             cols="12"
-            :sm="currentPage === 'txDetail' ? '12' : '10'"
+            :sm="currentPageSize"
           >
+
+
              <router-view />
           </v-col>
         </v-row>
@@ -247,16 +291,31 @@ import { useTheme } from 'vuetify'
 import { useAppStore } from '@/store/app'
 import cosmosConfig from './cosmos.config'
 import Login from '@/components/Login.vue'
+import actionsModals from '@/components/actionsModals.vue'
 
 
 export default {
   name: 'App',
-  components: { Login },
+  components: { Login, actionsModals },
   data: () => ({
       cosmosConfig: cosmosConfig,
       chainSelected: 0,
       currentPage: '',
+      currentPageSize: 10, 
       finalLinks: [],
+      viewLeftMenu: true,
+      breadcrumbsItems: [
+        {
+          title: 'Dashboard',
+          disabled: false,
+          to: '/',
+        },
+        {
+          title: 'All chains',
+          disabled: true,
+          to: '',
+        }
+      ],
       links: [
         {
           title: 'Dashboard',
@@ -320,6 +379,19 @@ export default {
       //console.log(to)
       //console.log(from)
       this.currentPage = to.name
+      if(
+        to.name === 'txDetail' || 
+        to.name === 'Proposal' ||
+        to.name === 'AllChains'
+      ) {
+        this.viewLeftMenu = false
+        this.currentPageSize = 12
+        this.breadcrumbsItems[1].title = this.currentPage
+      } else {
+        this.viewLeftMenu = true
+        this.currentPageSize = 10
+        this.breadcrumbsItems[1].title = this.currentPage
+      }
     }
 
   },
@@ -344,8 +416,8 @@ export default {
       await this.store.getAuthzModule()
       await this.store.getFeeGrantModule()
       await this.store.checkIsValidator()
-      await this.store.getChainStats()
-      await this.store.getApr()
+      //await this.store.getChainStats()
+      //await this.store.getApr()
 
       //await this.store.getAllPrice()
     })
@@ -374,8 +446,8 @@ export default {
       await this.store.getFeeGrantModule()
       await this.store.checkIsValidator()
       await this.store.getWalletAmount()
-      await this.store.getChainStats()
-      await this.store.getApr()
+      //await this.store.getChainStats()
+      //await this.store.getApr()
     },
     async keplrConnect() {
       await this.store.keplrConnect()
@@ -393,8 +465,8 @@ export default {
       await this.store.checkIsValidator()
       await this.store.setChainPrice()
       await this.store.getWalletAmount()
-      await this.store.getChainStats()
-      await this.store.getApr()
+      //await this.store.getChainStats()
+      //await this.store.getApr()
     },
     addNewChain() {
       console.log('addNewChain')

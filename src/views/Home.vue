@@ -1,10 +1,11 @@
 <template> 
+
   <v-row no-gutters>
     <v-col
       cols="12"
       sm="6"
     >    
-    
+
     <v-sheet border class="ma-2 pa-2" rounded="lg">
       <v-row no-gutters>
         <v-col
@@ -315,7 +316,7 @@
                 >
                   <template v-slot:prepend>
                     <v-avatar size="32" :color="grey">
-                      <v-icon>mdi-upload</v-icon>
+                      <v-icon :color="cosmosConfig[store.setChainSelected].color">mdi-upload</v-icon>
                     </v-avatar>
                   </template>
                   <template v-slot:append>
@@ -479,7 +480,7 @@
               <v-list-item
                 v-for="item in store.allHomeProposals"
                 :key="item.proposal_id"
-                :title="'#' + item.proposal_id + ' ' + item.content.title"
+                :title="'#' + item.proposal_id + ' ' + item.title"
                 :subtitle="item.description"  
               />
             </v-list>

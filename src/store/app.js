@@ -9,6 +9,7 @@ import { buildQuery } from "@cosmjs/tendermint-rpc/build/tendermint37/requests.j
 import { decodeTxRaw } from "@cosmjs/proto-signing";
 import cosmosConfig from '../cosmos.config'
 import { setMsg } from "../libs/msgType";
+import { setAuthzMsg } from "../libs/msgAuthzType";
 
 
 import * as bank from "cosmjs-types/cosmos/bank/v1beta1/query"; 
@@ -28,6 +29,7 @@ export const useAppStore = defineStore('app', {
     ibcVersion: '',
     addrWallet: '',
     nameWallet: '',
+    allHomeProposals: [],
     spendableBalances: 0,
     totalDelegations: 0,
     totalUnbound: 0,
@@ -45,6 +47,7 @@ export const useAppStore = defineStore('app', {
     allProposals: [], 
     allAuthz: [],
     myFeeAllowances: [],
+    formFeeGranter: '',
     myFeeGrants: [],
     isValidator: false,
     myValidatorData: null,
@@ -57,7 +60,9 @@ export const useAppStore = defineStore('app', {
     totalSupplyPrice: 0,
     communityPool: 0,
     aprNow: 0,
-    finalStats: {}
+    finalStats: {},
+    myDelegatorWithdrawAddress: '',
+    finalAllaWalletsData: []
   }),
   actions: {
     resetData() {
@@ -100,13 +105,9 @@ export const useAppStore = defineStore('app', {
         cosmosConfig[this.setChainSelected].apiURL +
           "/cosmos/base/tendermint/v1beta1/node_info"
       );
-
-      console.log(getSdk.data.application_version.build_deps);
-      
       for (let i of getSdk.data.application_version.build_deps) {
         let position = i.path.search("ibc-go");
         if (position !== -1) {
-          console.log(i)
           this.ibcVersion = i.version
         }
         
@@ -144,13 +145,10 @@ export const useAppStore = defineStore('app', {
         100
       ).toFixed(1);
       this.aprNow = finalApr
-      console.log('aprNow',this.aprNow)
-      console.log('test', foundSupply.amount)
       // commit("setAprNow", finalApr);
     },
     async setChainPrice() {
       const foundPrice = this.allPrice[cosmosConfig[this.setChainSelected].coingeckoId] 
-      console.log('setPricechain', foundPrice.usd)
       this.chainSelectedPrice = foundPrice.usd
     },
     async getWalletAmount() {
@@ -160,7 +158,6 @@ export const useAppStore = defineStore('app', {
         Number(this.totalUnbound) + 
         Number(this.totalRewards)
 
-      console.log('totalToken', totalToken)
       this.totalTokens = (totalToken).toFixed(6)
       this.fiatWalletValue = totalToken * this.chainSelectedPrice
     },
@@ -178,8 +175,6 @@ export const useAppStore = defineStore('app', {
         returnValue = 0
       }
 
-      console.log(allBalances)
-
       let totalSupply = await queryBank.SupplyOf({ denom: cosmosConfig[this.setChainSelected].coinLookup.chainDenom }) 
       this.spendableBalances = returnValue 
       this.totalSupply = totalSupply.amount.amount 
@@ -194,8 +189,7 @@ export const useAppStore = defineStore('app', {
         limit: Long.fromNumber(200, true),
         reverse: false,
       }}); 
-      console.log(queryStaking)
-      console.log(delegatorValidators)
+
       let total = 0;  
       let allUnbound = await queryStaking.DelegatorUnbondingDelegations({ delegatorAddr: this.addrWallet });       
       let totalUnbound = 0;
@@ -236,6 +230,9 @@ export const useAppStore = defineStore('app', {
         new: returnValue
       }  
 
+      const queryWithdrawAddressResult = await queryDistrib.DelegatorWithdrawAddress({ delegatorAddress: this.addrWallet }); 
+      // console.log('DelegatorWithdrawAddress', queryWithdrawAddressResult)
+      this.myDelegatorWithdrawAddress = queryWithdrawAddressResult.withdrawAddress
     }, 
     async getAuthzModule() { 
       const queryAuthz = new authz.QueryClientImpl(this.rpcClient);      
@@ -244,9 +241,9 @@ export const useAppStore = defineStore('app', {
       // console.log('Authz', queryAuthzResult)
 
       for (let i = 0; i < queryAuthzResult.grants.length; i++) {
-        console.log('Authz', queryAuthzResult.grants[i])
-        console.log('Authz', GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)) 
-        queryAuthzResult.grants[i].finaleAuthzType = GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)
+        queryAuthzResult.grants[i].finaleAuthzType = GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)       
+        let finalsTxs = setAuthzMsg(queryAuthzResult.grants[i].finaleAuthzType); 
+        queryAuthzResult.grants[i].finalData = finalsTxs
       }
       
       this.allAuthz = queryAuthzResult.grants
@@ -256,12 +253,17 @@ export const useAppStore = defineStore('app', {
       const queryFeegrantResult = await queryFeegrant.Allowances({ grantee: this.addrWallet }); 
       const queryAllowancesByGranterResult = await queryFeegrant.AllowancesByGranter({ granter: this.addrWallet });  
       this.myFeeAllowances = queryFeegrantResult.allowances 
-      this.myFeeGrants = queryAllowancesByGranterResult.allowances
+      this.myFeeGrants = queryAllowancesByGranterResult.allowances 
 
+      let finalGranter = []
+      for (let i = 0; i < this.myFeeAllowances.length; i++) {
+        
+        finalGranter[i] = this.myFeeAllowances[i].granter    
+      } 
+      this.formFeeGranter = finalGranter
     }, 
     async getAllProps() {
-      // List of proposal from the blockchain
-      console.log(this.sdkVersion.substring(0,5))
+      // List of proposal from the blockchain 
       let finalVersion = 'v1beta1'
       if(this.sdkVersion.substring(0,5) === 'v0.47') {        
         finalVersion = 'v1'
@@ -273,9 +275,41 @@ export const useAppStore = defineStore('app', {
         cosmosConfig[this.setChainSelected].apiURL + '/cosmos/distribution/v1beta1/community_pool'
       ); 
 
-      let finalPool = communityPool.data.pool.find(element => element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom)
+      
 
-      this.allProposals = allProposals.data.proposals.reverse();
+      let finalPool = communityPool.data.pool.find(element => element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom)
+      let allProps = allProposals.data.proposals.reverse();
+
+      let finalProps = []
+      allProps.forEach(element => {        
+        if(finalVersion === 'v1') {
+          finalProps.push({ 
+            proposal_id: element.id,
+            title: element.title,
+            status: element.status,
+            final_tally_result: {
+              yes: element.final_tally_result.yes_count,
+              no: element.final_tally_result.no_count,
+              no_with_veto: element.final_tally_result.no_with_veto_count,
+              abstain: element.final_tally_result.abstain_count,
+            }
+          })
+        } else {
+          finalProps.push({ 
+            proposal_id: element.proposal_id,
+            title: element.content.title,
+            status: element.status,
+            final_tally_result: {
+              yes: element.final_tally_result.yes,
+              no: element.final_tally_result.no,
+              no_with_veto: element.final_tally_result.no_with_veto,
+              abstain: element.final_tally_result.abstain,
+            }
+          })
+        }        
+      });
+
+      this.allProposals = finalProps;
       this.communityPool = finalPool?.amount / 1000000     
     },
     async getHomeProps() {
@@ -287,13 +321,102 @@ export const useAppStore = defineStore('app', {
       const allProposals = await axios(
         cosmosConfig[this.setChainSelected].apiURL + '/cosmos/gov/'+finalVersion+'/proposals?pagination.limit=12&pagination.reverse=true'
       ) 
-      this.allHomeProposals = allProposals.data.proposals ;
+      let allProps = allProposals.data.proposals.reverse();
+      let finalProps = []
+      allProps.forEach(element => {        
+        if(finalVersion === 'v1') {
+          finalProps.push({ 
+            proposal_id: element.id,
+            title: element.title,
+            status: element.status,
+            final_tally_result: {
+              yes: element.final_tally_result.yes_count,
+              no: element.final_tally_result.no_count,
+              no_with_veto: element.final_tally_result.no_with_veto_count,
+              abstain: element.final_tally_result.abstain_count,
+            }
+          })
+        } else {
+          finalProps.push({ 
+            proposal_id: element.proposal_id,
+            title: element.content.title,
+            status: element.status,
+            final_tally_result: {
+              yes: element.final_tally_result.yes,
+              no: element.final_tally_result.no,
+              no_with_veto: element.final_tally_result.no_with_veto,
+              abstain: element.final_tally_result.abstain,
+            }
+          })
+        }        
+      });
+      
+      this.allHomeProposals = finalProps;
     },
     async getProposalId(id) {
+      let finalVersion = 'v1beta1'
+      if(this.sdkVersion.substring(0,5) === 'v0.47') {        
+        finalVersion = 'v1'
+      } 
       const getPropoId = await axios(
-        cosmosConfig[this.setChainSelected].apiURL + '/cosmos/gov/v1beta1/proposals/' + id
+        cosmosConfig[this.setChainSelected].apiURL + '/cosmos/gov/'+finalVersion+'/proposals/' + id
       ); 
-      return getPropoId.data.proposal
+
+      let finalDataPropId = getPropoId.data.proposal
+
+
+
+      
+
+      let finalProp = []
+      if(finalVersion === 'v1') {
+        let typeMsg = ''
+        if (finalDataPropId.messages[0]['@type'] !== '/cosmos.gov.v1.MsgExecLegacyContent') {
+            typeMsg = finalDataPropId.messages[0]['@type']
+        } else {
+          typeMsg = finalDataPropId.messages[0].content['@type']
+
+        }
+            
+
+        finalProp = { 
+          proposal_id: finalDataPropId.id,
+          type: typeMsg,
+          title: finalDataPropId.title,
+          description: finalDataPropId.summary,
+          status: finalDataPropId.status,
+          deposit_end_time: finalDataPropId.deposit_end_time,
+          submit_time: finalDataPropId.submit_time,
+          voting_end_time: finalDataPropId.voting_end_time,
+          voting_start_time: finalDataPropId.voting_start_time,
+          final_tally_result: {
+            yes: finalDataPropId.final_tally_result.yes_count,
+            no: finalDataPropId.final_tally_result.no_count,
+            no_with_veto: finalDataPropId.final_tally_result.no_with_veto_count,
+            abstain: finalDataPropId.final_tally_result.abstain_count,
+          }
+        }
+      } else {
+        finalProp = { 
+          proposal_id: finalDataPropId.proposal_id,
+          type: finalDataPropId.content['@type'],
+          title: finalDataPropId.content.title,
+          description: finalDataPropId.content.description,
+          status: finalDataPropId.status,
+          deposit_end_time: finalDataPropId.deposit_end_time,
+          submit_time: finalDataPropId.submit_time,
+          voting_end_time: finalDataPropId.voting_end_time,
+          voting_start_time: finalDataPropId.voting_start_time,
+          final_tally_result: {
+            yes: finalDataPropId.final_tally_result.yes,
+            no: finalDataPropId.final_tally_result.no,
+            no_with_veto: finalDataPropId.final_tally_result.no_with_veto,
+            abstain: finalDataPropId.final_tally_result.abstain,
+          }
+        }
+      } 
+      //return getPropoId.data.proposal
+      return finalProp
     },
     async getProposalIdVote(id) {
       const getPropoIdVote = await axios(
@@ -361,9 +484,7 @@ export const useAppStore = defineStore('app', {
         notBondedTokens: finalTotalSupply - finalBondedTokens,
         communityPool: finalCommunityPool
       }
-      console.log(finalStats)
       this.finalStats = finalStats
-      console.log(this.finalStats)
       // commit('updateChainsStats', finalStats)
     }, 
     /*async getTransactions() { 
@@ -427,6 +548,65 @@ export const useAppStore = defineStore('app', {
 
 
     }, 
+    async allWalletByChain(key) {
+      
+      this.finalAllaWalletsData = []
+      for (let key in cosmosConfig) {  
+
+        const decode = bech32.decode(this.addrWallet)      
+        const returnAddress = bech32.encode(cosmosConfig[key].coinLookup.addressPrefix, decode.words)  
+
+        var getBalance = Promise.all([
+          fetch(cosmosConfig[key].apiURL + `/cosmos/bank/v1beta1/balances/` + returnAddress).then(resp => resp.json()),
+          //fetch(cosmosConfig[this.setChainSelected].apiURL + `/cosmos/distribution/v1beta1/delegators/` + this.addrWallet + `/rewards`).then(resp => resp.json()),
+          // fetch(cosmosConfig[data].apiURL + `/staking/delegators/` + addresseByChain + `/delegations`).then(resp => resp.json()),
+          fetch('https://api.coingecko.com/api/v3/coins/' + cosmosConfig[key].coingeckoId + '/market_chart?vs_currency=usd&days=30').then(resp => resp.json()),  
+          // fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + cosmosConfig[data].coingeckoId + '&vs_currencies=usd').then(resp => resp.json()),
+        ])
+        getBalance.then((value) => { 
+
+          const foundAmount = value[0].balances.find(element => element.denom === cosmosConfig[key].coinLookup.chainDenom);
+
+            let tokenPrice = []
+            for (let keyPrice in value[1].prices) {  
+              // console.log(value[1].prices[keyPrice][1])
+              if (cosmosConfig[key].name === 'Chihuahua')
+                tokenPrice.push(value[1].prices[keyPrice][1] * 100)
+              else
+                tokenPrice.push(value[1].prices[keyPrice][1])
+            }
+           this.finalAllaWalletsData.push({ 
+            wallet: returnAddress, 
+            chainConfig: cosmosConfig[key], 
+            walletBalance: foundAmount.amount, 
+            historicPrice: tokenPrice 
+          })
+          //this.finalAllaWalletsData.push(value)
+        })
+
+
+
+      }
+
+/*       const decode = bech32.decode(this.addrWallet)      
+      const returnAddress = bech32.encode(cosmosConfig[key].coinLookup.addressPrefix, decode.words) 
+
+      let finalAllaWalletsData = []
+
+      console.log(this.addrWallet)
+        var getBalance = Promise.all([
+          fetch(cosmosConfig[key].apiURL + `/cosmos/bank/v1beta1/balances/` + returnAddress).then(resp => resp.json()),
+          //fetch(cosmosConfig[this.setChainSelected].apiURL + `/cosmos/distribution/v1beta1/delegators/` + this.addrWallet + `/rewards`).then(resp => resp.json()),
+          // fetch(cosmosConfig[data].apiURL + `/staking/delegators/` + addresseByChain + `/delegations`).then(resp => resp.json()),
+          fetch('https://api.coingecko.com/api/v3/coins/' + cosmosConfig[key].coingeckoId + '/market_chart?vs_currency=usd&days=7').then(resp => resp.json()),  
+          // fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + cosmosConfig[data].coingeckoId + '&vs_currencies=usd').then(resp => resp.json()),
+        ])
+        getBalance.then((value) => {
+          // console.log(value)
+          this.finalAllaWalletsData.push(value)
+        }) */
+        console.log(this.finalAllaWalletsData)
+    },
     async keplrConnect() {
 
       await window.keplr.experimentalSuggestChain({
@@ -479,7 +659,6 @@ export const useAppStore = defineStore('app', {
       const offlineSigner = await window.getOfflineSignerAuto(chainId);
       const accounts = await offlineSigner.getAccounts();
       const getKey = await window.keplr.getKey(chainId);
-      console.log('addr: '+accounts[0].address)
       this.addrWallet = accounts[0].address
       this.nameWallet = getKey
       this.isLogged = true

@@ -5,10 +5,12 @@
  */
 
 // Plugins
+
 import { loadFonts } from './webfontloader'
 import vuetify from './vuetify'
 import pinia from '../store'
 import router from '../router'
+import Trend from 'vue3trend'
 
 export function registerPlugins (app) {
   loadFonts()
@@ -16,4 +18,5 @@ export function registerPlugins (app) {
     .use(vuetify)
     .use(router)
     .use(pinia)
+    .use(Trend)
 }

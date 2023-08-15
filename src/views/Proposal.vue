@@ -12,7 +12,7 @@
           sm="6"
         >
           <v-sheet class="text-h6 pa-2">
-            {{ propData?.content.title }} 
+            {{ propData?.title }} 
           </v-sheet>
         </v-col>
         <v-col
@@ -95,7 +95,6 @@
           </tbody>
         </v-table>
     </v-sheet>  
- 
       <v-sheet border class="ma-2 mt-4 pa-2" rounded="lg">
         <v-table>
           <tbody v-if="dataLoaded"> 
@@ -103,30 +102,42 @@
               <td>Proposale type</td>
               <td> 
                 <v-chip 
-                  v-if="propData?.content['@type'] === '/cosmos.gov.v1beta1.TextProposal'"
+                  v-if="propData?.type === '/cosmos.gov.v1beta1.TextProposal'"
                   label 
                 >
                   Text Proposal
                 </v-chip>                
                 <v-chip 
-                  v-if="propData?.content['@type'] === '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal'"
+                  v-if="propData?.type === '/cosmos.distribution.v1beta1.CommunityPoolSpendProposal'"
                   label 
                 >
                   Community Pool Spend Proposal
                 </v-chip>   
                 <v-chip 
-                  v-if="propData?.content['@type'] === '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal'"
+                  v-if="propData?.type === '/cosmos.upgrade.v1beta1.SoftwareUpgradeProposal'"
                   label 
                 >
                   Software Upgrade Proposal
                 </v-chip>  
                 <v-chip 
-                  v-if="propData?.content['@type'] === '/ibc.core.client.v1.ClientUpdateProposal'"
+                  v-if="propData?.type === '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade'"
+                  label 
+                >
+                  Software Upgrade Proposal
+                </v-chip> 
+                <v-chip 
+                  v-if="propData?.type === '/ibc.core.client.v1.ClientUpdateProposal'"
                   label 
                 >
                   IBC Client Update Proposal
                 </v-chip>  
-                        
+                <v-chip 
+                  v-if="propData?.type === '/cosmos.params.v1beta1.ParameterChangeProposal'"
+                  label 
+                >
+                  Parameter Change Proposal
+                </v-chip>  
+                
               </td>
               <td></td>
             </tr>
@@ -173,7 +184,7 @@
             <tr >
               <td>          
                 <v-sheet class="text-h6">
-                  {{ propData?.content.title }} 
+                  {{ propData?.title }} 
                 </v-sheet>
               </td>
               
@@ -188,7 +199,7 @@
             </td>
             </tr>
             <tr>
-              <td> <Markdown xhtmlOut="true" linkify="true" breaks="true" :source="propData?.content.description" /> </td>
+              <td> <Markdown xhtmlOut="true" linkify="true" breaks="true" :source="propData?.description" /> </td>
             </tr>            
           </tbody>
         </v-table>
