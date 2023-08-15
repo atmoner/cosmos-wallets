@@ -47,6 +47,12 @@
           v-for="item in links"
           :key="item.title"
           :to="item.link"
+        -->
+
+        <!-- <v-tab
+          v-for="item in links"
+          :key="item.title"
+          :to="item.link"
         >
           <span>{{ item.title }}</span>
           <span v-if="item.title === 'Wasm' && cosmosConfig[store.setChainSelected].modules.wasm">{{ item.title }}</span>

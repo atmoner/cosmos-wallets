@@ -8,42 +8,39 @@
       >
         <v-spacer></v-spacer>
   
-        <v-tabs
-          v-if="store.isLogged"
-          centered
-          :color="cosmosConfig[store.setChainSelected].color"
-          class="hidden-xs-only"
-        >
-          <!-- ... (v-tabs content) ... -->
-        </v-tabs>
         <v-menu
-          v-else
+          v-if="store.isLogged"
           offset-y
-          bottom
         >
           <template v-slot:activator="{ on, attrs }">
-            <v-avatar
-              rounded="1"
-              color="grey-darken-1"
-              size="25"
+            <v-tabs
+              centered
+              :color="cosmosConfig[store.setChainSelected].color"
               v-bind="attrs"
               v-on="on"
             >
-              <v-img src="@/assets/keplr.png" alt="keplr" />
-            </v-avatar>
+            </v-tabs>
           </template>
           <v-list>
-            <!-- Menu items for non-logged-in state -->
+            <!-- Tab items for small screens -->
           </v-list>
         </v-menu>
+  
+        <v-avatar
+          v-if="!store.isLogged"
+          rounded="1"
+          color="grey-darken-1"
+          size="25"
+        >
+          <v-img src="@/assets/keplr.png" alt="keplr" @click="keplrConnect" />
+        </v-avatar>
+  
         <v-icon
           v-if="store.isLogged"
           size="large"
           icon="mdi-theme-light-dark"
           @click="toggleTheme"
-          class="hidden-xs-only"
         ></v-icon>
-  
       </v-app-bar>
   
       <!-- Main App -->
@@ -51,33 +48,27 @@
       <v-main>
         <Login v-if="!store.isLogged" />
         <v-img
-            v-if="store.isLogged"
-            :src="cosmosConfig[store.setChainSelected].coinLookup.banner"
-            max-height="125"
-            cover
-            class="bg-grey-lighten-2"
-          >
-          <div class="d-flex flex-column fill-height justify-center align-center text-white">
-            <h1 class="text-h4 mb-4">
-              {{ cosmosConfig[store.setChainSelected].name }}
-            </h1>
-          </div>
+          v-if="store.isLogged"
+          :src="cosmosConfig[store.setChainSelected].coinLookup.banner"
+          max-height="125"
+          cover
+          class="bg-grey-lighten-2"
+        >
+          <!-- Banner content -->
         </v-img>
-        
+  
         <v-container>
   
-          <v-breadcrumbs
-                :items="breadcrumbsItems"
-                divider="-"
-              ></v-breadcrumbs>
-          <v-row v-if="store.isLogged" > 
+          <!-- Breadcrumbs -->
+  
+          <v-row v-if="store.isLogged">
             <v-col
               v-if="viewLeftMenu"
               cols="12"
               sm="3"
               md="2"
             >
-              <!-- ... (Left menu content) ... -->
+              <!-- Left menu content -->
             </v-col>
   
             <v-col
@@ -89,8 +80,8 @@
               <router-view />
             </v-col>
           </v-row>
-          <v-row v-else class="mt-4" >
-            <!--Not logged in-->
+          <v-row v-else class="mt-4">
+            <!-- Not logged in -->
           </v-row>
         </v-container>
       </v-main>
@@ -115,26 +106,26 @@
     /* Mobile styles */
   
     /* Example: Adjust spacing for mobile screens */
-    .hidden-xs-only {
-      display: none;
+    .d-flex {
+      flex-direction: column;
     }
   }
   
   @media (min-width: 600px) and (max-width: 959px) {
     /* Tablet styles */
   
-    /* Example: Adjust left menu width for tablet screens */
-    .hidden-xs-only {
-      display: none;
+    /* Example: Adjust columns layout for tablet screens */
+    .d-flex {
+      flex-direction: row;
     }
   }
   
   @media (min-width: 960px) {
     /* Desktop styles */
   
-    /* Example: Hide menu icon on desktop screens */
-    .hidden-xs-only {
-      display: block;
+    /* Example: Restore default layout for desktop screens */
+    .d-flex {
+      flex-direction: row;
     }
   }
   </style>
