@@ -143,6 +143,34 @@
               rounded="lg"
               class="mb-4 mt-2"
             >
+              <v-row no-gutters>
+                <v-col
+                  cols="12"
+                  sm="3"
+                >
+                  <v-sheet class="mt-3 ma-2 pa-2" rounded="lg">
+                    <v-avatar>
+                      <actionsModals type="delegatorWithdrawAddress" /> 
+                    </v-avatar>
+                  </v-sheet>
+                </v-col>
+                <v-col
+                  cols="12"
+                  sm="9"
+                >
+                  <v-sheet class="ma-2 pa-2" rounded="lg">
+                    Withdraw Address 
+                    {{ this.truncateString(store.myDelegatorWithdrawAddress, 15) }} 
+                  </v-sheet>
+                </v-col>
+              </v-row>
+            </v-sheet>            
+            
+            <v-sheet
+              border
+              rounded="lg"
+              class="mb-4 mt-2"
+            >
 
             <v-table>
                   <tbody>
@@ -263,11 +291,12 @@ import { useTheme } from 'vuetify'
 import { useAppStore } from '@/store/app'
 import cosmosConfig from './cosmos.config'
 import Login from '@/components/Login.vue'
+import actionsModals from '@/components/actionsModals.vue'
 
 
 export default {
   name: 'App',
-  components: { Login },
+  components: { Login, actionsModals },
   data: () => ({
       cosmosConfig: cosmosConfig,
       chainSelected: 0,

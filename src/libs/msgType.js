@@ -147,8 +147,13 @@ export function setMsg(data, timestamp, txhash, all) {
     case "/cosmos.authz.v1beta1.MsgRevoke":  
       titleMsg = "Authz Revoke"
       //console.log(finalData)
-      break;       
-      
+      break;   
+
+    case "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress":  
+      titleMsg = "Set Withdraw Address"
+      //console.log(finalData)
+      break;
+
     default:
       console.log("Sorry, dont know " + finalType + ".");
   }

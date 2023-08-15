@@ -203,7 +203,7 @@ export default [
       wasm: false,
     }
   },
-  {
+/*   {
     chainId: 'dydx-testnet-1',
     name: 'DYdX Testnet',
     slot: "dydx",
@@ -227,5 +227,5 @@ export default [
       authz: true,
       wasm: false,
     }
-  },
+  }, */
 ]

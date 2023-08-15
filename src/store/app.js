@@ -29,6 +29,7 @@ export const useAppStore = defineStore('app', {
     ibcVersion: '',
     addrWallet: '',
     nameWallet: '',
+    allHomeProposals: [],
     spendableBalances: 0,
     totalDelegations: 0,
     totalUnbound: 0,
@@ -59,7 +60,9 @@ export const useAppStore = defineStore('app', {
     totalSupplyPrice: 0,
     communityPool: 0,
     aprNow: 0,
-    finalStats: {}
+    finalStats: {},
+    myDelegatorWithdrawAddress: '',
+    finalAllaWalletsData: []
   }),
   actions: {
     resetData() {
@@ -227,6 +230,9 @@ export const useAppStore = defineStore('app', {
         new: returnValue
       }  
 
+      const queryWithdrawAddressResult = await queryDistrib.DelegatorWithdrawAddress({ delegatorAddress: this.addrWallet }); 
+      // console.log('DelegatorWithdrawAddress', queryWithdrawAddressResult)
+      this.myDelegatorWithdrawAddress = queryWithdrawAddressResult.withdrawAddress
     }, 
     async getAuthzModule() { 
       const queryAuthz = new authz.QueryClientImpl(this.rpcClient);      
@@ -542,6 +548,65 @@ export const useAppStore = defineStore('app', {
 
 
     }, 
+    async allWalletByChain(key) {
+      
+      this.finalAllaWalletsData = []
+      for (let key in cosmosConfig) {  
+
+        const decode = bech32.decode(this.addrWallet)      
+        const returnAddress = bech32.encode(cosmosConfig[key].coinLookup.addressPrefix, decode.words)  
+
+        var getBalance = Promise.all([
+          fetch(cosmosConfig[key].apiURL + `/cosmos/bank/v1beta1/balances/` + returnAddress).then(resp => resp.json()),
+          //fetch(cosmosConfig[this.setChainSelected].apiURL + `/cosmos/distribution/v1beta1/delegators/` + this.addrWallet + `/rewards`).then(resp => resp.json()),
+          // fetch(cosmosConfig[data].apiURL + `/staking/delegators/` + addresseByChain + `/delegations`).then(resp => resp.json()),
+          fetch('https://api.coingecko.com/api/v3/coins/' + cosmosConfig[key].coingeckoId + '/market_chart?vs_currency=usd&days=30').then(resp => resp.json()),  
+          // fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + cosmosConfig[data].coingeckoId + '&vs_currencies=usd').then(resp => resp.json()),
+        ])
+        getBalance.then((value) => { 
+
+          const foundAmount = value[0].balances.find(element => element.denom === cosmosConfig[key].coinLookup.chainDenom);
+
+            let tokenPrice = []
+            for (let keyPrice in value[1].prices) {  
+              // console.log(value[1].prices[keyPrice][1])
+              if (cosmosConfig[key].name === 'Chihuahua')
+                tokenPrice.push(value[1].prices[keyPrice][1] * 100)
+              else
+                tokenPrice.push(value[1].prices[keyPrice][1])
+            }
+           this.finalAllaWalletsData.push({ 
+            wallet: returnAddress, 
+            chainConfig: cosmosConfig[key], 
+            walletBalance: foundAmount.amount, 
+            historicPrice: tokenPrice 
+          })
+          //this.finalAllaWalletsData.push(value)
+        })
+
+
+
+      }
+
+/*       const decode = bech32.decode(this.addrWallet)      
+      const returnAddress = bech32.encode(cosmosConfig[key].coinLookup.addressPrefix, decode.words) 
+
+      let finalAllaWalletsData = []
+
+      console.log(this.addrWallet)
+        var getBalance = Promise.all([
+          fetch(cosmosConfig[key].apiURL + `/cosmos/bank/v1beta1/balances/` + returnAddress).then(resp => resp.json()),
+          //fetch(cosmosConfig[this.setChainSelected].apiURL + `/cosmos/distribution/v1beta1/delegators/` + this.addrWallet + `/rewards`).then(resp => resp.json()),
+          // fetch(cosmosConfig[data].apiURL + `/staking/delegators/` + addresseByChain + `/delegations`).then(resp => resp.json()),
+          fetch('https://api.coingecko.com/api/v3/coins/' + cosmosConfig[key].coingeckoId + '/market_chart?vs_currency=usd&days=7').then(resp => resp.json()),  
+          // fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + cosmosConfig[data].coingeckoId + '&vs_currencies=usd').then(resp => resp.json()),
+        ])
+        getBalance.then((value) => {
+          // console.log(value)
+          this.finalAllaWalletsData.push(value)
+        }) */
+        console.log(this.finalAllaWalletsData)
+    },
     async keplrConnect() {
 
       await window.keplr.experimentalSuggestChain({

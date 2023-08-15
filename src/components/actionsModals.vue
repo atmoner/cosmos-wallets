@@ -99,7 +99,18 @@
         color="red darken-1" 
       >mdi-account-multiple-remove-outline</v-icon>      
     </v-btn> 
-    
+
+    <v-btn
+      v-if="type === 'delegatorWithdrawAddress'" 
+      variant="text"
+      @click="openDelegatorWithdrawAddress"
+    >
+ 
+      <v-icon
+        size="large"
+        :color="cosmosConfig[store.setChainSelected].color"
+      >mdi-pencil</v-icon>      
+    </v-btn>    
 
     <v-dialog
         v-model="dialogSendTokens" 
@@ -898,6 +909,82 @@
 
         </v-card>
       </v-dialog> 
+      <v-dialog
+        v-model="dialogWithdrawAddress" 
+        width="500" 
+        transition="dialog-top-transition" 
+      >
+        <v-card> 
+          <v-toolbar
+            color="rgba(0, 0, 0, 0)"
+            theme="dark"
+          >
+            <template v-slot:prepend>
+              <v-avatar>
+                  <v-img
+                    max-width="32"
+                    max-height="32"
+                    :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
+                    alt="John"
+                  ></v-img>
+                </v-avatar>
+            </template>
+
+            <v-toolbar-title class="text-h6">
+              Change your withdraw address
+            </v-toolbar-title>
+
+            <template v-slot:append>
+              <v-btn icon="mdi-close" @click="dialogWithdrawAddress = false"></v-btn>
+            </template>
+          </v-toolbar> 
+          <v-card-text>     
+            <div v-if="step1">
+              <v-text-field
+                v-model="withdrawAddressToSet" 
+                :rules="[rules.required, rules.bech32]" 
+                label="Your new withdraw address"
+                placeholder="Enter address"
+                variant="outlined"  
+              />
+            </div>
+            <v-btn 
+              v-if="step1"
+              class="text-none mt-4 mb-4"
+              :color="cosmosConfig[store.setChainSelected].color"
+              prepend-icon="mdi-export-variant" 
+              @click="setWithdrawAddressNow()"
+              size="large"  
+              block
+            >
+              Change address
+            </v-btn>
+            
+ 
+            <div v-if="step2" class="ma-8 text-center">
+              <v-progress-circular                
+                :size="100"
+                :width="5"
+                :color="cosmosConfig[store.setChainSelected].color"
+                indeterminate 
+                justify="center"
+              ></v-progress-circular>   
+            </div>
+            <div v-if="step3" class="ma-8 text-center">
+              <v-icon
+                size="150"
+                color="green darken-2"
+              >
+                mdi-check-circle-outline
+              </v-icon>  
+              <br /><br />
+               {{ txResult.transactionHash }} 
+            </div>       
+          </v-card-text>
+
+        </v-card>
+      </v-dialog> 
+      
   </div>  
 </template>
 
@@ -973,6 +1060,7 @@ export default {
     dialogVote: false,
     dialogAddAuthz: false,
     dialogRemoveAuthz: false,
+    dialogWithdrawAddress: false,
     sendAmount: '',
     sendTo: '',
     delegateAmount: '',
@@ -985,6 +1073,7 @@ export default {
     selectedValDel: '',
     authzSendGrantee: '',
     finalFeeGranter: '',
+    withdrawAddressToSet: '',
     rules: {
       required: value => !!value || 'Required.',
       checkAmount: value => value <= store.spendableBalances || ' Not enough funds, you need: ' + store.spendableBalances,
@@ -1053,6 +1142,54 @@ export default {
       this.step3 = false;
       this.dialogDelegate = true      
     },
+    openDelegatorWithdrawAddress() {
+      this.step1 = true;
+      this.step2 = false;
+      this.step3 = false;
+      this.dialogWithdrawAddress = true      
+    },
+    async setWithdrawAddressNow() {
+      this.step1 = false;
+      this.step2 = true;
+
+      let signer = await selectSigner(this.store.setChainSelected)  
+      
+
+      const foundMsgType = defaultRegistryTypes.find(
+        (element) =>
+          element[0] ===
+          "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress"
+      );
+
+      console.log(defaultRegistryTypes)
+         const finalMsg = {
+          typeUrl: foundMsgType[0],
+          value: foundMsgType[1].fromPartial({           
+            delegatorAddress: signer.accounts[0].address,
+            withdrawAddress: this.withdrawAddressToSet
+          }),
+        };
+        console.log(finalMsg)
+        
+        try {
+          const result = await signer.client.signAndBroadcast(
+            signer.accounts[0].address,
+            [finalMsg],
+            "auto",
+            ""
+          );
+          assertIsDeliverTxSuccess(result);
+          console.log(result)
+          console.log(result)
+          this.txResult = result
+          this.step2 = false;
+          this.step3 = true;
+        } catch (error) {
+          console.error(error); 
+          this.step2 = false;
+          this.step1 = true;
+        } 
+    },    
     async sendRemoveAuthz() {
       this.step1 = false;
       this.step2 = true;
