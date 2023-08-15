@@ -93,8 +93,8 @@
           class="bg-grey-lighten-2"
         >
         <div class="d-flex flex-column fill-height justify-center align-center text-white">
-          <h1 class="text-h4 mb-4">
-            {{ cosmosConfig[store.setChainSelected].name }}
+          <h1 class="text-h3 mb-4">
+            {{ cosmosConfig[store.setChainSelected].name.toUpperCase() }}
           </h1>
         </div>
       </v-img>
@@ -186,48 +186,24 @@
               rounded="lg"
               class="mb-4 mt-2"
             >
-
-            <v-table>
-              <tbody>
-                <tr>
-                  <td>SDK version</td>
-                  <td class="text-right">
-                    <span :style="`color: ${cosmosConfig[store.setChainSelected].color}; white-space: nowrap;`">{{ store.sdkVersion }}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td>IBC version</td>
-                  <td class="text-right">
-                    <span :style="`color: ${cosmosConfig[store.setChainSelected].color}; white-space: nowrap;`">{{ store.ibcVersion }}</span>
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-
-
+              <v-table>
+                <tbody>
+                  <tr>
+                    <td>SDK version</td>
+                    <td class="text-right">
+                      <span :style="`color: ${cosmosConfig[store.setChainSelected].color}; white-space: nowrap;`">{{ store.sdkVersion }}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>IBC version</td>
+                    <td class="text-right">
+                      <span :style="`color: ${cosmosConfig[store.setChainSelected].color}; white-space: nowrap;`">{{ store.ibcVersion }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </v-sheet>
 
-<!--             <v-sheet
-              rounded="lg"
-              min-height="268"
-            >
-              <v-list rounded="lg">
-                <v-list-subheader>Menu</v-list-subheader>
-
-                <v-list-item
-                  v-for="(item, i) in links"
-                  :key="i"
-                  :value="item"
-                  :to="item.link"
-                >
-                  <template v-slot:prepend>
-                    <v-icon :icon="item.icon"></v-icon>
-                  </template>
-
-                  <v-list-item-title v-text="item.title"></v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-sheet> -->
             <v-sheet
               border
               rounded="lg"
