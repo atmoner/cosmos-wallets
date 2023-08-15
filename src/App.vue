@@ -1,4 +1,7 @@
 <template>
+
+  <!-- Top AppBar -->
+
   <v-app id="inspire">
     <v-app-bar
       class="px-3"
@@ -6,13 +9,6 @@
       density="compact"
       id="appbar"
     >
-      <!-- <v-avatar
-        color="grey-darken-1"
-        size="32"
-      >
-        <v-img src="@/assets/main_logo.png" alt="Darkmatter" />
-      </v-avatar> -->
-
       <v-spacer></v-spacer>
 
       <v-tabs
@@ -58,24 +54,28 @@
       </v-tabs>
       <v-spacer></v-spacer>
 
+      <!-- Show Keplr Logo if wallet is not connected -->
+
       <v-avatar
         v-if="!store.isLogged"
-        rounded="0"
+        rounded="1"
         color="grey-darken-1"
         size="25"
       >
-      <v-img src="@/assets/keplr.svg" alt="keplr" @click="keplrConnect" />
+        <v-img src="@/assets/keplr.png" alt="keplr" @click="keplrConnect" />
 
-    </v-avatar>
+      </v-avatar>
 
-    <v-icon
-      v-if="store.isLogged"
-      size="large"
-      icon="mdi-theme-light-dark"
-      @click="toggleTheme"
-    ></v-icon>
+      <v-icon
+        v-if="store.isLogged"
+        size="large"
+        icon="mdi-theme-light-dark"
+        @click="toggleTheme"
+      ></v-icon>
 
     </v-app-bar>
+
+    <!-- Main App -->
 
     <v-main>
       <Login v-if="!store.isLogged" />
@@ -90,9 +90,6 @@
           <h1 class="text-h4 mb-4">
             {{ cosmosConfig[store.setChainSelected].name }}
           </h1>
-          <!-- <h4 class="subheading">
-            Build your application today!
-          </h4> -->
         </div>
       </v-img>
       
@@ -117,8 +114,9 @@
                 <v-col
                   cols="12"
                   sm="3"
+                  class="d-flex align-center justify-center"
                 >
-                  <v-sheet class="mt-3 ma-2 pa-2" rounded="lg">
+                  <v-sheet class="mt-3 ma-2 pa-1 d-flex align-center justify-center" rounded="lg">
                     <v-avatar>
                       <v-img
                         :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
@@ -131,13 +129,18 @@
                   cols="12"
                   sm="9"
                 >
-                  <v-sheet class="ma-2 pa-2" rounded="lg">
-                    {{ store.nameWallet.name }}
-                    {{ this.truncateString(store.addrWallet, 15) }}
+                  <v-sheet class="ma-2 pa-2" rounded="lg" style="max-width: 100%;">
+                    <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                      {{ store.nameWallet.name }}
+                    </div><br>
+                    <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                      {{ this.truncateString(store.addrWallet, 15) }}
+                    </div>
                   </v-sheet>
                 </v-col>
               </v-row>
             </v-sheet>
+            
             <v-sheet
               border
               rounded="lg"
@@ -147,8 +150,9 @@
                 <v-col
                   cols="12"
                   sm="3"
+                  class="d-flex align-center justify-center"
                 >
-                  <v-sheet class="mt-3 ma-2 pa-2" rounded="lg">
+                  <v-sheet class="mt-3 ma-2 pa-1" rounded="lg">
                     <v-avatar>
                       <actionsModals type="delegatorWithdrawAddress" /> 
                     </v-avatar>
@@ -157,10 +161,15 @@
                 <v-col
                   cols="12"
                   sm="9"
+
                 >
-                  <v-sheet class="ma-2 pa-2" rounded="lg">
-                    Withdraw Address 
-                    {{ this.truncateString(store.myDelegatorWithdrawAddress, 15) }} 
+                  <v-sheet class="ma-2 pa-2" rounded="lg" style="max-width: 100%;">
+                    <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                      Withdraw Address 
+                    </div><br>
+                    <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                      {{ this.truncateString(store.myDelegatorWithdrawAddress, 15) }}
+                    </div>
                   </v-sheet>
                 </v-col>
               </v-row>
@@ -173,21 +182,23 @@
             >
 
             <v-table>
-                  <tbody>
-                    <tr>
-                      <td>SDK version</td>
-                      <td class="text-right">
-                        <span :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.sdkVersion }}</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>IBC version</td>
-                      <td class="text-right">
-                        <span :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.ibcVersion }}</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </v-table>
+              <tbody>
+                <tr>
+                  <td>SDK version</td>
+                  <td class="text-right">
+                    <span :style="`color: ${cosmosConfig[store.setChainSelected].color}; white-space: nowrap;`">{{ store.sdkVersion }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>IBC version</td>
+                  <td class="text-right">
+                    <span :style="`color: ${cosmosConfig[store.setChainSelected].color}; white-space: nowrap;`">{{ store.ibcVersion }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+
+
             </v-sheet>
 
 <!--             <v-sheet
