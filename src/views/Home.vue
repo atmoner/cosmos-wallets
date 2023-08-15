@@ -451,7 +451,7 @@
 
               <v-list>
                 <v-list-item
-                  v-for="item in store.allHomeProposals"
+                  v-for="item in reversedProposals"
                   :key="item.proposal_id"
                   :title="'#' + item.proposal_id + ' ' + item.title"
                   :subtitle="item.description"
@@ -507,8 +507,11 @@ export default {
  
   },
   computed: {
-
-  },
+    reversedProposals() {
+      // Utilisation de la méthode reverse() pour inverser l'ordre du tableau
+      return this.store.allHomeProposals.slice().reverse();
+    },
+  }, 
   methods: {
     getDotColorClass(item) {
       if (item.status === 'PROPOSAL_STATUS_PASSED') {
