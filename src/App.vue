@@ -102,9 +102,10 @@
       <v-container>
 
         <v-breadcrumbs
-              :items="breadcrumbsItems"
-              divider="-"
-            ></v-breadcrumbs>
+          v-if="store.isLogged"
+          :items="breadcrumbsItems"
+          divider="-"
+        ></v-breadcrumbs>
         <v-row v-if="store.isLogged" > 
           <v-col
             v-if="viewLeftMenu"
