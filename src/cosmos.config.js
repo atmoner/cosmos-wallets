@@ -82,8 +82,12 @@ export default [
     name: 'Chihuahua',
     slot: "chihuahua",
     desc: 'Chihuahua is the first interoperable meme coin with a POS blockchain, making it one of the most utilized chains in the Cosmos ecosystem',
-    apiURL: 'https://api.chihuahua.wtf',
-    rpcURL: 'https://rpc.chihuahua.wtf',
+    //apiURL: 'https://api.chihuahua.wtf',
+    //rpcURL: 'https://rpc.chihuahua.wtf',
+    apiURL: 'https://rest.cosmos.directory/chihuahua',
+    rpcURL: 'https://rpc.cosmos.directory/chihuahua',
+    
+
     coinLookup: {
       viewDenom: 'HUAHUA',
       chainDenom: 'uhuahua',
