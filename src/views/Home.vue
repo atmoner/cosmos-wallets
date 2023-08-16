@@ -514,9 +514,10 @@ export default {
   }, 
   methods: {
     getDotColorClass(item) {
+      console.log(item.status)
       if (item.status === 'PROPOSAL_STATUS_PASSED') {
         return "colored-dot-green";
-      } else if (item.status === 'PROPOSAL_STATUS_VOTING_PERIOD') {
+      } else if (item.status === 'PROPOSAL_STATUS_VOTING_PERIOD' || item.status === 'PROPOSAL_STATUS_DEPOSIT_PERIOD') {
         return "colored-dot-orange";
       } else if (item.status === 'PROPOSAL_STATUS_REJECTED') {
         return "colored-dot-red";
