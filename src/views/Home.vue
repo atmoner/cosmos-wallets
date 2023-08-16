@@ -158,7 +158,7 @@
         
         </v-sheet>
       </v-col>
-      <v-col
+    <!--  <v-col
         cols="12"
         sm="4"
       >
@@ -186,7 +186,7 @@
             </v-col> 
           </v-row>  
         </v-sheet>
-      </v-col>
+      </v-col> !-->
       <v-col
         cols="12"
         sm="4"
@@ -322,9 +322,41 @@
                 </v-list-item> 
               </v-list>
             </v-col> 
+
           </v-row>         
         </v-sheet>
+        
       </v-col>
+      <v-col            
+            cols="12"
+            sm="4"
+          >
+            <!-- <v-sheet min-height="300" class="ma-2 pa-2" rounded="lg">
+              Active proposals
+            </v-sheet>   -->
+            <v-sheet border min-height="300" class="ma-2 pa-2" rounded="lg">
+              <v-row no-gutters>
+            <v-col
+              cols="12"
+              sm="4"
+            >
+              <v-sheet class="text-h6 pa-2">
+                Last proposals
+              </v-sheet>
+            </v-col> 
+          </v-row>   
+<!-- {{ store.allProposals }} -->
+            
+              <v-list>
+              <v-list-item
+                v-for="item in store.allHomeProposals"
+                :key="item.proposal_id"
+                :title="'#' + item.proposal_id + ' ' + item.content.title"
+                :subtitle="item.description"  
+              />
+            </v-list>
+            </v-sheet>  
+          </v-col>
       <v-col>
         <v-row no-gutters>
           <v-col               
@@ -389,36 +421,7 @@
               </v-data-table>
             </v-sheet>       
           </v-col>
-          <v-col            
-            cols="12"
-            sm="4"
-          >
-            <!-- <v-sheet min-height="300" class="ma-2 pa-2" rounded="lg">
-              Active proposals
-            </v-sheet>   -->
-            <v-sheet border min-height="300" class="ma-2 pa-2" rounded="lg">
-              <v-row no-gutters>
-            <v-col
-              cols="12"
-              sm="6"
-            >
-              <v-sheet class="text-h6 pa-2">
-                Last proposals
-              </v-sheet>
-            </v-col> 
-          </v-row>   
-<!-- 
-            {{ store.allProposals }} -->
-              <v-list>
-              <v-list-item
-                v-for="item in store.allHomeProposals"
-                :key="item.proposal_id"
-                :title="'#' + item.proposal_id + ' ' + item.content.title"
-                :subtitle="item.description"  
-              />
-            </v-list>
-            </v-sheet>  
-          </v-col>
+          
         </v-row>
 
       </v-col>

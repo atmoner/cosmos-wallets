@@ -57,7 +57,8 @@ export const useAppStore = defineStore('app', {
     totalSupplyPrice: 0,
     communityPool: 0,
     aprNow: 0,
-    finalStats: {}
+    finalStats: {},
+    allHomeProposals: [],
 
   }),
   actions: {
@@ -102,7 +103,7 @@ export const useAppStore = defineStore('app', {
           "/cosmos/base/tendermint/v1beta1/node_info"
       );
 
-      console.log(getSdk.data.application_version.build_deps);
+      //console.log(getSdk.data.application_version.build_deps);
       
       for (let i of getSdk.data.application_version.build_deps) {
         let position = i.path.search("ibc-go");
@@ -144,17 +145,17 @@ export const useAppStore = defineStore('app', {
       );
       
       let finalApr = (
-        ((this.totalSupplyPrice * this.finalStats.inflation) / boundedsupply.data.pool.bonded_tokens) * 100
+        ((foundSupply.amount * this.finalStats.inflation) / boundedsupply.data.pool.bonded_tokens)
       );
       this.aprNow = finalApr
-      console.log ('boundedsupply.data.pool.bonded_tokens',boundedsupply.data.pool.bonded_tokens)
-      console.log('aprNow',this.aprNow)
+      //console.log ('boundedsupply.data.pool.bonded_tokens',boundedsupply.data.pool.bonded_tokens)
+      //console.log('aprNow',this.aprNow)
       //console.log('test', foundSupply.amount)
       // commit("setAprNow", finalApr);
     },
     async setChainPrice() {
       const foundPrice = this.allPrice[cosmosConfig[this.setChainSelected].coingeckoId] 
-      console.log('setPricechain', foundPrice.usd)
+      //console.log('setPricechain', foundPrice.usd)
       this.chainSelectedPrice = foundPrice.usd
     },
     async getWalletAmount() {
@@ -199,7 +200,7 @@ export const useAppStore = defineStore('app', {
         reverse: false,
       }}); 
       //console.log(queryStaking)
-      //console.log(delegatorValidators)
+      console.log(delegatorValidators)
       let total = 0;  
       let allUnbound = await queryStaking.DelegatorUnbondingDelegations({ delegatorAddr: this.addrWallet });       
       let totalUnbound = 0;

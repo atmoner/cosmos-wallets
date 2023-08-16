@@ -4,7 +4,7 @@
         cols="12"
         sm="4"
       >
-        <v-sheet border class="ma-2 pa-2" rounded="lg">
+        <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="100">
           <v-row no-gutters>
             <v-col
               cols="12"
@@ -34,7 +34,7 @@
         cols="12"
         sm="4"
       >
-        <v-sheet border class="ma-2 pa-2" rounded="lg">
+        <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="100">
           <v-row no-gutters>
             <v-col
               cols="12"
@@ -54,7 +54,7 @@
               <v-sheet class="pa-2">
                 
                 <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.totalDelegations) }}</strong>   {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-                 / $ <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.totalDelegations * store.chainSelectedPrice) }}</strong>
+                 / $ <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.totalDelegations * store.chainSelectedPrice) }}</strong> 
               </v-sheet>              
             </v-col>
           </v-row>  
@@ -65,7 +65,7 @@
         cols="12"
         sm="4"
       >
-        <v-sheet border class="ma-2 pa-2" rounded="lg">
+        <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="100">
           <v-row no-gutters>
             <v-col
               cols="12"
@@ -95,7 +95,7 @@
         cols="12"
         sm="4"
       >
-      <v-sheet border class="ma-2 pa-2" rounded="lg">
+      <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="250">
           <v-row no-gutters>
             <v-col
               cols="12"
@@ -115,7 +115,7 @@
             >
               <v-sheet class="pa-2">
                
-                 Name supply vote
+                 Name supply vote {{ store.myValidatorData }} <!--{{ delegationResponses[0].delagation.validatorAddress }}-->
                 
               </v-sheet>              
             </v-col>
@@ -127,7 +127,7 @@
         cols="12"
         sm="4"
       >
-      <v-sheet border class="ma-2 pa-2" rounded="lg">
+      <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="250">
           <v-row no-gutters>
           
               <v-sheet class="text-h6 pa-1 text-left">
@@ -167,7 +167,7 @@
         cols="12"
         sm="4"
       >
-      <v-sheet border class="ma-2 pa-2" rounded="lg">
+      <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="250">
           <v-row no-gutters>
             <v-col
               cols="12"
@@ -182,7 +182,7 @@
             <v-col
               cols="12"
               sm="12"
-              class="text-left"
+              class="text-right"
             >
               <v-sheet class="pa-2">
                 CommunityPool: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.communityPool) }}</strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
@@ -227,7 +227,7 @@
           <td>{{ item.columns['description.moniker'] }}</td>
           <td>{{ item.columns['commission.commission_rates.rate'] * 100 }}%</td>
           <td>{{ item.columns['tokens'] / 1000000 }}</td>
-          <td>{{ item.columns['description.website'] }}</td> 
+          <td><a :href= "item.columns['description.website']" target='_blank'>{{ item.columns['description.website'] }}</a></td> 
         </tr>
       </template> 
     </v-data-table>
