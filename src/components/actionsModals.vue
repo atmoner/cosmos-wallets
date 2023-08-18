@@ -1581,10 +1581,10 @@ export default {
           )
         );
         this.gasFee = { fee: (usedFee.amount[0].amount / 1000000), gas: usedFee.gas };
-        console.log(usedFee)
+        console.log(this.gasFee)
             
         try {          
-          const result = await signer.client.signAndBroadcast(signer.accounts[0].address, [withdrawValidatorCommissionMsg], usedFee, '')
+          const result = await signer.client.signAndBroadcast(signer.accounts[0].address, [withdrawValidatorCommissionMsg], "auto", '')
           assertIsDeliverTxSuccess(result)
           console.log(result)
         } catch (error) {

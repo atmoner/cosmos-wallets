@@ -1,4 +1,7 @@
 <template>
+
+  <!-- Top AppBar -->
+
   <v-app id="inspire">
     <v-app-bar
       class="px-3"
@@ -6,13 +9,6 @@
       density="compact"
       id="appbar"
     >
-      <!-- <v-avatar
-        color="grey-darken-1"
-        size="32"
-      >
-        <v-img src="@/assets/main_logo.png" alt="Darkmatter" />
-      </v-avatar> -->
-
       <v-spacer></v-spacer>
 
       <v-tabs
@@ -51,6 +47,12 @@
           v-for="item in links"
           :key="item.title"
           :to="item.link"
+        -->
+
+        <!-- <v-tab
+          v-for="item in links"
+          :key="item.title"
+          :to="item.link"
         >
           <span>{{ item.title }}</span>
           <span v-if="item.title === 'Wasm' && cosmosConfig[store.setChainSelected].modules.wasm">{{ item.title }}</span>
@@ -58,24 +60,28 @@
       </v-tabs>
       <v-spacer></v-spacer>
 
+      <!-- Show Keplr Logo if wallet is not connected -->
+
       <v-avatar
         v-if="!store.isLogged"
-        rounded="0"
+        rounded="1"
         color="grey-darken-1"
         size="25"
       >
-      <v-img src="@/assets/keplr.svg" alt="keplr" @click="keplrConnect" />
+        <v-img src="@/assets/keplr.png" alt="keplr" @click="keplrConnect" />
 
-    </v-avatar>
+      </v-avatar>
 
-    <v-icon
-      v-if="store.isLogged"
-      size="large"
-      icon="mdi-theme-light-dark"
-      @click="toggleTheme"
-    ></v-icon>
+      <v-icon
+        v-if="store.isLogged"
+        size="large"
+        icon="mdi-theme-light-dark"
+        @click="toggleTheme"
+      ></v-icon>
 
     </v-app-bar>
+
+    <!-- Main App -->
 
     <v-main>
       <Login v-if="!store.isLogged" />
@@ -87,21 +93,19 @@
           class="bg-grey-lighten-2"
         >
         <div class="d-flex flex-column fill-height justify-center align-center text-white">
-          <h1 class="text-h4 mb-4">
-            {{ cosmosConfig[store.setChainSelected].name }}
+          <h1 class="text-h3 mb-4">
+            {{ cosmosConfig[store.setChainSelected].name.toUpperCase() }}
           </h1>
-          <!-- <h4 class="subheading">
-            Build your application today!
-          </h4> -->
         </div>
       </v-img>
       
       <v-container>
 
         <v-breadcrumbs
-              :items="breadcrumbsItems"
-              divider="-"
-            ></v-breadcrumbs>
+          v-if="store.isLogged"
+          :items="breadcrumbsItems"
+          divider="-"
+        ></v-breadcrumbs>
         <v-row v-if="store.isLogged" > 
           <v-col
             v-if="viewLeftMenu"
@@ -117,8 +121,9 @@
                 <v-col
                   cols="12"
                   sm="3"
+                  class="d-flex align-center justify-center"
                 >
-                  <v-sheet class="mt-3 ma-2 pa-2" rounded="lg">
+                  <v-sheet class="mt-3 ma-2 pa-1 d-flex align-center justify-center" rounded="lg">
                     <v-avatar>
                       <v-img
                         :src="cosmosConfig[store.setChainSelected].coinLookup.icon"
@@ -131,13 +136,18 @@
                   cols="12"
                   sm="9"
                 >
-                  <v-sheet class="ma-2 pa-2" rounded="lg">
-                    {{ store.nameWallet.name }}
-                    {{ this.truncateString(store.addrWallet, 15) }}
+                  <v-sheet class="ma-2 pa-2" rounded="lg" style="max-width: 100%;">
+                    <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                      {{ store.nameWallet.name }}
+                    </div><br>
+                    <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                      {{ this.truncateString(store.addrWallet, 15) }}
+                    </div>
                   </v-sheet>
                 </v-col>
               </v-row>
             </v-sheet>
+            
             <v-sheet
               border
               rounded="lg"
@@ -147,8 +157,9 @@
                 <v-col
                   cols="12"
                   sm="3"
+                  class="d-flex align-center justify-center"
                 >
-                  <v-sheet class="mt-3 ma-2 pa-2" rounded="lg">
+                  <v-sheet class="mt-3 ma-2 pa-1" rounded="lg">
                     <v-avatar>
                       <actionsModals type="delegatorWithdrawAddress" /> 
                     </v-avatar>
@@ -157,10 +168,15 @@
                 <v-col
                   cols="12"
                   sm="9"
+
                 >
-                  <v-sheet class="ma-2 pa-2" rounded="lg">
-                    Withdraw Address 
-                    {{ this.truncateString(store.myDelegatorWithdrawAddress, 15) }} 
+                  <v-sheet class="ma-2 pa-2" rounded="lg" style="max-width: 100%;">
+                    <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                      Withdraw Address 
+                    </div><br>
+                    <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
+                      {{ this.truncateString(store.myDelegatorWithdrawAddress, 15) }}
+                    </div>
                   </v-sheet>
                 </v-col>
               </v-row>
@@ -171,46 +187,24 @@
               rounded="lg"
               class="mb-4 mt-2"
             >
-
-            <v-table>
-                  <tbody>
-                    <tr>
-                      <td>SDK version</td>
-                      <td class="text-right">
-                        <span :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.sdkVersion }}</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>IBC version</td>
-                      <td class="text-right">
-                        <span :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.ibcVersion }}</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </v-table>
+              <v-table>
+                <tbody>
+                  <tr>
+                    <td>SDK version</td>
+                    <td class="text-right">
+                      <span :style="`color: ${cosmosConfig[store.setChainSelected].color}; white-space: nowrap;`">{{ store.sdkVersion }}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>IBC version</td>
+                    <td class="text-right">
+                      <span :style="`color: ${cosmosConfig[store.setChainSelected].color}; white-space: nowrap;`">{{ store.ibcVersion }}</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </v-table>
             </v-sheet>
 
-<!--             <v-sheet
-              rounded="lg"
-              min-height="268"
-            >
-              <v-list rounded="lg">
-                <v-list-subheader>Menu</v-list-subheader>
-
-                <v-list-item
-                  v-for="(item, i) in links"
-                  :key="i"
-                  :value="item"
-                  :to="item.link"
-                >
-                  <template v-slot:prepend>
-                    <v-icon :icon="item.icon"></v-icon>
-                  </template>
-
-                  <v-list-item-title v-text="item.title"></v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-sheet> -->
             <v-sheet
               border
               rounded="lg"

@@ -58,7 +58,7 @@ export default defineComponent({
           },
           title: {
             display: true,
-            text: 'Wallet portfolio',
+            text: '',
           },
         },
       };

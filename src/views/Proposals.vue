@@ -63,7 +63,7 @@
                   <v-icon class="mr-1">
                     mdi-checkbox-marked-circle
                   </v-icon>
-                  Proposal Passed
+                  PROPOSAL PASSED
                 </v-chip>     
                 <v-chip
                 v-if="n.status === 'PROPOSAL_STATUS_REJECTED'" 
@@ -72,34 +72,115 @@
                   label
                 >
                   <v-icon class="mr-1">
-                    mdi-checkbox-marked-circle
+                    mdi-close-circle-outline
                   </v-icon>
-                  Proposal Passed
+                  PROPOSAL REJECTED
                 </v-chip>             
               </v-sheet>
               <v-sheet class="pa-2">
-                {{ n.final_tally_result.yes / 1000000 }}
-                <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
+                <!-- {{ n.final_tally_result.yes / 1000000 }} -->
+
+                  <span
+                    v-if="
+                      n.final_tally_result.yes > 0 ||
+                      n.final_tally_result.no > 0 ||
+                      n.final_tally_result.abstain > 0 ||
+                      n.final_tally_result.no_with_veto > 0
+                    "
+                  >
+                    {{
+                      (
+                        (Number(n.final_tally_result.yes) * 100) /
+                        (Number(n.final_tally_result.yes) +
+                          Number(n.final_tally_result.no) +
+                          Number(n.final_tally_result.abstain) +
+                          Number(n.final_tally_result.no_with_veto))
+                      ).toFixed(2)
+                    }}
+                    % 
+                  </span>
+                  <span v-else>0%</span>
+<!--                 <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                   {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-                </strong> 
+                </strong>  -->
               </v-sheet>
               <v-sheet class="pa-2">
-                {{ n.final_tally_result.no  / 1000000 }}
+                <span
+                    v-if="
+                      n.final_tally_result.yes > 0 ||
+                      n.final_tally_result.no > 0 ||
+                      n.final_tally_result.abstain > 0 ||
+                      n.final_tally_result.no_with_veto > 0
+                    "
+                  >
+                    {{
+                      (
+                        (Number(n.final_tally_result.no) * 100) /
+                        (Number(n.final_tally_result.yes) +
+                          Number(n.final_tally_result.no) +
+                          Number(n.final_tally_result.abstain) +
+                          Number(n.final_tally_result.no_with_veto))
+                      ).toFixed(2)
+                    }}
+                    % 
+                  </span>
+                  <span v-else>0%</span>                
+<!--                 {{ n.final_tally_result.no  / 1000000 }}
                 <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                   {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-                </strong>
+                </strong> -->
               </v-sheet>
               <v-sheet class="pa-2">
-                {{ n.final_tally_result.no_with_veto / 1000000 }}
+                <span
+                    v-if="
+                      n.final_tally_result.yes > 0 ||
+                      n.final_tally_result.no > 0 ||
+                      n.final_tally_result.abstain > 0 ||
+                      n.final_tally_result.no_with_veto > 0
+                    "
+                  >
+                    {{
+                      (
+                        (Number(n.final_tally_result.no_with_veto) * 100) /
+                        (Number(n.final_tally_result.yes) +
+                          Number(n.final_tally_result.no) +
+                          Number(n.final_tally_result.abstain) +
+                          Number(n.final_tally_result.no_with_veto))
+                      ).toFixed(2)
+                    }}
+                    % 
+                  </span>
+                  <span v-else>0%</span>  
+<!--                 {{ n.final_tally_result.no_with_veto / 1000000 }}
                 <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                   {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-                </strong>
+                </strong> -->
               </v-sheet> 
               <v-sheet class="pa-2">
-                {{ n.final_tally_result.abstain / 1000000 }}
+                <span
+                    v-if="
+                      n.final_tally_result.yes > 0 ||
+                      n.final_tally_result.no > 0 ||
+                      n.final_tally_result.abstain > 0 ||
+                      n.final_tally_result.no_with_veto > 0
+                    "
+                  >
+                    {{
+                      (
+                        (Number(n.final_tally_result.abstain) * 100) /
+                        (Number(n.final_tally_result.yes) +
+                          Number(n.final_tally_result.no) +
+                          Number(n.final_tally_result.abstain) +
+                          Number(n.final_tally_result.no_with_veto))
+                      ).toFixed(2)
+                    }}
+                    % 
+                  </span>
+                  <span v-else>0%</span>                  
+<!--                 {{ n.final_tally_result.abstain / 1000000 }}
                 <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                   {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-                </strong>
+                </strong> -->
               </v-sheet>                
             </v-col>
           </v-row> 
