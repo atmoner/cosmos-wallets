@@ -62,7 +62,10 @@ export const useAppStore = defineStore('app', {
     aprNow: 0,
     finalStats: {},
     myDelegatorWithdrawAddress: '',
-    finalAllaWalletsData: []
+    finalAllaWalletsData: [],
+    chainInflation: '',
+    poolStaking: '',
+    marketTokenInfo: ''
   }),
   actions: {
     resetData() {
@@ -145,11 +148,18 @@ export const useAppStore = defineStore('app', {
         100
       ).toFixed(1);
       this.aprNow = finalApr
+      this.chainInflation = (inflation.data.inflation * 100).toFixed(2)
       // commit("setAprNow", finalApr);
     },
     async setChainPrice() {
       const foundPrice = this.allPrice[cosmosConfig[this.setChainSelected].coingeckoId] 
       this.chainSelectedPrice = foundPrice.usd
+
+      const getTokenInfo = await axios(
+        "https://api.coingecko.com/api/v3/coins/" + cosmosConfig[this.setChainSelected].coingeckoId 
+      ); 
+      this.marketTokenInfo = getTokenInfo.data
+      
     },
     async getWalletAmount() {
       let totalToken = 
@@ -181,7 +191,8 @@ export const useAppStore = defineStore('app', {
       this.totalSupplyPrice = ((totalSupply.amount.amount / 1000000) * this.chainSelectedPrice) 
     },
     async getStakingModule() {    
-      const queryStaking = new staking.QueryClientImpl(this.rpcClient); 
+      const queryStaking = new staking.QueryClientImpl(this.rpcClient);
+      let getPoolStaking = await queryStaking.Pool({ });  
       let delegatorValidators = await queryStaking.DelegatorDelegations({ delegatorAddr: this.addrWallet, pagination: {
         countTotal: false,
         key: '',
@@ -209,6 +220,7 @@ export const useAppStore = defineStore('app', {
  
       this.totalDelegations = (total / 1000000).toFixed(2)
       this.totalUnbound = (totalUnbound / 1000000).toFixed(2)
+      this.poolStaking = getPoolStaking.pool
     }, 
     async getDistribModule() { 
       const queryDistrib = new distrib.QueryClientImpl(this.rpcClient);

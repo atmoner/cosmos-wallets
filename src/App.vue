@@ -61,7 +61,7 @@
       <v-spacer></v-spacer>
 
       <!-- Show Keplr Logo if wallet is not connected -->
-
+      <actionsModals type="checkArbitrary" />
       <v-avatar
         v-if="!store.isLogged"
         rounded="1"
@@ -441,7 +441,7 @@ export default {
       await this.store.checkIsValidator()
       await this.store.getWalletAmount()
       //await this.store.getChainStats()
-      //await this.store.getApr()
+      await this.store.getApr()
     },
     async keplrConnect() {
       await this.store.keplrConnect()
@@ -460,7 +460,7 @@ export default {
       await this.store.setChainPrice()
       await this.store.getWalletAmount()
       //await this.store.getChainStats()
-      //await this.store.getApr()
+      await this.store.getApr()
     },
     addNewChain() {
       console.log('addNewChain')

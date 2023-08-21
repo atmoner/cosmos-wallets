@@ -112,6 +112,18 @@
       >mdi-pencil</v-icon>      
     </v-btn>    
 
+    <v-btn
+      v-if="type === 'checkArbitrary'" 
+      variant="text"
+      @click="verifyArbitrary"
+    >
+ 
+      <v-icon
+        size="large"
+        :color="cosmosConfig[store.setChainSelected].color"
+      >mdi-pencil</v-icon>      
+    </v-btn>    
+
     <v-dialog
         v-model="dialogSendTokens" 
         width="500" 
@@ -1736,6 +1748,34 @@ export default {
           this.step2 = false;
           this.step1 = true;
         }
+    },
+    async verifyArbitrary() {
+ 
+        await window.keplr.enable('bitcanna-1');
+    
+        const offlineSigner = window.keplr.getOfflineSigner('bitcanna-1');
+    
+        // You can get the address/public keys by `getAccounts` method.
+        // It can return the array of address/public key.
+        // But, currently, Keplr extension manages only one address/public key pair.
+        // XXX: This line is needed to set the sender address for SigningCosmosClient.
+        const accounts = await offlineSigner.getAccounts();
+        const message = 'atmon3r nest pas disponible le dimanche xD'
+        const address = 'bcna13jawsn574rf3f0u5rhu7e8n6sayx5gkwgusz73'
+        const signature = await window.keplr.signArbitrary(
+          'bitcanna-1',
+            address,
+            message,
+        )
+        console.log(signature)
+
+        const signArbitrary = await window.keplr.verifyArbitrary(
+            'bitcanna-1',
+            address,
+            message,
+            signature
+        )        
+        console.log(signArbitrary)
     },
     truncate(
       fullStr,
