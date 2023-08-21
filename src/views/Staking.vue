@@ -95,43 +95,45 @@
         cols="12"
         sm="4"
       >
-      <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="250">
+      <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="300">
           <v-row no-gutters>
             <v-col
               cols="12"
-              sm="6"
+              sm="12"
             >
               <v-sheet class="text-h6 pa-2">
                 My total delegations: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                  {{ store.totalMyValidators }} </strong> 
+                 
               </v-sheet>
-            </v-col> 
-          </v-row> 
-          <v-row no-gutters>  
-            <v-col
-              cols="12"
-              sm="12"
-              class="text-end"
-            >
-              <v-sheet class="pa-2">
-               
-                 Name supply vote {{ store.myValidatorData }} <!--{{ delegationResponses[0].delagation.validatorAddress }}-->
+               <v-sheet class="pa-2">
+              <v-list>Validator(s) Address:
+              <v-list-item
+                v-for="items in store.MyValidator"
+                :key="items.validatorAddress"
                 
-              </v-sheet>              
-            </v-col>
-          </v-row>  
-        </v-sheet>
-      </v-col>
+                :subtitle="items.validatorAddress"  
+              />                        
+            </v-list>
+          </v-sheet> 
+          <v-sheet class="pa-2"> Fee:{{  }}</v-sheet>
+            </v-col> 
+          </v-row>            
+        </v-sheet>        
+        </v-col>
 
       <v-col
         cols="12"
-        sm="4"
+        sm="4"        
       >
-      <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="250">
+      <v-sheet border class="ma-2 pa-2 text-center" rounded="lg" min-height="300">
           <v-row no-gutters>
           
-              <v-sheet class="text-h6 pa-1 text-left">
-                Estimated <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }} </strong> Staking Rewards</v-sheet>
+              <v-sheet class="text-h6 pa-2 text-center ma-2" border> 
+                Estimated Staking Rewards
+                 <h6>With APR: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.aprNow)}}</strong>% & Inflation:  <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.finalStats.inflation) }}</strong>%</h6>
+              
+              </v-sheet>
             
           </v-row> 
           <v-row no-gutters>  
@@ -140,26 +142,50 @@
               sm="12"
               class="text-left"
             >
-              <v-sheet class="pa-2">
-                <!--<br>Inflation: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.Inflation }}</strong>-->
-              </v-sheet>
-              <v-sheet class="pa-2">- Yearly:
-               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((store.totalDelegations * 18.90)/100) }}</strong>
-                 = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((store.totalDelegations * 18.90)/100) * store.chainSelectedPrice) }}</strong>              
-              </v-sheet>              
-              <v-sheet class="pa-2">- Monthly:
-               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((store.totalDelegations * 18.90)/100)/12) }}</strong>
-                 = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((((store.totalDelegations * 18.90)/100)/12) * store.chainSelectedPrice) }}</strong>              
-              </v-sheet>
-              <v-sheet class="pa-2">- Weekly:
-               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((store.totalDelegations * 18.90)/100)/52) }}</strong>
-                = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((((store.totalDelegations * 18.90)/100)/52) * store.chainSelectedPrice) }}</strong>              
-              </v-sheet> 
-              
-               
+          
+            Amount: <input type="number" v-model="requete" v-on:keypress="updateAPR">
+              <v-sheet class="pa-2 ma-2">
+                <div v-bind:key="posts" v-if="posts"> 
+                  <p>- Yearly:
+                      <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((this.requete * store.aprNow)/100) }}</strong>
+                        = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((this.requete * store.aprNow)/100) * store.chainSelectedPrice) }}</strong>              
+                      </p>              
+                      <p>- Monthly:
+                      <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((this.requete * store.aprNow)/100)/12) }}</strong>
+                        = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((((this.requete * store.aprNow)/100)/12) * store.chainSelectedPrice) }}</strong>              
+                      </p>
+                      <p>- Weekly:
+                      <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((this.requete * store.aprNow)/100)/52) }}</strong>
+                        = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((((this.requete * store.aprNow)/100)/52) * store.chainSelectedPrice) }}</strong>              
+                      </p> 
+                </div>
+ <!--    <input type="number" v-model="requete">   v-on:keypress="updateAPR"
+                <button v-on:click="submit">Update</button><ul>
+              <li v-bind:key="post" v-for="post in posts">{{ post }}</li>
+            </ul> <h4>{{ posts }}</h4>
+              <p>- Yearly:
+               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((store.totalDelegations * store.aprNow)/100) }}</strong>
+                 = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((store.totalDelegations * store.aprNow)/100) * store.chainSelectedPrice) }}</strong>              
+              </p>              
+              <p>- Monthly:
+               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((store.totalDelegations * store.aprNow)/100)/12) }}</strong>
+                 = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((((store.totalDelegations * store.aprNow)/100)/12) * store.chainSelectedPrice) }}</strong>              
+              </p>
+              <p>- Weekly:
+               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((store.totalDelegations * store.aprNow)/100)/52) }}</strong>
+                = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((((store.totalDelegations * store.aprNow)/100)/52) * store.chainSelectedPrice) }}</strong>              
+              </p>    <p>- If compound a year add fees in calculation>:
+               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(((this.requete *(1 + (store.aprNow/100)/12)^12*20 ))) }}</strong>
+                = $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum((((this.requete * store.aprNow)/100)/12) * store.chainSelectedPrice) }}</strong>              
+              </p>  --> 
+          </v-sheet>
+         
             </v-col>
             
-          </v-row>  
+          </v-row> 
+             <v-sheet class="pa-2 ma-2 text-right" >
+          <button v-on:click="updateAPR"> Update </button>
+         </v-sheet>
         </v-sheet>
         
       </v-col>
@@ -167,7 +193,7 @@
         cols="12"
         sm="4"
       >
-      <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="250">
+      <v-sheet border class="ma-2 pa-2" rounded="lg" min-height="300">
           <v-row no-gutters>
             <v-col
               cols="12"
@@ -182,15 +208,13 @@
             <v-col
               cols="12"
               sm="12"
-              class="text-right"
+              class="text-left"
             >
               <v-sheet class="pa-2">
-                CommunityPool: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.communityPool) }}</strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-                <br>Total supply: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.totalSupply) }} </strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-                <br>Total supply price: $<strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.totalSupplyPrice) }}</strong> 
-              <br> APR: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.aprNow)}}</strong> %
-              <br> Inflation:  <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.finalStats.inflation) }}</strong> %
-              <br> Bounded: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.finalStats.bondedTokens) }}</strong>   
+               <p> CommunityPool: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.communityPool) }}</strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}</p>
+                <p>Total supply: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.totalSupply) }} </strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}</p>
+                <p>Total supply price: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.totalSupplyPrice) }}</strong> USD </p>
+              <p>Bounded: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ formatNum(store.finalStats.bondedTokens) }}</strong> {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}  </p>
             </v-sheet>              
             </v-col>
             
@@ -205,7 +229,7 @@
     > 
     <v-card class="ma-2 pa-2" >
     <v-card-title>
-      Search {{ cosmosConfig[store.setChainSelected].name }} validators<br /><br />
+      Search <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ cosmosConfig[store.setChainSelected].name }}</strong> validators<br /><br />
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search" 
@@ -224,10 +248,12 @@
     >
       <template v-slot:item="{ item }">
         <tr>
-          <td>{{ item.columns['description.moniker'] }}</td>
+          <td><a :href= "item.columns['description.website']" target='_blank'>{{ item.columns['description.moniker'] }}</a></td>
           <td>{{ item.columns['commission.commission_rates.rate'] * 100 }}%</td>
           <td>{{ item.columns['tokens'] / 1000000 }}</td>
-          <td><a :href= "item.columns['description.website']" target='_blank'>{{ item.columns['description.website'] }}</a></td> 
+          <td>{{ item.columns['delegator_shares'] / 1000000 }}</td>
+          <td><a :href= "item.columns['description.website']" target='_blank'>{{ item.columns['description.website'] }}</a></td>
+          
         </tr>
       </template> 
     </v-data-table>
@@ -249,14 +275,19 @@ export default {
       {
         align: 'start',
         key: 'description.moniker',
-        sortable: false,
+        sortable: true,
         title: 'Moniker', 
       },
       { key: 'commission.commission_rates.rate', title: 'Commission' },
       { key: 'tokens', title: 'Bounded' },
-      { key: 'description.website', title: 'Website' } 
+      { key: 'delegator_shares', title: 'Delegator Shares' },
+      { key: 'description.website', title: 'WebSite' } 
     ],
-    desserts: [
+    posts: '',
+    message: '',
+    requete: ['requete'],
+   
+   /* desserts: [
           {
             name: 'Frozen Yogurt',
             calories: 159,
@@ -265,99 +296,37 @@ export default {
             protein: 4.0,
             iron: 1,
           },
-          {
-            name: 'Ice cream sandwich',
-            calories: 237,
-            fat: 9.0,
-            carbs: 37,
-            protein: 4.3,
-            iron: 1,
-          },
-          {
-            name: 'Eclair',
-            calories: 262,
-            fat: 16.0,
-            carbs: 23,
-            protein: 6.0,
-            iron: 7,
-          },
-          {
-            name: 'Cupcake',
-            calories: 305,
-            fat: 3.7,
-            carbs: 67,
-            protein: 4.3,
-            iron: 8,
-          },
-          {
-            name: 'Gingerbread',
-            calories: 356,
-            fat: 16.0,
-            carbs: 49,
-            protein: 3.9,
-            iron: 16,
-          },
-          {
-            name: 'Jelly bean',
-            calories: 375,
-            fat: 0.0,
-            carbs: 94,
-            protein: 0.0,
-            iron: 0,
-          },
-          {
-            name: 'Lollipop',
-            calories: 392,
-            fat: 0.2,
-            carbs: 98,
-            protein: 0,
-            iron: 2,
-          },
-          {
-            name: 'Honeycomb',
-            calories: 408,
-            fat: 3.2,
-            carbs: 87,
-            protein: 6.5,
-            iron: 45,
-          },
-          {
-            name: 'Donut',
-            calories: 452,
-            fat: 25.0,
-            carbs: 51,
-            protein: 4.9,
-            iron: 22,
-          },
-          {
-            name: 'KitKat',
-            calories: 518,
-            fat: 26.0,
-            carbs: 65,
-            protein: 7,
-            iron: 6,
-          },
-        ],
+          */
   }),
   setup() {
     const store = useAppStore() 
     return {
-      store
+      store,
+      msg:'',
+      message:'',
+      requete: '',
+      temps:'',
+     
     }
   },
   computed: {
 
   },
   methods: {
+    submit () {  this.posts = this.requete },
+    updateAPR () { this.posts = (this.requete * this.store.aprNow)/100 },
+    
     formatNum(nombre){
       return new Intl.NumberFormat().format(nombre)
     },
+    
     truncateString(str, num) {
       if (str.length <= num) {
         return str
       }
       return str.slice(0, num) + '...'
     }
+    
   }
 }   
 </script>
