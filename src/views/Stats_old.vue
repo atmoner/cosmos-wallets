@@ -28,7 +28,7 @@
                 
               </td>
               <td> 
-                  
+                 <!-- {{ store }} -->
               </td>
             </tr>
             
@@ -37,13 +37,11 @@
       </v-sheet>
     </v-col>
   </v-row>
-  {{ store.allValidators  }} <br> BOOBBB
-  {{ store.MyValidator  }}
 </template> 
 <script>
 import { useAppStore } from '@/store/app'
 import cosmosConfig from '../cosmos.config' 
-//import { mapState } from 'vue'{{ store.allValidators }} 
+import { mapState } from 'vuetify'
 export default { //djoe
   data: () => ({
     cosmosConfig: cosmosConfig,
@@ -60,9 +58,9 @@ export default { //djoe
     ],
   }),
   computed: {
-    //...mapState('data', ['chainId', 'chainValidator', 'finalChainValidator', 'totalTokenBonded', 'inflation', 'allSupply']),
+    ...mapState('data', ['chainId', 'chainValidator', 'finalChainValidator', 'totalTokenBonded', 'inflation', 'allSupply']),
   },
-/* async mounted () {
+async mounted () {
 
     const foundChain = cosmosConfig.find(element => element.slot === this.$route.params.chain)
     this.chainDenom = foundChain.coinLookup.viewDenom
@@ -101,12 +99,12 @@ export default { //djoe
         disabled: true
     })
 
-*/
-  
+
+  },
 
   setup() {
     const store = useAppStore()
-    //console.log(store.spendableBalances) 
+    console.log(store.spendableBalances) 
 
     return {
       store

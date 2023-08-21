@@ -28,6 +28,7 @@ export const useAppStore = defineStore('app', {
     ibcVersion: '',
     addrWallet: '',
     nameWallet: '',
+    
     spendableBalances: 0,
     totalDelegations: 0,
     totalUnbound: 0,
@@ -38,6 +39,20 @@ export const useAppStore = defineStore('app', {
     },
     totalMyValidators: 0,
     allValidators: [],
+    
+    allValidatorsProps: [], //djoekim
+  
+
+    chainDenom: '',
+    chainSlug: '',
+    breadcrumbsData: [
+      {
+        text: 'Dashboard',
+        disabled: false,
+        href: '/',
+      }
+    ],
+    
     countAllValidators: 0,
     totalDelegationsRewards: [],
     setChainSelected: 0, 
@@ -49,17 +64,18 @@ export const useAppStore = defineStore('app', {
     isValidator: false,
     myValidatorData: null,
     myValidatorReward: null,
+    MyValidator:[],
     allPrice: [],
     chainSelectedPrice: '',
     fiatWalletValue: 0,
     totalTokens: 0,
     totalSupply: 0,
-    totalSupplyPrice: 0,
+    totalSupplyPrice: '',
     communityPool: 0,
     aprNow: 0,
     finalStats: {},
     allHomeProposals: [],
-
+    delagatorValidators:[],
   }),
   actions: {
     resetData() {
@@ -86,6 +102,8 @@ export const useAppStore = defineStore('app', {
       this.myValidatorData = null;
       this.myValidatorReward = null; 
       this.fiatWalletValue = 0;
+      this.totalSupplyPrice = '';
+    
     },
     async initRpc() {      
       if(this.rpcClient) {
@@ -128,31 +146,7 @@ export const useAppStore = defineStore('app', {
       ); 
       this.allPrice = allPrice.data
     },
-    async getApr() {
-      const totalSupply = await axios(
-        cosmosConfig[this.setChainSelected].apiURL + "/cosmos/bank/v1beta1/supply?pagination.reverse=true"
-      );
-      const inflation = await axios(
-        cosmosConfig[this.setChainSelected].apiURL + "/cosmos/mint/v1beta1/inflation"
-      );
-      const boundedsupply = await axios(
-        cosmosConfig[this.setChainSelected].apiURL + "/cosmos/staking/v1beta1/pool"
-      );
-
-      let foundSupply = totalSupply.data.supply.find(
-        (element) =>
-          element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom
-      );
-      
-      let finalApr = (
-        ((foundSupply.amount * this.finalStats.inflation) / boundedsupply.data.pool.bonded_tokens)
-      );
-      this.aprNow = finalApr
-      //console.log ('boundedsupply.data.pool.bonded_tokens',boundedsupply.data.pool.bonded_tokens)
-      //console.log('aprNow',this.aprNow)
-      //console.log('test', foundSupply.amount)
-      // commit("setAprNow", finalApr);
-    },
+    
     async setChainPrice() {
       const foundPrice = this.allPrice[cosmosConfig[this.setChainSelected].coingeckoId] 
       //console.log('setPricechain', foundPrice.usd)
@@ -190,6 +184,7 @@ export const useAppStore = defineStore('app', {
       this.totalSupply = totalSupply.amount.amount 
       this.totalSupplyPrice = ((totalSupply.amount.amount / 1000000) * this.chainSelectedPrice) 
     },
+    // getDelegator ?
     async getStakingModule() {    
       const queryStaking = new staking.QueryClientImpl(this.rpcClient); 
       let delegatorValidators = await queryStaking.DelegatorDelegations({ delegatorAddr: this.addrWallet, pagination: {
@@ -199,8 +194,8 @@ export const useAppStore = defineStore('app', {
         limit: Long.fromNumber(200, true),
         reverse: false,
       }}); 
-      //console.log(queryStaking)
-      console.log(delegatorValidators)
+      //console.log('queryStaking',queryStaking)
+      //console.log('delagatorValidators',delegatorValidators)
       let total = 0;  
       let allUnbound = await queryStaking.DelegatorUnbondingDelegations({ delegatorAddr: this.addrWallet });       
       let totalUnbound = 0;
@@ -231,8 +226,10 @@ export const useAppStore = defineStore('app', {
       } else {
         returnValue = 0
       }
-
+      //console.log('queryDistribResult', queryDistribResult)
       let oldValue = this.totalRewards
+      //djoekim
+      this.MyValidator= queryDistribResult.rewards
       this.totalMyValidators = queryDistribResult.rewards.length
       this.totalDelegationsRewards = queryDistribResult.rewards
       this.totalRewards = returnValue
@@ -249,8 +246,8 @@ export const useAppStore = defineStore('app', {
       // console.log('Authz', queryAuthzResult)
 
       for (let i = 0; i < queryAuthzResult.grants.length; i++) {
-        console.log('Authz', queryAuthzResult.grants[i])
-        console.log('Authz', GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)) 
+        //console.log('Authz', queryAuthzResult.grants[i])
+        //console.log('Authz', GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)) 
         queryAuthzResult.grants[i].finaleAuthzType = GenericAuthorization.decode(queryAuthzResult.grants[i].authorization.value)
       }
       
@@ -262,11 +259,11 @@ export const useAppStore = defineStore('app', {
       const queryAllowancesByGranterResult = await queryFeegrant.AllowancesByGranter({ granter: this.addrWallet });  
       this.myFeeAllowances = queryFeegrantResult.allowances 
       this.myFeeGrants = queryAllowancesByGranterResult.allowances
-
+      //console.log('myFeeGrants', myFeeGrants)
     }, 
     async getAllProps() {
       // List of proposal from the blockchain
-      console.log(this.sdkVersion.substring(0,5))
+      //console.log(this.sdkVersion.substring(0,5))
       let finalVersion = 'v1beta1'
       if(this.sdkVersion.substring(0,5) === 'v0.47') {        
         finalVersion = 'v1'
@@ -373,40 +370,33 @@ export const useAppStore = defineStore('app', {
       //console.log(this.finalStats)
       // commit('updateChainsStats', finalStats)
     }, 
-    /*async getTransactions() { 
-      const queryDelegate = buildQuery({
-        tags: [
-          { key: "transfer.recipient", value: this.addrWallet },
-          { key: "message.sender", value: this.addrWallet }, 
-        ],
-      });
-      const resultDelegate = await this.rpcBase.txSearch({
-        query: queryDelegate,
-        page: 1, 
-        per_page: 5,
-        order_by: "desc"
-      });
+    async getApr() {
+      const totalSupply = await axios(
+        cosmosConfig[this.setChainSelected].apiURL + "/cosmos/bank/v1beta1/supply?pagination.reverse=true"
+      );
+      const inflation = await axios(
+        cosmosConfig[this.setChainSelected].apiURL + "/cosmos/mint/v1beta1/inflation"
+      );
+      const boundedsupply = await axios(
+        cosmosConfig[this.setChainSelected].apiURL + "/cosmos/staking/v1beta1/pool"
+      );
+
+      let foundSupply = totalSupply.data.supply.find(
+        (element) =>
+          element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom
+      );
       
-      this.lastTransactions = resultDelegate.txs 
-      for (let i of this.lastTransactions) {
-        const decoded = decodeTxRaw(i.tx);
-        i.decodedTx = decoded;
-        i.decodedEvents = JSON.parse(i.result.log);   
+      let finalApr = (
+        ((foundSupply.amount * this.finalStats.inflation) / boundedsupply.data.pool.bonded_tokens)
+      );
+      this.aprNow = finalApr
+      //console.log ('boundedsupply.data.pool.bonded_tokens',boundedsupply.data.pool.bonded_tokens)
+      //console.log('aprNow',this.aprNow)
+      //console.log('test', foundSupply.amount)
+      // commit("setAprNow", finalApr);
+    },
+
  
-
-        let findMsg = i.decodedEvents[0].events.find(element => element.type === 'message')
-        let finalType = findMsg.attributes.find(element => element.key === 'action')
-
-        i.type = finalType.value;  
-
-        let finalSyntax = setMsg(
-          i.type,
-          i.decodedEvents
-        );
-        // console.log(finalSyntax)
-        i.finalSyntax = finalSyntax;  
-      }
-    }, */
     // LCD API part 
     async getAllValidators() {
       let test = await fetch(cosmosConfig[this.setChainSelected].apiURL +'/cosmos/staking/v1beta1/validators?pagination.limit=500&status=BOND_STATUS_BONDED') 
@@ -434,6 +424,7 @@ export const useAppStore = defineStore('app', {
 
 
     }, 
+
     async keplrConnect() {
 
       await window.keplr.experimentalSuggestChain({
@@ -486,11 +477,11 @@ export const useAppStore = defineStore('app', {
       const offlineSigner = await window.getOfflineSignerAuto(chainId);
       const accounts = await offlineSigner.getAccounts();
       const getKey = await window.keplr.getKey(chainId);
-      console.log('addr: '+accounts[0].address)
+      //console.log('addr: '+accounts[0].address)
       this.addrWallet = accounts[0].address
       this.nameWallet = getKey
       this.isLogged = true
-      // console.log('addr: '+accounts[0].address)
+      //console.log('addr: '+accounts[0].address)
       /* commit('setAddrWallet', accounts[0].address)
       commit('setNameWallet', getKey.name)
       dispatch('getAccountData') */
@@ -498,3 +489,37 @@ export const useAppStore = defineStore('app', {
     },
   }
 })
+   /*async getTransactions() { 
+      const queryDelegate = buildQuery({
+        tags: [
+          { key: "transfer.recipient", value: this.addrWallet },
+          { key: "message.sender", value: this.addrWallet }, 
+        ],
+      });
+      const resultDelegate = await this.rpcBase.txSearch({
+        query: queryDelegate,
+        page: 1, 
+        per_page: 5,
+        order_by: "desc"
+      });
+      
+      this.lastTransactions = resultDelegate.txs 
+      for (let i of this.lastTransactions) {
+        const decoded = decodeTxRaw(i.tx);
+        i.decodedTx = decoded;
+        i.decodedEvents = JSON.parse(i.result.log);   
+ 
+
+        let findMsg = i.decodedEvents[0].events.find(element => element.type === 'message')
+        let finalType = findMsg.attributes.find(element => element.key === 'action')
+
+        i.type = finalType.value;  
+
+        let finalSyntax = setMsg(
+          i.type,
+          i.decodedEvents
+        );
+        // console.log(finalSyntax)
+        i.finalSyntax = finalSyntax;  
+      }
+    }, */

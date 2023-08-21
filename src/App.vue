@@ -134,30 +134,7 @@
                   </v-sheet>          
                 </v-col>
               </v-row>
-            </v-sheet>
-            <v-sheet
-              border
-              rounded="lg"
-              class="mb-4 mt-2"
-            >
-
-            <v-table>
-                  <tbody>
-                    <tr>
-                      <td>SDK version</td>
-                      <td class="text-right">
-                        <span :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.sdkVersion }}</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>IBC version</td>
-                      <td class="text-right">
-                        <span :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.ibcVersion }}</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </v-table>
-            </v-sheet>
+            </v-sheet>           
 
 <!--             <v-sheet
               rounded="lg"
@@ -188,7 +165,7 @@
             >
 
               <v-list rounded="lg">
-                <span class="ma-4 text-h6 ">Select chain</span>
+                <span class="ma-4 text-h6" :style="'color:' + cosmosConfig[store.setChainSelected].color">Select chain</span><hr>
                 <v-list-item
                   v-model="chainSelected"
                   v-for="(item, i) in cosmosConfig"
@@ -196,7 +173,7 @@
                   :value="item"
                   @click="changeChain(i)"
                 >
-                  <template v-slot:prepend>
+                  <template v-slot:prepend >
                     <v-avatar>
                       <v-img
                         :src="item.coinLookup.icon"
@@ -206,8 +183,8 @@
                       ></v-img>
                     </v-avatar>
                   </template>
-
-                  <v-list-item-title v-text="item.name"></v-list-item-title>
+                    
+                  <v-sheet class="pa-2 ma-1" >{{ item.name }}</v-sheet>
                 </v-list-item>
               </v-list>
             </v-sheet>
@@ -226,6 +203,29 @@
                 </v-list-item>
               </v-list>
             </v-sheet>
+            <v-sheet
+              border
+              rounded="lg"
+              class="mb-4 mt-2"
+            >
+
+            <v-table>
+                  <tbody>
+                    <tr>
+                      <td>SDK version</td>
+                      <td class="text-right">
+                        <span :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.sdkVersion }}</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>IBC version</td>
+                      <td class="text-right">
+                        <span :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.ibcVersion }}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+            </v-sheet>
           </v-col>
 
           <v-col
@@ -236,7 +236,7 @@
           </v-col>
         </v-row>
         <v-row v-else class="mt-4" >
-          <!--Not loged-->
+          <!--Not logged-->
         </v-row>
       </v-container>
     </v-main>
@@ -347,6 +347,7 @@ export default {
       await this.store.checkIsValidator()
       await this.store.getChainStats()
       await this.store.getApr()
+      
 
       //await this.store.getAllPrice()
     })
@@ -377,6 +378,7 @@ export default {
       await this.store.getWalletAmount()
       await this.store.getChainStats()
       await this.store.getApr()
+      await this.store.getAllPrice() 
     },
     async keplrConnect() {
       await this.store.keplrConnect()
@@ -396,6 +398,7 @@ export default {
       await this.store.getWalletAmount()
       await this.store.getChainStats()
       await this.store.getApr()
+      await this.store.getAllPrice() 
     },
     addNewChain() {
       console.log('addNewChain')

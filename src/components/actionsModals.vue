@@ -571,7 +571,7 @@
           <v-card-text>     
             <div v-if="step1">
               <span class="mr-2">Select an validator</span>
-              <v-sheet 
+              <v-sheet              
                 v-for="item in store.allValidators" 
                 border="md" 
                 class="ma-2 pa-2" 
@@ -1175,7 +1175,7 @@ export default {
           );
           assertIsDeliverTxSuccess(result);
           console.log(result)
-          console.log(result)
+          //console.log(result)
           this.txResult = result
           this.step2 = false;
           this.step3 = true;
