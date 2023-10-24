@@ -54,6 +54,16 @@ const routes = [
     ],
   },
   {
+    path: '/create-proposal',
+    children: [
+      {
+        path: '',
+        name: 'Create proposal',
+        component: () => import('@/views/CreateProposals.vue'),
+      },
+    ],
+  },
+  {
     path: '/wasm',
     children: [
       {
@@ -133,7 +143,56 @@ const routes = [
       },
     ],
   },
-  
+  {
+    path: '/group',
+    children: [
+      {
+        path: '',
+        name: 'Group',
+        component: () => import('@/views/Group.vue'),
+      },
+    ],
+  },
+  {
+    path: '/group/:id',
+    children: [
+      {
+        path: '',
+        name: 'GroupDetail',
+        component: () => import('@/views/GroupDetail.vue'),
+      },
+    ],
+  },  
+  {
+    path: '/group/:id/policy',
+    children: [
+      {
+        path: '',
+        name: 'GroupDetailPolicy',
+        component: () => import('@/views/GroupDetailPolicy.vue'),
+      },
+    ],
+  }, 
+  {
+    path: '/group/:id/create-proposal',
+    children: [
+      {
+        path: '',
+        name: 'GroupCreateProposal',
+        component: () => import('@/views/GroupCreateProposals.vue'),
+      },
+    ],
+  }, 
+  {
+    path: '/group/:id/proposal/:id_prop',
+    children: [
+      {
+        path: '',
+        name: 'GroupViewProposal',
+        component: () => import('@/views/GroupDetailProposal.vue'),
+      },
+    ],
+  },   
 ]
 
 const router = createRouter({

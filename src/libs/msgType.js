@@ -2,7 +2,7 @@ export function setMsg(data, timestamp, txhash, all) {
   let finalType = data["@type"];
   let finalData = '';
   let titleMsg = ""; 
-  let code = all.code
+  let code = all?.code
 
 
   // console.log(all)
@@ -154,6 +154,17 @@ export function setMsg(data, timestamp, txhash, all) {
       //console.log(finalData)
       break;
 
+    // Group module
+    case "/cosmos.group.v1.MsgSubmitProposal":  
+    titleMsg = "Submit Group Proposal"
+    //console.log(finalData)
+    break;
+
+    case "/cosmos.group.v1.MsgCreateGroupWithPolicy":  
+    titleMsg = "Create Group With Policy"
+    //console.log(finalData)
+    break;
+    
     default:
       console.log("Sorry, dont know " + finalType + ".");
   }

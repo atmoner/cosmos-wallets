@@ -64,6 +64,15 @@ export default defineComponent({
     chartOptions() { 
       return {
         indexAxis: 'y', 
+        plugins: {
+          legend: {
+            display: false,
+          },
+          title: {
+            display: true,
+            text: '',
+          },
+        },
  
       };
     },      

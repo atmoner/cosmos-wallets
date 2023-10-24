@@ -12,6 +12,7 @@ import pinia from '../store'
 import router from '../router'
 import Trend from 'vue3trend'
 
+
 export function registerPlugins (app) {
   loadFonts()
   app

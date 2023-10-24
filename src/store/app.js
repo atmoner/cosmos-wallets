@@ -9,6 +9,7 @@ import { buildQuery } from "@cosmjs/tendermint-rpc/build/tendermint37/requests.j
 import { decodeTxRaw } from "@cosmjs/proto-signing";
 import cosmosConfig from '../cosmos.config'
 import { setMsg } from "../libs/msgType";
+import { setMsgGroup } from "../libs/msgTypeGroup";
 import { setAuthzMsg } from "../libs/msgAuthzType";
 
 
@@ -19,6 +20,8 @@ import * as gov from "cosmjs-types/cosmos/gov/v1beta1/query";
 import * as authz from "cosmjs-types/cosmos/authz/v1beta1/query";
 import * as feegrant from "cosmjs-types/cosmos/feegrant/v1beta1/query";
 import { GenericAuthorization, GrantAuthorization } from "cosmjs-types/cosmos/authz/v1beta1/authz";
+import * as group from "cosmjs-types/cosmos/group/v1/query";
+
 
 export const useAppStore = defineStore('app', {
   state: () => ({ 
@@ -65,7 +68,15 @@ export const useAppStore = defineStore('app', {
     finalAllaWalletsData: [],
     chainInflation: '',
     poolStaking: '',
-    marketTokenInfo: ''
+    marketTokenInfo: '',
+    allGroup: [],
+    finalAmountGroup: 0,
+    finalGroupMembers: [],
+    finalGroupPolicies: [],
+    finalGroupProposals: [],
+    finalGroupPropMsg: [],
+    finalGroupPropMsgType: [],
+    finalGroupProposalId : ''
   }),
   actions: {
     resetData() {
@@ -92,6 +103,8 @@ export const useAppStore = defineStore('app', {
       this.myValidatorData = null;
       this.myValidatorReward = null; 
       this.fiatWalletValue = 0;
+      this.allGroup = [];
+      this.finalAmountGroup = 0;
     },
     async initRpc() {      
       if(this.rpcClient) {
@@ -281,7 +294,7 @@ export const useAppStore = defineStore('app', {
         finalVersion = 'v1'
       } 
       const allProposals = await axios(
-        cosmosConfig[this.setChainSelected].apiURL + '/cosmos/gov/'+finalVersion+'/proposals'
+        cosmosConfig[this.setChainSelected].apiURL + '/cosmos/gov/'+finalVersion+'/proposals?pagination.limit=12&pagination.reverse=true'
       ); 
       const communityPool = await axios(
         cosmosConfig[this.setChainSelected].apiURL + '/cosmos/distribution/v1beta1/community_pool'
@@ -447,13 +460,13 @@ export const useAppStore = defineStore('app', {
         cosmosConfig[this.setChainSelected].apiURL +
           "/cosmos/tx/v1beta1/txs?events=message.sender=%27" +
           this.addrWallet +
-          "%27&limit=20&order_by=2"
+          "%27&limit=10&order_by=2"
       );
       const resultRecipient = await axios(
         cosmosConfig[this.setChainSelected].apiURL +
           "/cosmos/tx/v1beta1/txs?events=transfer.recipient=%27" +
           this.addrWallet +
-          "%27&limit=20&order_by=2"
+          "%27&limit=10&order_by=2"
       );
       const finalTxs = await resultSender.data.tx_responses.concat(
         resultRecipient.data.tx_responses
@@ -557,9 +570,69 @@ export const useAppStore = defineStore('app', {
         this.myValidatorData = myValidatorData.data
         this.myValidatorReward = (myValidatorRewards.data?.commission.commission[0].amount / 1000000).toFixed(2)
       }
-
-
     }, 
+    async getAllGroups() { 
+      const queryGroup = new group.QueryClientImpl(this.rpcClient);      
+      console.log(queryGroup)
+      
+
+      const queryGroupResult = await queryGroup.Groups({  }); 
+      console.log(queryGroupResult)
+      this.allGroup = queryGroupResult.groups
+      
+    },    
+    async getGroupId(id) { 
+      const queryGroup = new group.QueryClientImpl(this.rpcClient);
+
+      console.log(queryGroup)
+ 
+      let idGroup = Long.fromNumber(id, true)
+      const queryGroupResult = await queryGroup.GroupPoliciesByGroup({ groupId: idGroup }); 
+      const queryGroupMembersResult = await queryGroup.GroupMembers({ groupId: idGroup });  
+      
+
+      let finalAmout = 0
+      for (let i = 0; i < queryGroupResult.groupPolicies.length; i++) {
+        console.log('groupPolicies', queryGroupResult.groupPolicies[i]) 
+
+        const queryBank = new bank.QueryClientImpl(this.rpcClient); 
+        let spendableBalances = await queryBank.SpendableBalances({ address: queryGroupResult.groupPolicies[i].address });
+        //let allBalances = await queryBank.AllBalances({ address: queryGroupResult.groupPolicies[i].address });
+        //console.log(spendableBalances)
+        
+        const found = spendableBalances.balances.find(element => element.denom === cosmosConfig[this.setChainSelected].coinLookup.chainDenom);
+        console.log('found', found)
+        if (typeof found !== 'undefined') 
+          finalAmout += Number(found?.amount)
+      }
+      console.log(finalAmout)
+      this.finalAmountGroup = finalAmout / 1000000      
+      this.finalGroupMembers = queryGroupMembersResult
+      this.finalGroupPolicies = queryGroupResult.groupPolicies
+ 
+      let proposalsOfGroup = []       
+      for (let i = 0; i < queryGroupResult.groupPolicies.length; i++) {
+        let queryGroupProposalsResult = await queryGroup.ProposalsByGroupPolicy({ address: queryGroupResult.groupPolicies[i].address }); 
+        console.log('queryGroupProposalsResult', queryGroupProposalsResult.proposals.length)
+        if(queryGroupProposalsResult.proposals.length !== 0) {        
+          proposalsOfGroup.push(queryGroupProposalsResult.proposals[i])
+          //console.log('date', queryGroupProposalsResult.proposals[i].votingPeriodEnd.seconds.low)
+        }
+      }  
+
+ 
+      console.log('proposalsOfGroup', proposalsOfGroup)
+      this.finalGroupProposals = proposalsOfGroup
+    }, 
+    async getGroupProposalsId(id) { 
+      const queryGroup = new group.QueryClientImpl(this.rpcClient);      
+      console.log(Number(id))
+      
+
+      const queryGroupProposalResult = await queryGroup.Proposal({ proposalId: Long.fromNumber(id, true) }); 
+      console.log(queryGroupProposalResult) 
+      this.finalGroupProposalId = queryGroupProposalResult
+    },   
     async allWalletByChain(key) {
       
       this.finalAllaWalletsData = []
@@ -619,6 +692,15 @@ export const useAppStore = defineStore('app', {
         }) */
         console.log(this.finalAllaWalletsData)
     },
+    addGroupMessage(msg) {
+      console.log(msg)
+      this.finalGroupPropMsg.push(setMsgGroup(msg))
+      this.finalGroupPropMsgType.push(msg)
+      
+
+
+    },
+
     async keplrConnect() {
 
       await window.keplr.experimentalSuggestChain({

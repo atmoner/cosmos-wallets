@@ -1,5 +1,83 @@
 export default [
   {
+    chainId: 'earendel-1',
+    name: 'Qwoyn',
+    desc: 'Experience the Future of Blockchain Technology.',
+    slot: "qwoyn",
+    apiURL: 'https://testnet-api.qwoyn.studio',
+    rpcURL: 'https://testnet-rpc.qwoyn.studio',
+    coinLookup: {
+      viewDenom: 'QWOYN',
+      chainDenom: 'uqwoyn',
+      addressPrefix: 'qwoyn',
+      icon: `https://i.imgur.com/r5urIgD.png`,
+      banner: "https://i.imgur.com/VBAz0cj.png",
+    },
+    coingeckoId: 'bitcanna',
+    feeMultiplier: 1.3,
+    gasPrice: 0.075,
+    color: '#3AC0B8',
+    colorChart: ["#107c75", "#3AC0B8", "#70e5dd", "#d0eae8"],
+    modules: {
+      feeGrant: true,
+      authz: true,
+      wasm: true,
+      group: true,
+    }
+  },
+  {
+    chainId: 'bitcanna-dev-6',
+    name: 'Bitcanna-testnet',
+    slot: "Bitcanna-testnet",
+    desc: '',
+    apiURL: 'https://lcd-devnet-6.bitcanna.io',
+    rpcURL: 'https://rpc-devnet-6.bitcanna.io',
+    coinLookup: {
+      viewDenom: 'BCNA',
+      chainDenom: 'ubcna',
+      addressPrefix: 'bcna',
+      icon: `https://raw.githubusercontent.com/cosmos/chain-registry/master/bitcanna/images/bcna.svg`,
+      banner: "https://pbs.twimg.com/profile_banners/602625556/1649007099/1500x500",
+    },
+    coingeckoId: 'bitcanna',
+    feeMultiplier: 1.3,
+    gasPrice: 0.075,
+    color: '#33ffc9',
+    colorChart: ["#b3ffeb", "#33ffc9", "#00b383", "#004d38"],
+    modules: {
+      feeGrant: true,
+      authz: true,
+      wasm: false,
+      group: true,
+    }
+  },
+  {
+    chainId: '90u-2',
+    name: 'Terp-testnet',
+    slot: "terp",
+    desc: '',
+    apiURL: 'https://terp-testnet-api.itrocket.net:443',
+    rpcURL: 'https://terp-testnet-rpc.itrocket.net:443',
+    coinLookup: {
+      viewDenom: 'THIOL',
+      chainDenom: 'uthiolx',
+      addressPrefix: 'terp',
+      icon: `https://raw.githubusercontent.com/cosmos/chain-registry/master/terpnetwork/images/logo.png`,
+      banner: "https://pbs.twimg.com/profile_banners/1412867039518244866/1681160633/1500x500",
+    },
+    coingeckoId: 'bitcanna',
+    feeMultiplier: 1.3,
+    gasPrice: 0.075,
+    color: '#434349',
+    colorChart: ["#2b2b2b", "#434349", "#93939b", "#d1d1d3"],
+    modules: {
+      feeGrant: true,
+      authz: true,
+      wasm: false,
+      group: true,
+    }
+  },
+  {
     chainId: "cosmoshub-4",
     name: "Atom",
     desc: "Cosmos is an ever-expanding ecosystem of interoperable and sovereign blockchain apps and services, built for a decentralized future.",
@@ -23,6 +101,34 @@ export default [
       feeGrant: true,
       authz: true,
       wasm: false,
+      group: false,
+    }
+  },
+    {
+    chainId: "akashnet-2",
+    name: "Akash",
+    desc: "Akash is an open Supercloud network that makes it easy to rapidly scale and access services around the world.",
+    slot: "akash",
+    apiURL: "https://rest-akash.ecostake.com",
+    rpcURL: "https://rpc-akash.ecostake.com:443",
+    coinLookup: {
+      viewDenom: "AKT",
+      chainDenom: "uakt",
+      addressPrefix: "akash",
+      icon: "https://raw.githubusercontent.com/cosmos/chain-registry/master/akash/images/akt.svg",
+      banner: "https://raw.githubusercontent.com/BitCannaGlobal/cosmospay-woocommerce/main/public/img/Akash.png",
+    },
+    feeMultiplier: 1.3,
+    gasPrice: 0.025,
+    explorerUrl: 'https://www.mintscan.io/cosmos/txs/',
+    coingeckoId: 'akash-network',
+    color: '#F34C2D',
+    colorChart: ["#b25747", "#F34C2D", "#ad594a", "#89584f"],
+    modules: {
+      feeGrant: true,
+      authz: true,
+      wasm: false,
+      group: false,
     }
   },
   {
@@ -49,6 +155,7 @@ export default [
       feeGrant: true,
       authz: true,
       wasm: false,
+      group: true,
     }
   },
   {
@@ -75,6 +182,7 @@ export default [
       feeGrant: true,
       authz: true,
       wasm: false,
+      group: false,
     }
   },
   {
@@ -82,11 +190,11 @@ export default [
     name: 'Chihuahua',
     slot: "chihuahua",
     desc: 'Chihuahua is the first interoperable meme coin with a POS blockchain, making it one of the most utilized chains in the Cosmos ecosystem',
-    //apiURL: 'https://api.chihuahua.wtf',
-    //rpcURL: 'https://rpc.chihuahua.wtf',
-    apiURL: 'https://rest.cosmos.directory/chihuahua',
-    rpcURL: 'https://rpc.cosmos.directory/chihuahua',
-    
+    apiURL: 'https://api.chihuahua.wtf',
+    rpcURL: 'https://rpc.chihuahua.wtf',
+    //apiURL: 'https://rest.cosmos.directory/chihuahua',
+    //rpcURL: 'https://rpc.cosmos.directory/chihuahua',
+
 
     coinLookup: {
       viewDenom: 'HUAHUA',
@@ -104,6 +212,7 @@ export default [
       feeGrant: true,
       authz: true,
       wasm: true,
+      group: true,
     }
   },
   {
@@ -130,6 +239,7 @@ export default [
       feeGrant: true,
       authz: true,
       wasm: false,
+      group: false,
     }
   },
   {
@@ -155,6 +265,7 @@ export default [
       feeGrant: true,
       authz: true,
       wasm: false,
+      group: false,
     }
   },
   {
@@ -180,6 +291,7 @@ export default [
       feeGrant: true,
       authz: true,
       wasm: false,
+      group: false,
     }
   },
   {
@@ -205,31 +317,7 @@ export default [
       feeGrant: true,
       authz: true,
       wasm: false,
+      group: false,
     }
-  },
-/*   {
-    chainId: 'dydx-testnet-1',
-    name: 'DYdX Testnet',
-    slot: "dydx",
-    desc: 'Trading, decentralized. Trade Perpetual Contracts with low fees, deep liquidity, and up to 20× more Buying Power.',
-    apiURL: 'http://3.128.51.185:1317',
-    rpcURL: 'http://3.128.51.185:26657',
-    coinLookup: {
-      viewDenom: 'DV4TNT',
-      chainDenom: 'dv4tnt',
-      addressPrefix: 'dydx',
-      icon: `https://dydx.exchange/icon.svg`,
-      banner: "https://i.imgur.com/LtmUTOQ.png",
-    },
-    coingeckoId: 'bitcanna',
-    feeMultiplier: 1.3,
-    gasPrice: 0.075,
-    color: '#6A67CE',
-    colorChart: ["#090730", "#6A67CE", "#6D95FF", "#09CFFF"],
-    modules: {
-      feeGrant: true,
-      authz: true,
-      wasm: false,
-    }
-  }, */
+  }
 ]

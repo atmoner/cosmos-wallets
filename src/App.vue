@@ -25,9 +25,21 @@
         <v-tab to="/staking">
           <span>Staking</span>
         </v-tab>
-        <v-tab to="/proposals">
-          <span>Proposals</span>
-        </v-tab>
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-tab v-bind="props">
+              <span>Proposals</span>
+            </v-tab>
+          </template>
+          <v-list>
+            <v-list-item to="/proposals">
+              <v-list-item-title>All proposals</v-list-item-title>
+            </v-list-item>
+            <v-list-item to="/create-proposal">
+              <v-list-item-title>Create proposal</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
         <v-tab v-if="cosmosConfig[store.setChainSelected].modules.wasm" to="/wasm">
           <span>Wasm</span>
         </v-tab>
@@ -36,6 +48,9 @@
         </v-tab>
         <v-tab v-if="cosmosConfig[store.setChainSelected].modules.feeGrant" to="/feegrant">
           <span>Feegrant</span>
+        </v-tab>
+        <v-tab v-if="cosmosConfig[store.setChainSelected].modules.group" to="/group">
+          <span>Group</span>
         </v-tab>
         <v-tab to="/stats">
           <span>Stats</span>
@@ -61,7 +76,7 @@
       <v-spacer></v-spacer>
 
       <!-- Show Keplr Logo if wallet is not connected -->
-      <actionsModals type="checkArbitrary" />
+      <!-- <actionsModals type="checkArbitrary" /> -->
       <v-avatar
         v-if="!store.isLogged"
         rounded="1"
@@ -98,7 +113,7 @@
           </h1>
         </div>
       </v-img>
-      
+
       <v-container>
 
         <v-breadcrumbs
@@ -106,7 +121,7 @@
           :items="breadcrumbsItems"
           divider="-"
         ></v-breadcrumbs>
-        <v-row v-if="store.isLogged" > 
+        <v-row v-if="store.isLogged" >
           <v-col
             v-if="viewLeftMenu"
             cols="12"
@@ -147,7 +162,7 @@
                 </v-col>
               </v-row>
             </v-sheet>
-            
+
             <v-sheet
               border
               rounded="lg"
@@ -161,7 +176,7 @@
                 >
                   <v-sheet class="mt-3 ma-2 pa-1" rounded="lg">
                     <v-avatar>
-                      <actionsModals type="delegatorWithdrawAddress" /> 
+                      <actionsModals type="delegatorWithdrawAddress" />
                     </v-avatar>
                   </v-sheet>
                 </v-col>
@@ -172,7 +187,7 @@
                 >
                   <v-sheet class="ma-2 pa-2" rounded="lg" style="max-width: 100%;">
                     <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
-                      Withdraw Address 
+                      Withdraw Address
                     </div><br>
                     <div class="text-truncate" style="overflow: hidden; text-overflow: ellipsis;">
                       {{ this.truncateString(store.myDelegatorWithdrawAddress, 15) }}
@@ -180,8 +195,8 @@
                   </v-sheet>
                 </v-col>
               </v-row>
-            </v-sheet>            
-            
+            </v-sheet>
+
             <v-sheet
               border
               rounded="lg"
@@ -218,10 +233,10 @@
                   <template v-slot:prepend>
                     <v-icon
                       class="ml-2"
-                      size="large" 
+                      size="large"
                       icon="mdi-border-all"
-                    ></v-icon>                   
-                  </template>                  
+                    ></v-icon>
+                  </template>
                   All chains
                 </v-list-item>
                 <v-list-item
@@ -280,7 +295,7 @@
   </v-app>
 </template>
 
-<script  >
+<script>
 import { useTheme } from 'vuetify'
 import { useAppStore } from '@/store/app'
 import cosmosConfig from './cosmos.config'
@@ -295,9 +310,15 @@ export default {
       cosmosConfig: cosmosConfig,
       chainSelected: 0,
       currentPage: '',
-      currentPageSize: 10, 
+      currentPageSize: 10,
       finalLinks: [],
       viewLeftMenu: true,
+      items: [
+        { title: 'Click Me' },
+        { title: 'Click Me' },
+        { title: 'Click Me' },
+        { title: 'Click Me 2' },
+      ],
       breadcrumbsItems: [
         {
           title: 'Dashboard',
@@ -370,13 +391,17 @@ export default {
   },
   watch: {
     async $route(to, from) {
-      //console.log(to)
+      // console.log(to)
       //console.log(from)
       this.currentPage = to.name
       if(
-        to.name === 'txDetail' || 
+        to.name === 'txDetail' ||
         to.name === 'Proposal' ||
-        to.name === 'AllChains'
+        to.name === 'AllChains' ||
+        to.name === 'GroupDetail' ||
+        to.name === 'GroupDetailPolicy' ||
+        to.name === 'GroupCreateProposal' ||
+        to.name === 'GroupViewProposal'
       ) {
         this.viewLeftMenu = false
         this.currentPageSize = 12
@@ -414,6 +439,7 @@ export default {
       //await this.store.getApr()
 
       //await this.store.getAllPrice()
+      await this.store.getAllGroups()
     })
     setInterval(async ()=> {
       await this.store.getDistribModule()
@@ -442,6 +468,7 @@ export default {
       await this.store.getWalletAmount()
       //await this.store.getChainStats()
       await this.store.getApr()
+      await this.store.getAllGroups()
     },
     async keplrConnect() {
       await this.store.keplrConnect()
@@ -461,6 +488,9 @@ export default {
       await this.store.getWalletAmount()
       //await this.store.getChainStats()
       await this.store.getApr()
+      await this.store.getAllGroups()
+      this.$router.push('/')
+
     },
     addNewChain() {
       console.log('addNewChain')

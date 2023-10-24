@@ -91,7 +91,7 @@
           </v-row>  
         </v-sheet>
       </v-col>
-      <v-col
+<!--       <v-col
         cols="12"
         sm="4"
       >
@@ -140,8 +140,7 @@
               sm="12"
               class="text-left"
             >
-              <v-sheet class="pa-2">
-                <!--<br>Inflation: <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ store.Inflation }}</strong>-->
+              <v-sheet class="pa-2"> 
               </v-sheet>- Yearly:
               <v-sheet class="pa-2">
                <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">{{ (store.totalDelegations * 18.90)/100 }}</strong>
@@ -198,7 +197,7 @@
           </v-row>  
         </v-sheet>
         
-      </v-col>
+      </v-col> -->
 <!--     <v-col         
       cols="12"
       sm="12"

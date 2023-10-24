@@ -1,10 +1,10 @@
-<template> 
+<template>
 
   <v-row no-gutters>
     <v-col
       cols="12"
       sm="6"
-    >    
+    >
 
       <!-- Wallet Value -->
 
@@ -23,11 +23,11 @@
             sm="6"
           >
             <v-sheet class="text-right text-h6 pa-2">
-              ${{ formatNum(store.fiatWalletValue) }} 
+              ${{ formatNum(store.fiatWalletValue) }}
             </v-sheet>
           </v-col>
 
-        </v-row> 
+        </v-row>
       </v-sheet>
 
     </v-col>
@@ -35,7 +35,7 @@
     <v-col
       cols="12"
       sm="6"
-    >    
+    >
 
       <!-- Total tokens -->
 
@@ -54,14 +54,14 @@
             sm="6"
           >
             <v-sheet class="text-right text-h6 pa-2">
-              {{ formatNum(store.totalTokens) }} 
+              {{ formatNum(store.totalTokens) }}
               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                 {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-              </strong>            
+              </strong>
             </v-sheet>
           </v-col>
 
-        </v-row> 
+        </v-row>
       </v-sheet>
 
     </v-col>
@@ -69,7 +69,7 @@
     <v-col
       cols="12"
       sm="4"
-    > 
+    >
 
       <!-- Wallet Distribution -->
 
@@ -87,12 +87,12 @@
             sm="6"
           >
 
-          </v-col> 
-        </v-row>      
+          </v-col>
+        </v-row>
         <v-row no-gutters>
           <v-col
             cols="12"
-            sm="6" 
+            sm="6"
           >
             <v-sheet class="pa-2 mt-4 mb-4">
               Total wallet value
@@ -122,47 +122,47 @@
             class="text-end"
           >
             <v-sheet class="pa-2 mt-4 mb-4">
-              ${{ formatNum((store.fiatWalletValue)) }} 
+              ${{ formatNum((store.fiatWalletValue)) }}
             </v-sheet>
             <v-sheet class="pa-2">
-              {{ formatNum(store.spendableBalances) }} 
+              {{ formatNum(store.spendableBalances) }}
               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                 {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
               </strong>
             </v-sheet>
             <v-sheet class="pa-2">
-              {{ formatNum(store.totalDelegations) }} 
-              <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
-                {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
-              </strong> 
-            </v-sheet>
-            <v-sheet class="pa-2">
-              {{ formatNum(store.totalUnbound) }} 
+              {{ formatNum(store.totalDelegations) }}
               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                 {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
               </strong>
             </v-sheet>
             <v-sheet class="pa-2">
-              {{ formatNum(0) }} 
+              {{ formatNum(store.totalUnbound) }}
               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                 {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
               </strong>
-            </v-sheet> 
+            </v-sheet>
             <v-sheet class="pa-2">
-              {{ formatNum(store.totalRewards) }} 
+              {{ formatNum(0) }}
               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                 {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
               </strong>
-            </v-sheet>     
+            </v-sheet>
+            <v-sheet class="pa-2">
+              {{ formatNum(store.totalRewards) }}
+              <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
+                {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
+              </strong>
+            </v-sheet>
             <v-sheet v-if="store.isValidator" class="pa-2">
-              {{ store.myValidatorReward }} 
+              {{ store.myValidatorReward }}
               <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                 {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
               </strong>
-            </v-sheet>            
+            </v-sheet>
           </v-col>
-        </v-row>  
-      
+        </v-row>
+
       </v-sheet>
 
     </v-col>
@@ -184,21 +184,21 @@
               Available repartition
             </v-sheet>
 
-          </v-col> 
-        </v-row>   
+          </v-col>
+        </v-row>
         <v-row no-gutters justify="center">
           <v-col
-            cols="12" 
-          > 
+            cols="12"
+          >
 
-            <homeChart 
-              :balance="balance" 
+            <homeChart
+              :balance="balance"
               :totalDelegations="totalDelegations"
               :totalUnbound="totalUnbound"
               :totalRewards="totalRewards"
             />
-          </v-col> 
-        </v-row>  
+          </v-col>
+        </v-row>
       </v-sheet>
 
       </v-col>
@@ -222,7 +222,7 @@
                 <v-sheet class="text-h6 pa-2">
                   Quick actions
                 </v-sheet>
-              </v-col> 
+              </v-col>
             </v-row>
 
             <v-row no-gutters>
@@ -240,15 +240,15 @@
                     :subtitle="store.totalRewards + ' ' + cosmosConfig[store.setChainSelected].coinLookup.viewDenom"
                     class="mb-2"
                   >
-                    <template v-slot:prepend>                    
+                    <template v-slot:prepend>
                       <v-avatar>
                         <v-icon size="32" :color="cosmosConfig[store.setChainSelected].color">mdi-download</v-icon>
                       </v-avatar>
                     </template>
-                    <template v-slot:append> 
+                    <template v-slot:append>
                       <actionsModals type="getRewards" />
                     </template>
-                  </v-list-item> 
+                  </v-list-item>
 
                   <v-divider></v-divider>
 
@@ -259,19 +259,19 @@
                     :subtitle="store.spendableBalances + ' ' + cosmosConfig[store.setChainSelected].coinLookup.viewDenom"
                     class="mb-2"
                   >
-                    <template v-slot:prepend> 
+                    <template v-slot:prepend>
                       <v-avatar>
-                        <v-icon size="32"  :color="cosmosConfig[store.setChainSelected].color">mdi-send-circle-outline</v-icon> 
+                        <v-icon size="32"  :color="cosmosConfig[store.setChainSelected].color">mdi-send-circle-outline</v-icon>
                       </v-avatar>
                     </template>
                     <template v-slot:append>
-                      <actionsModals 
-                        type="sendTokens" 
-                        :spendableBalances="store.spendableBalances" 
-                        :chain="cosmosConfig[store.setChainSelected]" 
-                      /> 
+                      <actionsModals
+                        type="sendTokens"
+                        :spendableBalances="store.spendableBalances"
+                        :chain="cosmosConfig[store.setChainSelected]"
+                      />
                     </template>
-                  </v-list-item> 
+                  </v-list-item>
 
                   <v-divider></v-divider>
 
@@ -290,16 +290,16 @@
                     <template v-slot:append>
                       <v-tooltip location="start" text="Soon">
                         <template v-slot:activator="{ props }">
-                          <actionsModals 
-                            type="delegate" 
-                            :spendableBalances="store.spendableBalances" 
-                            :chain="cosmosConfig[store.setChainSelected]" 
-                          />                         
-                          
+                          <actionsModals
+                            type="delegate"
+                            :spendableBalances="store.spendableBalances"
+                            :chain="cosmosConfig[store.setChainSelected]"
+                          />
+
                         </template>
                       </v-tooltip>
                     </template>
-                  </v-list-item> 
+                  </v-list-item>
 
                   <v-divider></v-divider>
 
@@ -321,11 +321,11 @@
                           <v-btn
                           :color="grey"
                             icon="mdi-arrow-u-up-left-bold"
-                            variant="text" 
+                            variant="text"
                             v-bind="props"
-                          ></v-btn> 
+                          ></v-btn>
                         </template>
-                      </v-tooltip> 
+                      </v-tooltip>
                     </template>
                   </v-list-item>
 
@@ -349,30 +349,30 @@
                           <v-btn
                             :color="grey"
                             icon="mdi-cash"
-                            variant="text" 
+                            variant="text"
                             v-bind="props"
-                          ></v-btn> 
+                          ></v-btn>
                         </template>
                       </v-tooltip>
                     </template>
-                  </v-list-item> 
+                  </v-list-item>
 
                 </v-list>
 
-              </v-col> 
+              </v-col>
 
-            </v-row>         
+            </v-row>
         </v-sheet>
 
       </v-col>
 
       <v-col>
         <v-row no-gutters>
-          <v-col               
+          <v-col
             cols="12"
             sm="8"
           >
-          
+
             <v-sheet border min-height="300" class="ma-2 pa-2" rounded="lg">
               <v-row no-gutters>
                 <v-col
@@ -384,55 +384,55 @@
                   </v-sheet>
 
                 </v-col>
-                
-              </v-row>                
+
+              </v-row>
               <v-data-table
                 rounded="lg" style="border-radius: 7px;"
                 :headers="headers"
                 :items="store.lastTransactions"
                 :search="search"
               >
-                <template v-slot:item="{ item }"> 
+                <template v-slot:item="{ item }">
                   <tr>
                     <td>
                       <v-chip
                         class="ma-2"
-                        :color="cosmosConfig[store.setChainSelected].color" 
-                        label 
+                        :color="cosmosConfig[store.setChainSelected].color"
+                        label
                         variant="outlined"
                         >{{ item.columns['titleMsg'] }}
-                      </v-chip>  
+                      </v-chip>
                     </td>
-                    <td>{{ formatDate(item.columns['timestamp']) }}</td> 
+                    <td>{{ formatDate(item.columns['timestamp']) }}</td>
                     <td v-if="item.columns['finalData'].amount?.data.amount">
-                      {{ formatNum(item.columns['finalData'].amount?.data.amount / 1000000) }} 
+                      {{ formatNum(item.columns['finalData'].amount?.data.amount / 1000000) }}
                       <strong :style="'color:' + cosmosConfig[store.setChainSelected].color">
                         {{ cosmosConfig[store.setChainSelected].coinLookup.viewDenom }}
                       </strong>
                     </td>
-                    <td v-else></td> 
-                    <td> 
+                    <td v-else></td>
+                    <td>
                       <v-icon v-if="item.columns['code'] === 0" color="success" icon="mdi-check-bold"></v-icon>
-                      <v-icon v-else color="error" icon="mdi-close-thick"></v-icon> 
-                    </td> 
+                      <v-icon v-else color="error" icon="mdi-close-thick"></v-icon>
+                    </td>
                     <td>
                       <v-chip
-                      :color="cosmosConfig[store.setChainSelected].color" 
+                      :color="cosmosConfig[store.setChainSelected].color"
                         class="ma-2"
                         label
                         :to="'/transactions/' + cosmosConfig[store.setChainSelected].slot + '/' + item.columns['txhash']"
                       >
                         View detail
-                      </v-chip>                  
-                    </td> 
+                      </v-chip>
+                    </td>
 
-                    
+
                   </tr>
-                </template> 
+                </template>
               </v-data-table>
-            </v-sheet>       
+            </v-sheet>
           </v-col>
-          <v-col            
+          <v-col
             cols="12"
             sm="4"
           >
@@ -446,8 +446,8 @@
                   <v-sheet class="text-h6 pa-2">
                     Last proposals
                   </v-sheet>
-                </v-col> 
-              </v-row>   
+                </v-col>
+              </v-row>
 
               <v-list>
                 <v-list-item
@@ -455,17 +455,17 @@
                   :key="item.proposal_id"
                   :title="'#' + item.proposal_id + ' ' + item.title"
                   :subtitle="item.description"
-                  :class="getDotColorClass(item)" 
+                  :class="getDotColorClass(item)"
                 />
               </v-list>
 
-            </v-sheet>  
+            </v-sheet>
           </v-col>
         </v-row>
 
       </v-col>
   </v-row>
-  
+
 </template>
 
 <script>
@@ -477,7 +477,7 @@ import actionsModals from '@/components/actionsModals.vue'
 
 
 export default {
-  name: 'App', 
+  name: 'App',
   components: { homeChart, actionsModals, Vue3autocounter },
   data: (store) => ({
     cosmosConfig: cosmosConfig,
@@ -487,31 +487,31 @@ export default {
         align: 'start',
         key: 'titleMsg',
         sortable: false,
-        title: 'Tx type', 
+        title: 'Tx type',
       },
       { key: 'finalData', title: 'Date' },
       { key: 'timestamp', title: 'Data' },
       { key: 'txhash', title: '' },
-      { key: 'code', title: 'State' } 
+      { key: 'code', title: 'State' }
     ],
   }),
   setup() {
     const store = useAppStore()
-    console.log(store.spendableBalances) 
+    console.log(store.spendableBalances)
 
     return {
       store
     }
   },
   mounted() {
- 
+
   },
   computed: {
     reversedProposals() {
       // Utilisation de la méthode reverse() pour inverser l'ordre du tableau
       return this.store.allHomeProposals.slice().reverse();
     },
-  }, 
+  },
   methods: {
     getDotColorClass(item) {
       console.log(item.status)
@@ -522,7 +522,7 @@ export default {
       } else if (item.status === 'PROPOSAL_STATUS_REJECTED') {
         return "colored-dot-red";
       }
-    }, 
+    },
     truncateString(str, num) {
       if (str.length <= num) {
         return str
@@ -539,12 +539,12 @@ export default {
         second: "numeric",
         hour12: false,
       }).format(new Date(dateStr))
-    }, 
+    },
     formatNum(nombre){
       return new Intl.NumberFormat().format(nombre)
     }
   }
-}   
+}
 </script>
 
 <style scoped>
