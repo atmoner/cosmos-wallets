@@ -1,14 +1,22 @@
 <template>
-  
-    
+  <div>
+  <v-alert
+  class="ma-2 pa-2"
+    type="info"
+    title="Alert title"
+    text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est labore voluptatibus! Eaque cupiditate minima, at placeat totam, magni doloremque veniam neque porro libero rerum unde voluptatem!"
+    variant="tonal"
+  ></v-alert>
+
     <v-row no-gutters>
       
       <v-col 
         cols="12" 
         md="6"   
       >
+      
       <v-sheet border min-height="400" class="ma-2 pa-2" rounded="lg"> 
-      <h3 class="ml-4">Fee Grants</h3>
+      <h3 class="ml-4">👀 Fee Grants</h3>
       <v-table>
         <thead>
           <tr>
@@ -66,7 +74,7 @@
         md="6"   
       >
         <v-sheet border min-height="400" class="ma-2 pa-2" rounded="lg">
-        <h3 class="ml-4">Fee Allowances</h3>
+        <h3 class="ml-4">🎉 Fee Allowances</h3>
         <v-table>
         <thead>
           <tr>
@@ -212,6 +220,7 @@
       <v-spacer></v-spacer>
       <actionsModals type="feeGrant" /> 
     </div> 
+  </div>
 </template>
  
 <script>

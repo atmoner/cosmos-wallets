@@ -2,7 +2,7 @@
   <v-container>
     <v-row class="mt-4">
       <v-spacer></v-spacer>
-      <!-- {{ selectPolicy }} -->
+      {{ selectPolicy }}
       <v-col
         v-if="viewJson"
         cols="12"
@@ -23,20 +23,20 @@
           v-model="selectPolicy"
           label="From address"
           required
-          variant="outlined"
+          outlined
           disabled
         ></v-text-field>
         <v-text-field
-          v-model="toAddress"
-          label="To address"
+          v-model="title"
+          label="Prposal title"
           required
-          variant="outlined"
+          outlined
         ></v-text-field>
         <v-text-field
           v-model="amount"
           label="Amount" 
           required
-          variant="outlined"
+          outlined
         ></v-text-field>
         <v-btn
           elevation="2"
@@ -63,19 +63,9 @@
   </v-container>
 </template>
 <script>
-import {
-  defaultRegistryTypes,
-  assertIsDeliverTxSuccess,
-  SigningStargateClient,
-  GasPrice,
-  calculateFee,
-} from "@cosmjs/stargate";
-import {
-  coin,
-  coins,
-} from "@cosmjs/proto-signing";
-import bech32 from "bech32";
-import { selectSigner, calculFee } from "../../libs/signer";
+import axios from "axios";
+import { TextProposal } from "cosmjs-types/cosmos/gov/v1beta1/gov"; 
+import { MsgExecLegacyContent } from "cosmjs-types/cosmos/gov/v1/tx"; 
 import { useAppStore } from '@/store/app'
 import cosmosConfig from '../../cosmos.config' 
  
@@ -86,7 +76,7 @@ import cosmosConfig from '../../cosmos.config'
       return {
         dialog: false,
         selectPolicy: props.from,
-        toAddress: '',
+        title: '',
         amount: '',
         viewJson: false,
         jsonData: '',
@@ -112,31 +102,31 @@ import cosmosConfig from '../../cosmos.config'
     methods: {
       async checkMsg() {
         this.showValidateData = true
-        if (this.selectPolicy !== '' && this.toAddress !== '' && this.amount !== '' ) {
+ 
           this.validateData = true
 
-        let signer = await selectSigner(this.store.setChainSelected)
-        const foundMsgType = defaultRegistryTypes.find(
-            (element) =>
-              element[0] ===
-              "/cosmos.bank.v1beta1.MsgSend"
-          );
-          
-          const amount = coins(this.amount, cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom);
-          const finalMsg = {
-          typeUrl: foundMsgType[0],
-            value: foundMsgType[1].encode(foundMsgType[1].fromPartial({
-              fromAddress: this.selectPolicy,
-              toAddress: this.toAddress,
-              amount: amount,
+          const getAuthority = await axios(cosmosConfig[this.store.setChainSelected].apiURL + `/cosmos/auth/v1beta1/module_accounts`)
+          let find = getAuthority.data.accounts.find(element => element.name === 'gov')
+          let finalMsgs = ''
+
+          const TextProposalFinal = {
+            typeUrl: "/cosmos.gov.v1beta1.TextProposal",
+            value: TextProposal.encode(TextProposal.fromPartial({
+              title: this.title,
+              description: 'Test proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContent',
             })).finish()
-          }     
-          console.log('sendTx', finalMsg) 
+          }
+          finalMsgs = {
+            typeUrl: "/cosmos.gov.v1.MsgExecLegacyContent",
+            value: MsgExecLegacyContent.encode(MsgExecLegacyContent.fromPartial({
+              content: TextProposalFinal,
+              authority: this.selectPolicy,
+            })).finish()
+          } 
+          console.log('finalMsgs', finalMsgs)
           
-          this.store.addGroupMessage(finalMsg)
-          // await this.$store.dispatch('data/formatFinalMsgProp', msgSend)
-        } else
-          this.validateData = false
+          this.store.addGroupMessage(finalMsgs) 
+ 
 
       },
     }

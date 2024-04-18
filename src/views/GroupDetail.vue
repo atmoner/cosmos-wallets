@@ -21,7 +21,7 @@
         >
         <v-sheet border class="ma-2 pa-2" rounded="lg">
           <v-card-title>Group Reward</v-card-title>
-          <v-card-text class="text-h6 text-right">{{ (totalReward / 1000000).toFixed(5) }} {{ cosmosConfig[this.store.setChainSelected].coinLookup.viewDenom }}</v-card-text>
+          <v-card-text class="text-h6 text-right">{{ (store.finalRewardGroup).toFixed(5) }} {{ cosmosConfig[this.store.setChainSelected].coinLookup.viewDenom }}</v-card-text>
         </v-sheet>
         </v-col>
       </v-row>
@@ -33,135 +33,219 @@
         >
         <v-sheet min-height="300" min-width="300" border class="ma-2 pa-2" rounded="lg">
             <v-card-title>
-              All proposals
+ 
+              <v-tabs
+                v-model="tab" 
+              >
+                <v-tab value="one">Active proposals</v-tab>
+                <v-tab value="two">Refused proposals</v-tab>
+                <v-tab value="three">Aprouved proposals</v-tab>
+              </v-tabs>
 
+              <v-card-text>
+                <v-window v-model="tab">
+                  <v-window-item value="one">
+                    <v-table>
+                      <thead>
+                        <tr>
+                          <th class="text-left">
+                            Id
+                          </th>
+                          <th class="text-left">
+                            Status
+                          </th>
+                          <th class="text-left">
+                            Name
+                          </th> 
+                          <th class="text-left">
+                            Total messages
+                          </th> 
+                          <th class="text-left">
+                            Submit Time
+                          </th>
+                          <th class="text-left">
+                            Date end
+                          </th>
+                          <th class="text-left"> </th>
+                        </tr>
+                      </thead>
+                      <tbody> 
+                        <template v-for="item in store.finalGroupProposals" :key="item.id">
+ 
+                        <tr v-if="item.status === 1"> 
+
+                          <td>#{{ item.id }}</td>
+                          <td>
+                            <!-- PROPOSAL_STATUS_SUBMITTED -->
+                            <v-chip
+                              
+                              class="ma-2"
+                              color="orange"
+                              label
+                              outlined
+                            >
+                              Voting period
+                              <!-- <VoteGroup
+                                :addressAdmin="accounts[0].address"
+                                :propId="item.id"
+                              /> -->
+                            </v-chip>
+           
+                          </td>
+                          <td>{{ item.title }}</td> 
+                          <td>{{ item.messages.length }} </td>
+                          <td>{{ moment(item.submitTime.seconds.low, 'X').format('lll') }}</td>                  
+                          <td>{{ moment(item.votingPeriodEnd.seconds.low, 'X').format('lll') }}</td>
+                          <v-btn
+                            elevation="2"
+                            :to="'../group/' + infoGroupId + '/proposal/' + item.id"
+                          >View</v-btn> 
+
+                        </tr> 
+                      </template>
+                      </tbody>
+                    </v-table>  
+                  </v-window-item>
+                  <v-window-item value="two">
+                    <v-table>
+                      <thead>
+                        <tr>
+                          <th class="text-left">
+                            Id
+                          </th>
+                          <th class="text-left">
+                            Status
+                          </th>
+                          <th class="text-left">
+                            Name
+                          </th> 
+                          <th class="text-left">
+                            Total messages
+                          </th> 
+                          <th class="text-left">
+                            Submit Time
+                          </th>
+                          <th class="text-left">
+                            Date end
+                          </th>
+                          <th class="text-left"> </th>
+                        </tr>
+                      </thead>
+                      <tbody> 
+                        <template v-for="item in store.finalGroupProposals" :key="item.id">
+                        <tr v-if="item.status === 3"> 
+                          <td>#{{ item.id }}</td>
+                          <td>
+                            <!-- PROPOSAL_STATUS_REJECTED --> 
+                            <v-chip
+                            v-if="item.status === 3" 
+                              class="ma-2"
+                              color="red"
+                              label
+                              outlined
+                            >
+                              PROPOSAL REJECTED
+                            </v-chip>
+                            <v-tooltip 
+                              v-if="item.status === 3" 
+                              location="top"
+                              width="500"
+                              text="Final status of a proposal when the final tally is done and the outcome is rejected by the group policy's decision policy.">
+                                <template v-slot:activator="{ props }"> 
+                                  <v-icon v-bind="props" color="grey-lighten-1">
+                                    mdi-comment-question
+                                  </v-icon>
+                                </template>
+                            </v-tooltip>
+                
+                          </td>
+                          <td>{{ item.title }}</td> 
+                          <td>{{ item.messages.length }} </td>
+                          <td>{{ moment(item.submitTime.seconds.low, 'X').format('lll') }}</td>                  
+                          <td>{{ moment(item.votingPeriodEnd.seconds.low, 'X').format('lll') }}</td>
+                          <v-btn
+                            elevation="2"
+                            :to="'../group/' + infoGroupId + '/proposal/' + item.id"
+                          >View</v-btn> 
+                        </tr> 
+                      </template>
+                      </tbody>
+                    </v-table>   
+                  </v-window-item>
+
+
+
+                  <v-window-item value="three">
+                    <v-table>
+                      <thead>
+                        <tr>
+                          <th class="text-left">
+                            Id
+                          </th>
+                          <th class="text-left">
+                            Status
+                          </th>
+                          <th class="text-left">
+                            Name
+                          </th> 
+                          <th class="text-left">
+                            Total messages
+                          </th> 
+                          <th class="text-left">
+                            Submit Time
+                          </th>
+                          <th class="text-left">
+                            Date end
+                          </th>
+                          <th class="text-left"> </th>
+                        </tr>
+                      </thead>
+                      <tbody> 
+                        <template v-for="item in store.finalGroupProposals" :key="item.id">
+                        <tr v-if="item.status === 2"> 
+                          <td>#{{ item.id }}</td>
+                          <td>
+                            <!-- PROPOSAL_STATUS_REJECTED --> 
+                            <v-chip
+                            v-if="item.status === 2" 
+                              class="ma-2"
+                              color="green"
+                              label
+                              outlined
+                            >
+                              PROPOSAL APPROUVED
+                            </v-chip>
+                            <v-tooltip 
+                              v-if="item.status === 2" 
+                              location="top"
+                              width="500"
+                              text="Final status of a proposal when the final tally is done and the outcome is rejected by the group policy's decision policy.">
+                                <template v-slot:activator="{ props }"> 
+                                  <v-icon v-bind="props" color="grey-lighten-1">
+                                    mdi-comment-question
+                                  </v-icon>
+                                </template>
+                            </v-tooltip>
+                
+                          </td>
+                          <td>{{ item.title }}</td> 
+                          <td>{{ item.messages.length }} </td>
+                          <td>{{ moment(item.submitTime.seconds.low, 'X').format('lll') }}</td>                  
+                          <td>{{ moment(item.votingPeriodEnd.seconds.low, 'X').format('lll') }}</td>
+                          <v-btn
+                            elevation="2"
+                            :to="'../group/' + infoGroupId + '/proposal/' + item.id"
+                          >View</v-btn> 
+                        </tr> 
+                      </template>
+                      </tbody>
+                    </v-table>   
+                  </v-window-item>
+                </v-window>
+              </v-card-text>
             </v-card-title>
  
-            <v-table>
-              <thead>
-                <tr>
-                  <th class="text-left">
-                    Id
-                  </th>
-                  <th class="text-left">
-                    Status
-                  </th>
-                  <th class="text-left">
-                    Name
-                  </th> 
-                  <th class="text-left">
-                    Total messages
-                  </th> 
-                  <th class="text-left">
-                    Submit Time
-                  </th>
-                  <th class="text-left">
-                    Date end
-                  </th>
-                  <th class="text-left"> </th>
-                </tr>
-              </thead>
-              <tbody>
- 
-                <tr 
-                  
-                  v-for="item in store.finalGroupProposals"
-                  :key="item.id"
-                > 
-                  <td>#{{ item.id }}</td>
-                  <td>
-                    <!-- PROPOSAL_STATUS_SUBMITTED -->
-                    <v-chip
-                      v-if="item.status === 1"
-                      class="ma-2"
-                      color="orange"
-                      label
-                      outlined
-                    >
-                      Voting period
-                      <!-- <VoteGroup
-                        :addressAdmin="accounts[0].address"
-                        :propId="item.id"
-                      /> -->
-                    </v-chip>
-                    <!-- PROPOSAL_STATUS_ACCEPTED -->
-                    <v-chip
-                      v-if="item.status === 2"
-                      class="ma-2"
-                      color="green"
-                      label
-                      outlined
-                    >
-                      RUN EXECUTOR
-                      <RunExe
-                        :addressAdmin="accounts[0].address"
-                        :propId="item.id"
-                      />
-                    </v-chip>
-                    <!-- PROPOSAL_STATUS_REJECTED --> 
-                    <v-chip
-                      v-else-if="item.status === 3" 
-                      class="ma-2"
-                      color="red"
-                      label
-                      outlined
-                    >
-                      PROPOSAL REJECTED
-                    </v-chip>
-                    <v-tooltip 
-                      v-if="item.status === 3" 
-                      location="top"
-                      width="500"
-                      text="Final status of a proposal when the final tally is done and the outcome is rejected by the group policy's decision policy.">
-                        <template v-slot:activator="{ props }"> 
-                          <v-icon v-bind="props" color="grey-lighten-1">
-                            mdi-comment-question
-                          </v-icon>
-                        </template>
-                    </v-tooltip>
-                    <v-chip
-                      v-else-if="item.executor_result === 'PROPOSAL_EXECUTOR_RESULT_NOT_RUN'"
-                      class="ma-2"
-                      color="orange"
-                      label
-                      outlined
-                    >
-                      EXECUTOR NOT RUN
-                    </v-chip>
-                    <v-chip
-                      v-else-if="item.executor_result === 'PROPOSAL_EXECUTOR_RESULT_FAILURE'"
-                      class="ma-2"
-                      color="red"
-                      label
-                      outlined
-                    >
-                      EXECUTOR FAILURE
-                    </v-chip>
-                    <v-chip
-                      v-else-if="item.executor_result === ''"
-                      class="ma-2"
-                      color="red"
-                      label
-                      outlined
-                    >
-                      EXECUTOR FAILURE
-                    </v-chip>                    
-                    <!-- {{ item.status }} -->
-                  </td>
-                  <td>{{ item.title }}</td> 
-                  <td>{{ item.messages.length }} </td>
-                  <td>{{ moment(item.submitTime.seconds.low, 'X').format('lll') }}</td>                  
-                  <td>{{ moment(item.votingPeriodEnd.seconds.low, 'X').format('lll') }}</td>
-                  <v-btn
-                    elevation="2"
-                    :to="'../group/' + infoGroupId + '/proposal/' + item.id"  
 
-                  >View</v-btn>
- 
-                </tr>
- 
-              </tbody>
-            </v-table>   
  
        
 <!--             <v-data-table
@@ -282,15 +366,26 @@
           sm="4"
         >
         <v-sheet min-height="300" min-width="300" border class="ma-2 pa-2" rounded="lg">
+            <v-toolbar
+              color="rgba(0, 0, 0, 0)"
+              theme="dark"
+            > 
             <v-card-title>
               All users
+              
+              <!-- 
 
 
-              <!-- <AddMembersGroup
                 v-if="infoGroupId.isAdmin"
                 :addressAdmin="accounts[0].address"
-              /> -->
+              -->
             </v-card-title>
+
+              <template v-slot:append>
+                <AddMembersGroup /> 
+              </template>
+            </v-toolbar> 
+
             <v-table>
               <thead>
                 <tr>
@@ -327,11 +422,11 @@
         >
         <v-sheet min-height="300" min-width="300" border class="ma-2 pa-2" rounded="lg">
             <v-card-title>
-              Last execute
+              Last transactions group
               <v-spacer></v-spacer>
 
             </v-card-title>
-            <v-simple-table>
+<!--             <v-table>
               <template v-slot:default>
                 <thead>
                   <tr>
@@ -344,26 +439,74 @@
                     <th class="text-left">
                       Date
                     </th>
+                    <th class="text-left">
+                      Result
+                    </th>
                   </tr>
                 </thead>
-                <!--<tbody>
+                <tbody>
 
                   <tr
                     v-for="item in allExec"
                     :key="item"
-                  >
-                  {{ item }}
-                     <td>#{{ item.logs[0].events[2].attributes[1].value.replaceAll('"', '')  }}</td>
-                    <td>{{ item.txhash  }}</td>
-                    <td>{{ item.timestamp | formatDate }}</td>
-
-                    <td> </td>
+                  > 
+                    <td>#{{ JSON.parse(item.attributes[1].value) }}</td>
+                    <td>{{ item.txhash }}</td>
+                    <td>{{ item.timestamp }}</td>
+                    <td>{{ JSON.parse(item.attributes[2].value) }}</td>
+                    
                     <td>
                     </td>
                   </tr>
-                </tbody>-->
+                </tbody>
               </template>
-            </v-simple-table>
+            </v-table> -->
+            <v-table>
+              <template v-slot:default>
+                <thead>
+                  <tr>
+                    <th class="text-left">
+                      Type
+                    </th>
+                    <th class="text-left">
+                      Tx hash
+                    </th>
+                    <th class="text-left">
+                      Date
+                    </th> 
+                  </tr>
+                </thead>
+                <tbody> 
+                  <tr
+                    v-for="item in allgroupTx[0]"
+                    :key="item"
+                    
+                  > 
+                    <td>
+                      <v-chip
+                        class="ma-2"
+                        :color="cosmosConfig[store.setChainSelected].color"
+                        label
+                        variant="outlined"
+                        :to="'/transactions/' + cosmosConfig[store.setChainSelected].slot + '/' + item.txhash"
+                        >{{ item.titleMsg }}
+                      </v-chip>                       
+                    </td> 
+                    <td >{{ item.txhash }}
+                      <v-icon  color="grey-lighten-1">
+                        mdi-eye-outline
+                      </v-icon>
+                      
+                    </td> 
+                    <td>{{ item.timestamp }}</td> 
+                    
+                    <td>
+                    </td>
+                  </tr>
+                </tbody>
+              </template>
+            </v-table>
+            
           </v-sheet>
         </v-col>
       </v-row>
@@ -374,10 +517,13 @@
 <script>
 import cosmosConfig from '../cosmos.config'
 import { useAppStore } from '@/store/app'
+import { StargateClient } from "@cosmjs/stargate";
 import moment from 'moment'
+import axios from "axios";
 
 
 import HeaderGroup from '@/components/headerGroup.vue'
+import AddMembersGroup from '@/components/AddMembersGroup.vue'
 
 /* import { mapState } from 'vuex'
 import axios from 'axios'
@@ -389,13 +535,13 @@ const { Type, Field } = pkg;
 import cosmosConfig from '~/cosmos.config' */
 
 export default {
-components: { HeaderGroup },
+components: { HeaderGroup, AddMembersGroup },
 data: () => ({
   cosmosConfig: cosmosConfig,
   finalGroupData: '',
+  tab: null,
   moment: moment,
-  allProps: [],
-  allExec: [],
+  allProps: [], 
   allVotes: [],
   search: '',
   columnName:'id',
@@ -403,6 +549,8 @@ data: () => ({
   totalAmount: '',
   totalReward: '',
   infoGroupId: '',
+  allExec: [],
+  allgroupTx: [],
   headers: [
     {
       text: 'Id',
@@ -442,6 +590,39 @@ async mounted () {
   console.log(this.$route.params.id)
   this.infoGroupId = this.$route.params.id
   await this.store.getGroupId(this.$route.params.id)
+
+  console.log(this.store.finalGroupPolicies)
+
+  let allExec = this.allExec
+  this.store.finalGroupPolicies.forEach(async (item) => {
+ 
+    const getExec = await axios(
+      cosmosConfig[this.store.setChainSelected].apiURL + `/cosmos/tx/v1beta1/txs?events=message.action=%27/cosmos.group.v1.MsgExec%27&coin_spent.spender=%27`+item.address+`%27`)
+    getExec.data.tx_responses.forEach(async (itemFinal) => {
+      console.log(itemFinal.logs[0].events) 
+      const found = itemFinal.logs[0].events.find((element) => element.type === 'cosmos.group.v1.EventExec')   
+      
+      found.txhash = itemFinal.txhash
+      found.timestamp = itemFinal.timestamp
+      allExec.push(found)
+    })
+  })
+  this.allExec = allExec
+  
+  
+  console.log(allExec)
+  for (let i = 0; i < this.store.finalGroupPolicies.length; i++) {
+
+    await this.store.getGroupTransactions(this.store.finalGroupPolicies[i].address)
+    console.log('test2' + this.store.finalGroupPolicies[i].address, this.store.lastGroupTransactions)
+    this.allgroupTx.push(this.store.lastGroupTransactions)
+ 
+
+  }
+
+  // this.store.getGroupTransactions(this.store.finalGroupPolicies)
+
+
 
 /*   if (!this.logged) {
     this.$router.push({path: "/login"})

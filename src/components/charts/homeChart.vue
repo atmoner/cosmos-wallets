@@ -34,13 +34,13 @@ export default defineComponent({
     chartData() {
       const store = useAppStore()  
       return {
-        labels: ["Available", /* "Delegated", */ "Undelegated", "Reward"],
+        labels: ["Available", "Delegated", "Undelegated", "Reward"],
         datasets: [
           {
             label: "Data",
             data: [
               store.spendableBalances,
-              //store.totalDelegations,
+              store.totalDelegations,
               store.totalUnbound,
               store.totalRewards,
             ],

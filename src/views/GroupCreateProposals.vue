@@ -49,10 +49,230 @@
                       ></v-select>    --> 
             </v-card-text>
             <v-card-text class="text-h6">
-              <h4>Select your messages</h4>
-              <v-sheet v-for="(item,i) in items"
+              <v-card-title>Configure your group proposal</v-card-title> 
+              
+ 
+    <v-tabs
+      v-model="tab" 
+    >
+      <v-tab value="bank">Bank</v-tab>
+      <v-tab value="staking">Staking</v-tab>
+      <v-tab value="distribution">Distribution</v-tab>
+      <v-tab value="four">Group</v-tab>
+      <v-tab value="five">Authz</v-tab>
+      <v-tab value="six">CosmWasm</v-tab>
+    </v-tabs>
+    <v-card-text> 
+        <v-window v-model="tab">
+        <v-window-item value="bank"> 
+          <v-row no-gutters>
+            <v-col
+              v-for="(n, index) in allSdkMessages[0].bank[0]"
+              :key="n"
+              cols="12"
+              sm="4"
+            >
+            <v-sheet border class="mt-3 mr-2  pa-2" rounded="lg" @click="selectedDialog(index, n)">
+              <v-col>
+              <h3> {{ index }}
+                <v-icon
+                  v-if="n"
+                  color="teal"
+                  class="ml-2"
+                >
+                  mdi-check
+                </v-icon>
+                <v-tooltip v-else text="Coming soon">
+                  <template v-slot:activator="{ props }"> 
+                      <v-icon
+                        v-bind="props"
+                        color="red"  
+                        class="ml-2" 
+                      >
+                        mdi-alert-circle
+                      </v-icon>
+                  </template>
+                </v-tooltip>
+              </h3> 
+              </v-col>            
+            </v-sheet>
+            </v-col>
+          </v-row>    
+        </v-window-item>
+
+        <v-window-item value="staking">
+          <v-row no-gutters>
+            <v-col 
+              v-for="(n, index) in allSdkMessages[0].staking[0]"
+              :key="n"
+              cols="12"
+              sm="4"
+            >
+            <v-sheet border class="mt-3 mr-2  pa-2" rounded="lg" @click="selectedDialog(index, n)">
+              <v-col>
+                <h3>{{ index }}
+                  <v-icon
+                  v-if="n"
+                  color="teal"
+                  class="ml-2"
+                >
+                  mdi-check
+                </v-icon>
+                <v-tooltip v-else text="Coming soon">
+                  <template v-slot:activator="{ props }"> 
+                      <v-icon
+                        v-bind="props"
+                        color="red"  
+                        class="ml-2" 
+                      >
+                        mdi-alert-circle
+                      </v-icon>
+                  </template>
+                </v-tooltip>               
+                </h3> 
+              </v-col>            
+            </v-sheet>
+            </v-col>
+          </v-row> 
+        </v-window-item>
+
+        <v-window-item value="distribution">
+          <v-row no-gutters>
+            <v-col 
+              v-for="(n, index) in allSdkMessages[0].distribution[0]"
+              :key="n"
+              cols="12"
+              sm="4"
+            >
+            <v-sheet border class="mt-3 mr-2  pa-2" rounded="lg" @click="selectedDialog(index, n)">
+              <v-col>
+                <h3>{{ index }}
+                  <v-icon
+                  v-if="n"
+                  color="teal"
+                  class="ml-2"
+                >
+                  mdi-check
+                </v-icon>
+                <v-tooltip v-else text="Coming soon">
+                  <template v-slot:activator="{ props }"> 
+                      <v-icon
+                        v-bind="props"
+                        color="red"  
+                        class="ml-2" 
+                      >
+                        mdi-alert-circle
+                      </v-icon>
+                  </template>
+                </v-tooltip>               
+                </h3> 
+              </v-col>            
+            </v-sheet>
+            </v-col>
+          </v-row> 
+          
+        </v-window-item>
+        <v-window-item value="four">
+          <v-row no-gutters>
+            <v-col 
+              v-for="(n, index) in allSdkMessages[0].group[0]"
+              :key="n"
+              cols="12"
+              sm="4"
+            >
+            <v-sheet border class="mt-3 mr-2  pa-2" rounded="lg" @click="selectedDialog(index, n)">
+              <v-col>
+                <h3>{{ index }}
+                  <v-icon
+                  v-if="n"
+                  color="teal"
+                  class="ml-2"
+                >
+                  mdi-check
+                </v-icon>
+                <v-tooltip v-else text="Coming soon">
+                  <template v-slot:activator="{ props }"> 
+                      <v-icon
+                        v-bind="props"
+                        color="red"  
+                        class="ml-2" 
+                      >
+                        mdi-alert-circle
+                      </v-icon>
+                  </template>
+                </v-tooltip>              
+                </h3> 
+              </v-col>            
+            </v-sheet>
+            </v-col>
+          </v-row> 
+          
+        </v-window-item> 
+      <v-window-item value="five">
+          <v-row no-gutters>
+            <v-col 
+              v-for="(n, index) in allSdkMessages[0].authz[0]"
+              :key="n"
+              cols="12"
+              sm="4"
+            >
+            <v-sheet border class="mt-3 mr-2  pa-2" rounded="lg" @click="selectedDialog(index, n)">
+              <v-col>
+                <h3>{{ index }}
+                  <v-icon
+                  v-if="n"
+                  color="teal"
+                  class="ml-2"
+                >
+                  mdi-check
+                </v-icon>
+                <v-tooltip v-else text="Coming soon">
+                  <template v-slot:activator="{ props }"> 
+                      <v-icon
+                        v-bind="props"
+                        color="red"  
+                        class="ml-2" 
+                      >
+                        mdi-alert-circle
+                      </v-icon>
+                  </template>
+                </v-tooltip>              
+                </h3> 
+              </v-col>            
+            </v-sheet>
+            </v-col>
+          </v-row> 
+          
+        </v-window-item>
+ 
+      <v-window-item value="six">
+          <v-row no-gutters>
+            <v-col
+              v-for="n in allSdkMessages[0].cosmwasm"
+              :key="n"
+              cols="12"
+              sm="4"
+            >
+            <v-sheet border class="mt-3 mr-2  pa-2" rounded="lg">
+              <v-col>
+                <h3><!-- {{ n }} -->Coming soon</h3> 
+                
+              </v-col>            
+            </v-sheet>
+            </v-col>
+          </v-row> 
+          
+        </v-window-item>
+      </v-window>
+    </v-card-text>
+    <v-card-text>
+ 
+    </v-card-text>
+              
+<!--               <v-sheet v-for="(item,i) in items"
                     :key="i" 
-                    border class="mt-3 pa-2" rounded="lg">
+                    border class="mt-3 pa-2" rounded="lg"
+                    >
                     <v-row>
                       <v-col>
                       {{ item }}
@@ -67,7 +287,7 @@
 
                       </v-col>
                     </v-row>
-              </v-sheet> 
+              </v-sheet>  -->
             </v-card-text>
           </v-sheet>
         </v-col>
@@ -107,7 +327,7 @@
   
           </v-sheet> -->
           <v-sheet border class="ma-2 pa-2" rounded="lg">
-            <v-card-title>Final messages  
+            <v-card-title>Final group proposal 
                <v-btn
                 elevation="2"
                 @click="clearFinalMsgs()" 
@@ -115,7 +335,23 @@
 
             </v-card-title>
             <v-card-text class="text-h6 text-right"> </v-card-text>
-            <!-- {{ store.finalGroupPropMsg }} -->
+            <!-- {{ store.finalGroupPropMsg }} --> 
+             <v-expansion-panels>
+              <v-expansion-panel
+                v-for="(item,i) in finalMessages"
+                :key="i"             
+                 
+              >  
+              <v-expansion-panel-title :color="cosmosConfig[store.setChainSelected].color"> {{ item }} </v-expansion-panel-title>
+              <v-expansion-panel-text v-if="item === 'Send'"> 
+                <messagesTypeSendTx :from="selectPolicy" />
+              </v-expansion-panel-text>
+              <v-expansion-panel-text v-if="item === 'Delegate'"> 
+                <messagesTypeDelegateTx :from="selectPolicy" />
+              </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels> 
+ 
             <v-table v-if="store.finalGroupPropMsg.length > 0">
               <thead>
                 <tr>
@@ -155,13 +391,13 @@
         </v-col>
         
         </v-row>
-        <v-btn
+         <v-btn
           elevation="2" 
           @click="createProposal()"
         > 
         Create proposal
-        </v-btn>
-
+        </v-btn> 
+<br /><br /><br /><br />
     </v-col>
   </v-row>
 
@@ -181,6 +417,9 @@
           </div>
           <div v-if="selectedDialogMsg === 'CosmWasm'">
             <messagesTypeCosmwasmTx :from="selectPolicy" />
+          </div>
+          <div v-if="selectedDialogMsg === 'PropText'">
+            <messagesTypePropText :from="selectPolicy" />
           </div>
         </v-card-text>
         <v-card-actions>
@@ -216,34 +455,84 @@ import { useAppStore } from '@/store/app'
 import messagesTypeSendTx from '@/components/messagesType/sendTx.vue'
 import messagesTypeDelegateTx from '@/components/messagesType/delegateTx.vue'
 import messagesTypeCosmwasmTx from '@/components/messagesType/cosmwasmTx.vue'
+import messagesTypePropText from '@/components/messagesType/propText.vue'
 import HeaderGroup from '@/components/headerGroup.vue'
 import { setMsg } from "../libs/msgType";
+import cosmosConfig from '../cosmos.config'
+
+import * as bank from "cosmjs-types/cosmos/bank/v1beta1/tx.js"; 
 
 export default {
   components: {
     messagesTypeSendTx,
     messagesTypeDelegateTx,
     messagesTypeCosmwasmTx,
+    messagesTypePropText,
     HeaderGroup
   },
   data: () => ({
+    cosmosConfig: cosmosConfig,
     title: '',
     selectMsgType: [],
     selectPolicy: [],
+    allSdkMessages: [{
+      'bank': [
+        { 
+          'Send': true,
+          'Multi send': true
+        } 
+      ],
+      'staking': [
+        { 
+          'Delegate': true,
+          'Undelegate': true,
+          'Redelegate': true,
+          'Cancel Unbonding': false 
+        }  
+      ],
+      'distribution': [
+        { 
+          'Set Withdraw Address': false, 
+          'Withdraw Reward': true,
+          'Fund Community Pool': true 
+        }         
+      ],
+      'group': [
+        { 
+          'Update Members': true, 
+          'Update Metadata': false,
+          'Create Policy': false,
+          'Update Policy Admin': false,
+          'Update Policy DecisionPolicy': false,
+          'Update Policy Metadata': false 
+        }    
+      ],
+      'authz': [ 
+        {
+          'Grant': true, 
+          'Revoke': true, 
+          'Exec': true, 
+        }
+      ],
+    }],
+    
     items: [
       'SendTx',
       'Delegate',
+      'PropText',
       'Undelegate',
       'Withdraw Delegator',
       //'Create Validator',
       'CosmWasm',
     ],
     finalGroupPolicies: [],
+    finalMessages: [],
     dialog: false,
     selectedDialogMsg: '',
     dialogDetail: false,
     dialogDetailData: '',
     infoGroupId: '',
+    tab: 'one',
   }),
   setup() {
     const store = useAppStore()  
@@ -259,6 +548,22 @@ export default {
       console.log('finalGroupPolicies', item)
       finalGroupPolicies.push( item.address )
     }) 
+
+    let bankTx = new bank.MsgClientImpl()
+
+    for (const key in bankTx) {
+      if(key !== "rpc") { 
+        const typeUrl = bank['Msg' + key].typeUrl
+        let finalvalue = ''
+        try {
+          BigInt.prototype.toJSON = function() { return this.toString() } 
+          finalvalue = JSON.stringify(bank['Msg' + key].fromPartial({}), null, 4) 
+          console.log('Msg' + key, finalvalue)
+        } catch (e) {
+          console.log(e)
+        }
+      }
+    }
   },
   methods: {
     async createProposal() {
@@ -303,14 +608,18 @@ export default {
     },
     clearFinalMsgs() { 
       this.store.finalGroupPropMsg = []
+      this.finalMessages = []
     },
     addMessage(type) {
       
       this.selectMsgType.push(type)
     }, 
-    selectedDialog(item) {
-      this.selectedDialogMsg = item
-      this.dialog = true
+    selectedDialog(item, n) {
+      console.log('selectedDialog', n) 
+      if (n)
+        this.finalMessages.push(item)
+      //this.selectedDialogMsg = item
+      //this.dialog = true
     },
     deleteMsgGroup(index) {
       this.store.finalGroupPropMsg.splice(index, 1)

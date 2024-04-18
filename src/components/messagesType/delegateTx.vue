@@ -13,7 +13,7 @@
           v-model="selectPolicy"
           label="From address"
           required
-          outlined
+          variant="outlined"
           disabled
         ></v-text-field>
 
@@ -25,19 +25,19 @@
           label="To validator"
           return-object
           required
-          outlined
+          variant="outlined"
         ></v-select>
         <!--<v-text-field
           label="To validator"
           required
-          outlined
+          variant="outlined"
         ></v-text-field>-->
         <v-text-field
           v-model="amount"
           label="Amount"
           suffix=""
           required
-          outlined
+          variant="outlined"
         ></v-text-field>
         <v-btn
           elevation="2"

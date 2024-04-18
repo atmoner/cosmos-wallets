@@ -10,8 +10,9 @@
       >
         <template v-slot:prepend>
           <v-btn :to="'/group/' + infoGroupId">Home group</v-btn>
-          <v-btn :to="'/group/' + infoGroupId + '/policy'">Policy</v-btn>
-          <v-btn :to="'/group/' + infoGroupId + '/create-proposal'">Submit Proposal</v-btn> 
+          <v-btn :to="'/group/' + infoGroupId + '/policy'">Group policy</v-btn>
+          <v-btn :to="'/group/' + infoGroupId + '/authz'">Group authz</v-btn>
+          <v-btn :to="'/group/' + infoGroupId + '/create-proposal'">Group Proposal</v-btn> 
         </template>
  
         <template v-slot:append>

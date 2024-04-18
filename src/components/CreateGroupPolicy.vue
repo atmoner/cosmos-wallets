@@ -40,7 +40,7 @@
                   v-model="policyFinal"
                   :items="policyType"
                   label="Policy type"
-                  outlined
+                  variant="outlined"
                 ></v-select>
               </v-col>
               <v-col
@@ -52,7 +52,7 @@
                   v-model="policyValueFinal"
                   :items="policyValue"
                   label="Policy value"
-                  outlined
+                  variant="outlined"
                 ></v-select>
               </v-col>
 
@@ -61,7 +61,7 @@
                   v-model="votingPeriodFinal"
                   :items="timeSelect"
                   label="Voting period"
-                  outlined
+                  variant="outlined"
                 ></v-select>
               </v-col>
               <v-col cols="12">
@@ -69,7 +69,7 @@
                   v-model="minExecutionPeriod"
                   :items="timeSelect"
                   label="Min Execution Period"
-                  outlined
+                  variant="outlined"
                 ></v-select>
               </v-col>
 

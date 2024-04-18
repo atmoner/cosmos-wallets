@@ -3,16 +3,40 @@
     <v-row no-gutters>
       <v-col 
       >
-      <v-data-table
+      <v-table>
+        <thead>
+          <tr>
+            <th class="text-left">
+              Authz Type
+            </th>
+            <th class="text-left">
+              granter
+            </th>
+            <th class="text-left">
+              grantee
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in store.allAuthz"
+            :key="item.name"
+          >
+            <td>{{ item.finalData.titleMsg }}</td>
+            <td>{{ item.granter }}</td>
+            <td>{{ item.grantee }}</td>
+          </tr>
+        </tbody>
+      </v-table>
+ 
+      <!-- <v-data-table
             rounded="lg" style="border-radius: 7px;"
             :headers="headers"
             :items="store.allAuthz"
             :search="search"
           > 
             <template v-slot:item="{ item }"> 
-              <tr>
-                <!-- <td> {{ item.columns['authorization'].typeUrl }} </td>
-                <td> {{ item.columns['finaleAuthzType'].msg }} </td>  -->
+              <tr> 
                 <td>  
                   <v-chip
                     class="ma-2"
@@ -32,7 +56,7 @@
                 
               </tr>
             </template> 
-          </v-data-table>
+          </v-data-table> -->
       </v-col>
      
     </v-row>
@@ -51,11 +75,11 @@ export default {
   data: () => ({
     cosmosConfig: cosmosConfig,
     headers: [
-      { key: 'finalData', title: 'Data' },
+      { key: 'finalData.titleMsg', title: 'Data' },
 
       { key: 'granter', title: 'granter' },  
       { key: 'grantee', title: 'grantee' },
-      { key: '', title: 'Actions' },
+      { key: 'actions', title: 'Actions' },
     ], 
  
   }),

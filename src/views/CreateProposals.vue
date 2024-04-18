@@ -26,7 +26,7 @@
         max-width="600"
       >
         <v-card-title>
-          <span class="text-h5">Create BitCanna proposal (v1beta)</span>
+          <span class="text-h5">Create QWOYN proposal (v1beta)</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -283,14 +283,42 @@
   </v-row>
 </template>
 <script>
-
+import axios from "axios";
 import { useAppStore } from '@/store/app'
 import cosmosConfig from '../cosmos.config'
+import { selectSigner, calculFee } from "../libs/signer";
+import {
+  SigningStargateClient,
+  defaultRegistryTypes,
+  GasPrice,
+  assertIsDeliverTxSuccess,
+} from "@cosmjs/stargate";
+import { Registry, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+
+import { Any } from "cosmjs-types/google/protobuf/any";
+import { TextProposal } from "cosmjs-types/cosmos/gov/v1beta1/gov"; 
+import { MsgExecLegacyContent } from "cosmjs-types/cosmos/gov/v1/tx"; 
 
 export default {
   name: 'App', 
   data: () => ({
     search: '',
+        // New
+        propType: "",
+    propText: "",
+    propTitle: "",
+    proposer: "",
+    amountSpend: "",
+    receivingAddress: "",
+    initDeposit: "10000000",
+    isSend: false,
+    items: [
+      "Text Proposal",
+      "Community Pool Spend Proposal",
+      //'Community Pool Spend Proposal With Deposit',
+      "Software Upgrade Proposal",
+      "Parameter Change Proposal",
+    ],
   }),
   setup() {
     const store = useAppStore()  
@@ -299,10 +327,98 @@ export default {
     }
   }, 
   async mounted() {
-
+    console.log(defaultRegistryTypes)
+    
   },
   methods: {
+    async createProposalv1Beta() {
 
+   
+      //let signer = await selectSigner(this.store.setChainSelected)   
+      let signer = await selectSigner(this.store.setChainSelected)
+
+      const foundMsgType = defaultRegistryTypes.find(
+        (element) =>
+          element[0] ===
+          "/cosmos.gov.v1.MsgSubmitProposal"
+      );
+      console.log(foundMsgType) // /cosmos.gov.v1.MsgSubmitProposal
+      console.log(MsgExecLegacyContent) // /cosmos.gov.v1.MsgSubmitProposal
+      
+ 
+/*         finalMsg = {
+          typeUrl: foundMsgType[0],
+          value: foundMsgType[1].fromPartial({
+            content: Any.fromPartial({
+              typeUrl: "/cosmos.gov.v1beta1.TextProposal",
+              value: Uint8Array.from(
+                TextProposal.encode(textProposal).finish()
+              ),
+            }),
+            proposer: signer.accounts[0].address,
+            initialDeposit: initialDeposit,
+          }),
+        }; */
+        const getAuthority = await axios(cosmosConfig[this.store.setChainSelected].apiURL + `/cosmos/auth/v1beta1/module_accounts`)
+        let find = getAuthority.data.accounts.find(element => element.name === 'gov')
+        
+        let finalMsgs = {};
+        if (this.propType === "Text Proposal") {
+          const TextProposalFinal = {
+            typeUrl: "/cosmos.gov.v1beta1.TextProposal",
+            value: TextProposal.encode(TextProposal.fromPartial({
+              title: 'Test proposal gov.v1 LegacyContent',
+              description: 'Test proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContentTest proposal gov.v1 LegacyContent',
+            })).finish()
+          }
+          finalMsgs = {
+            typeUrl: "/cosmos.gov.v1.MsgExecLegacyContent",
+            value: MsgExecLegacyContent.encode(MsgExecLegacyContent.fromPartial({
+              content: TextProposalFinal,
+              authority: find.base_account.address,
+            })).finish()
+          } 
+          console.log('finalMsgs', finalMsgs)
+        }
+      if (this.propType === "Community Pool Spend Proposal") {
+ 
+      }
+      if (this.propType === "Software Upgrade Proposal") {
+      
+      }
+
+
+
+        let deposite = {  
+              denom: cosmosConfig[this.store.setChainSelected].coinLookup.chainDenom,
+              amount: "10000000" 
+        }
+        const finalMsgsBroadcast = {
+          typeUrl: foundMsgType[0],
+          value: foundMsgType[1].fromPartial({
+            messages: [finalMsgs],
+            initialDeposit: [deposite],
+            proposer: signer.accounts[0].address,
+            metadata: "Test proposal gov.v1 LegacyContent",
+            title: "Test proposal gov.v1 LegacyContent",
+            summary: "Test proposal gov.v1 LegacyContent",
+          }),
+        }     
+        console.log('/cosmos.gov.v1.MsgSubmitProposal', finalMsgsBroadcast)  
+
+      try {
+          const result = await signer.client.signAndBroadcast(signer.accounts[0].address, [finalMsgsBroadcast], 'auto', '')
+          assertIsDeliverTxSuccess(result)
+          console.log(result)
+          this.txResult = result
+          this.step3 = false;
+          this.step4 = true;
+        } catch (error) {
+          console.error(error);
+          this.step3 = false;
+          this.step2 = true;
+        }  
+    }
   }
 }
 </script>

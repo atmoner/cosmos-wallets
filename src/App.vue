@@ -239,26 +239,65 @@
                   </template>
                   All chains
                 </v-list-item>
-                <v-list-item
-                  v-model="chainSelected"
-                  v-for="(item, i) in cosmosConfig"
-                  :key="i"
-                  :value="item"
-                  @click="changeChain(i)"
-                >
-                  <template v-slot:prepend>
-                    <v-avatar>
-                      <v-img
-                        :src="item.coinLookup.icon"
-                        :alt="item.name"
-                        max-height="32"
-                        max-width="32"
-                      ></v-img>
-                    </v-avatar>
-                  </template>
+                <v-expansion-panels v-model="panel" variant="accordion">
+                  <v-expansion-panel>
+                    <v-expansion-panel-title><h3 class="ml-6">Mainnet</h3></v-expansion-panel-title>
+                    <v-expansion-panel-text>
+                      <div
+                          v-for="(item, i) in cosmosConfig"
+                          :key="i"
+                          :value="item"
+                      >
+                        <v-list-item
+                          v-if="item.mode === 'mainnet'"
+                          v-model="chainSelected"
+                          @click="changeChain(i)"
+                        >
+                          <template v-slot:prepend>
+                            <v-avatar>
+                              <v-img
+                                :src="item.coinLookup.icon"
+                                :alt="item.name"
+                                max-height="32"
+                                max-width="32"
+                              ></v-img>
+                            </v-avatar>
+                          </template>
+                          <v-list-item-title v-text="item.name"></v-list-item-title>
+                        </v-list-item>
+                      </div>
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                  <v-expansion-panel>
+                    <v-expansion-panel-title><h3 class="ml-6">Testnet</h3></v-expansion-panel-title>
+                    <v-expansion-panel-text>
+                      <div
+                          v-for="(item, i) in cosmosConfig"
+                          :key="i"
+                          :value="item"
+                      >
+                        <v-list-item
+                          v-if="item.mode === 'testnet'"
+                          v-model="chainSelected"
+                          @click="changeChain(i)"
+                        >
+                          <template v-slot:prepend>
+                            <v-avatar>
+                              <v-img
+                                :src="item.coinLookup.icon"
+                                :alt="item.name"
+                                max-height="32"
+                                max-width="32"
+                              ></v-img>
+                            </v-avatar>
+                          </template>
+                          <v-list-item-title v-text="item.name"></v-list-item-title>
+                        </v-list-item>
+                      </div>
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
 
-                  <v-list-item-title v-text="item.name"></v-list-item-title>
-                </v-list-item>
               </v-list>
             </v-sheet>
             <v-sheet
@@ -296,6 +335,7 @@
 </template>
 
 <script>
+
 import { useTheme } from 'vuetify'
 import { useAppStore } from '@/store/app'
 import cosmosConfig from './cosmos.config'
@@ -308,6 +348,7 @@ export default {
   components: { Login, actionsModals },
   data: () => ({
       cosmosConfig: cosmosConfig,
+      panel: [0],
       chainSelected: 0,
       currentPage: '',
       currentPageSize: 10,
@@ -401,7 +442,8 @@ export default {
         to.name === 'GroupDetail' ||
         to.name === 'GroupDetailPolicy' ||
         to.name === 'GroupCreateProposal' ||
-        to.name === 'GroupViewProposal'
+        to.name === 'GroupViewProposal' ||
+        to.name === 'GroupDetailAuhtz'
       ) {
         this.viewLeftMenu = false
         this.currentPageSize = 12

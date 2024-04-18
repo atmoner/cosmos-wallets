@@ -1,9 +1,10 @@
 export default [
-  {
+    {
     chainId: 'earendel-1',
     name: 'Qwoyn',
     desc: 'Experience the Future of Blockchain Technology.',
     slot: "qwoyn",
+    mode: 'testnet',
     apiURL: 'https://testnet-api.qwoyn.studio',
     rpcURL: 'https://testnet-rpc.qwoyn.studio',
     coinLookup: {
@@ -30,6 +31,7 @@ export default [
     name: 'Bitcanna-testnet',
     slot: "Bitcanna-testnet",
     desc: '',
+    mode: 'testnet',
     apiURL: 'https://lcd-devnet-6.bitcanna.io',
     rpcURL: 'https://rpc-devnet-6.bitcanna.io',
     coinLookup: {
@@ -52,36 +54,11 @@ export default [
     }
   },
   {
-    chainId: '90u-2',
-    name: 'Terp-testnet',
-    slot: "terp",
-    desc: '',
-    apiURL: 'https://terp-testnet-api.itrocket.net:443',
-    rpcURL: 'https://terp-testnet-rpc.itrocket.net:443',
-    coinLookup: {
-      viewDenom: 'THIOL',
-      chainDenom: 'uthiolx',
-      addressPrefix: 'terp',
-      icon: `https://raw.githubusercontent.com/cosmos/chain-registry/master/terpnetwork/images/logo.png`,
-      banner: "https://pbs.twimg.com/profile_banners/1412867039518244866/1681160633/1500x500",
-    },
-    coingeckoId: 'bitcanna',
-    feeMultiplier: 1.3,
-    gasPrice: 0.075,
-    color: '#434349',
-    colorChart: ["#2b2b2b", "#434349", "#93939b", "#d1d1d3"],
-    modules: {
-      feeGrant: true,
-      authz: true,
-      wasm: false,
-      group: true,
-    }
-  },
-  {
     chainId: "cosmoshub-4",
     name: "Atom",
     desc: "Cosmos is an ever-expanding ecosystem of interoperable and sovereign blockchain apps and services, built for a decentralized future.",
     slot: "atom",
+    mode: 'mainnet',
     apiURL: "https://cosmos-lcd.bitcanna.io",
     rpcURL: "https://cosmos-rpc.bitcanna.io",
     coinLookup: {
@@ -109,6 +86,7 @@ export default [
     name: "Akash",
     desc: "Akash is an open Supercloud network that makes it easy to rapidly scale and access services around the world.",
     slot: "akash",
+    mode: 'mainnet',
     apiURL: "https://rest-akash.ecostake.com",
     rpcURL: "https://rpc-akash.ecostake.com:443",
     coinLookup: {
@@ -136,6 +114,7 @@ export default [
     name: 'BitCanna',
     desc: 'Harnessing the power of blockchain to create equal opportunities for cannabis-related industries ',
     slot: "bitcanna",
+    mode: 'mainnet',
     apiURL: 'https://lcd.bitcanna.io',
     rpcURL: 'https://rpc.bitcanna.io',
     coinLookup: {
@@ -163,6 +142,7 @@ export default [
     name: 'Gitopia',
     desc: 'Gitopia is the next-generation Code Collaboration Platform fuelled by a decentralized network and interactive token economy.',
     slot: "gitopia",
+    mode: 'mainnet',
     apiURL: 'https://gitopia.api.kjnodes.com',
     rpcURL: 'https://gitopia.rpc.kjnodes.com',
     coinLookup: {
@@ -182,7 +162,7 @@ export default [
       feeGrant: true,
       authz: true,
       wasm: false,
-      group: false,
+      group: true,
     }
   },
   {
@@ -190,12 +170,11 @@ export default [
     name: 'Chihuahua',
     slot: "chihuahua",
     desc: 'Chihuahua is the first interoperable meme coin with a POS blockchain, making it one of the most utilized chains in the Cosmos ecosystem',
+    mode: 'mainnet',
     apiURL: 'https://api.chihuahua.wtf',
     rpcURL: 'https://rpc.chihuahua.wtf',
     //apiURL: 'https://rest.cosmos.directory/chihuahua',
     //rpcURL: 'https://rpc.cosmos.directory/chihuahua',
-
-
     coinLookup: {
       viewDenom: 'HUAHUA',
       chainDenom: 'uhuahua',
@@ -247,6 +226,7 @@ export default [
     name: 'Juno',
     desc: 'Juno is an interoperable smart contract network and a zone part of the Cosmos Network. Highly scalable, robust, secure and easy to deploy!',
     slot: "juno",
+    mode: 'mainnet',
     apiURL: 'https://lcd-juno.itastakers.com',
     rpcURL: 'https://rpc-juno.itastakers.com',
     coinLookup: {
@@ -273,6 +253,7 @@ export default [
     name: 'Teritori',
     desc: 'Tori token (TORI) is the Teritoti Network’s native utility token, used as the primary means to govern, secure the blockchain.',
     slot: "teritori",
+    mode: 'mainnet',
     apiURL: 'https://teritori-api.polkachu.com',
     rpcURL: 'https://teritori-rpc.polkachu.com',
     coinLookup: {
@@ -293,12 +274,13 @@ export default [
       wasm: false,
       group: false,
     }
-  },
+  }/* ,
   {
     chainId: 'kyve-1',
     name: 'Kyve',
     desc: 'The native utility token of the KYVE network.',
     slot: "kyve",
+    mode: 'mainnet',
     apiURL: 'https://kyve-api.lavenderfive.com:443',
     rpcURL: 'https://rpc-eu-1.kyve.network',
     coinLookup: {
@@ -319,5 +301,5 @@ export default [
       wasm: false,
       group: false,
     }
-  }
+  } */
 ]

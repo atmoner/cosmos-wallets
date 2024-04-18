@@ -1,4 +1,5 @@
 <template>
+  <div>
   <v-container >
     <!-- Stack the columns on mobile by making one full-width and the other half-width -->
     <v-row>
@@ -41,10 +42,8 @@
         <v-card-title>
           Proposal countdown <v-btn @click="voteNow()">Vote now!</v-btn>
         </v-card-title>
-        <no-ssr>
-          <flip-countdown v-if="loaded" :deadline="period_end"></flip-countdown>
-        </no-ssr>
-        <Countdown labelColor="white" />
+  
+        <!-- <Countdown labelColor="white"  :deadlineISO="moment(store.finalGroupProposalId.proposal?.votingPeriodEnd.seconds.low, 'X').format('lll') " /> -->
         </v-card>
       </v-col>
     </v-row>
@@ -69,12 +68,13 @@
                 <td>{{ store.finalGroupProposalId.proposal?.title }}</td>
               </tr>
               <tr>
-                <td>Submit time</td>
-                <td>{{ store.finalGroupProposalId.proposal?.submit_time | formatDate }}</td>
+                <td>Submit time</td>                
+                <td>{{ moment(store.finalGroupProposalId.proposal?.submitTime.seconds.low, 'X').format('lll') }} </td>
               </tr>
               <tr>
                 <td>Voting period end</td>
-                <td>{{ store.finalGroupProposalId.proposal?.voting_period_end | formatDate }}</td>
+ 
+                <td>{{ moment(store.finalGroupProposalId.proposal?.votingPeriodEnd.seconds.low, 'X').format('lll') }} </td>
               </tr>
               <tr>
                 <td>Proposers</td>
@@ -82,26 +82,25 @@
               </tr>
               <tr>
                 <td>Group policy address</td>
-                <td>{{ store.finalGroupProposalId.proposal?.group_policy_address }}</td>
+                <td>{{ store.finalGroupProposalId.proposal?.groupPolicyAddress }}</td>
               </tr>
               <tr>
               <td>Status</td>
-                <td>
-
-                  <!-- <v-chip
-                    v-if="proposal.status === 'PROPOSAL_STATUS_SUBMITTED'"
+                <td> 
+                  <v-chip
+                    v-if="store.finalGroupProposalId.proposal?.status === 1"
                     color="orange"
                     label
                     outlined
                   >
                     Voting period
-                    <VoteGroup
+                    <!-- <VoteGroup
                       :addressAdmin="accounts[0].address"
                       :propId="proposal.id"
-                    />
+                    /> -->
                   </v-chip>
                   <v-chip
-                    v-else-if="proposal.status === 'PROPOSAL_STATUS_ACCEPTED'"
+                    v-else-if="store.finalGroupProposalId.proposal?.status === 2"
                     color="green"
                     label
                     outlined
@@ -109,13 +108,13 @@
                     Complete
                   </v-chip>
                   <v-chip
-                    v-else-if="proposal.status === 'PROPOSAL_STATUS_REJECTED'"
+                    v-else-if="store.finalGroupProposalId.proposal?.status === 3"
                     color="red"
                     label
                     outlined
                   >
                     Rejected
-                  </v-chip> -->
+                  </v-chip> 
                 </td>
                </tr>
           </tbody>
@@ -164,19 +163,54 @@
           <v-card-title>
             All messages
             <v-spacer></v-spacer>
-              <!-- <v-chip
-                v-if="proposal.status === 'PROPOSAL_STATUS_ACCEPTED'"
+              <v-chip
+                v-if="store.finalGroupProposalId.proposal?.status === 2"
                 color="green"
                 label
                 outlined
               >
                 RUN EXECUTOR
-                <RunExe
-                  :addressAdmin="accounts[0].address"
-                  :propId="proposal.id"
-                />
+                <v-btn
+      class="ml-5"
+      dark
+      icon
+      @click.stop="dialogRunExecutor = true"
+
+    >
+      <v-icon
+        color="darken-2"
+      >
+        mdi-gate-buffer
+      </v-icon>
+    </v-btn>
+
+    <v-dialog
+      v-model="dialogRunExecutor"
+      max-width="600px"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          Run executor #{{ propId }}
+        </v-card-title>
+
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            class="mb-5"
+            dark
+            @click="runExecutor"
+          >
+            Run executor
+          </v-btn>
+
+
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
               </v-chip>
-              <v-chip
+             <!--  <v-chip
                 v-else-if="proposal.status === 'PROPOSAL_STATUS_REJECTED'"
                 color="red"
                 label
@@ -209,7 +243,7 @@
                 EXECUTOR FAILURE
                 </v-chip> -->
           </v-card-title>
-          <v-simple-table>
+          <v-table>
             <template v-slot:default>
               <thead>
                 <tr>
@@ -223,16 +257,16 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- <tr
-                  v-for="item in proposal.messages"
+                 <tr
+                  v-for="item in store.finalGroupProposalId.proposal?.messages" 
                   :key="item.to_address"
                 >
-                  <td>{{ item.typeReadable }}</td>
-                  <td>{{ item.finalAmount }}</td>
-                </tr> -->
+                  <td>{{ item.typeUrl }}</td>
+                  <td>{{ item.finalAmount }}</td> 
+                </tr>
               </tbody>
             </template>
-          </v-simple-table>
+          </v-table>
         </v-card>
       </v-col>
       <v-col
@@ -271,7 +305,7 @@
                 >
                   <td><v-chip>{{ item.name }}</v-chip></td>
                   <td>{{ item.voter }}</td>
-                  <td>{{ item.option }}
+                  <td> 
                     <v-chip
                       v-if="item.option === 'VOTE_OPTION_YES'"
                       color="green"
@@ -307,13 +341,7 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-btn
-      color="primary"
-      @click="dialog = true"
-    >
-      Open Dialog
-    </v-btn>
-
+ 
     <v-dialog
       v-model="dialog"
       width="auto"
@@ -333,7 +361,7 @@
             <v-card
               :class="['d-flex align-center', selectedClass]"
               dark
-              height="200"
+              height="100"
               @click="toggle"
             >
               <div
@@ -349,17 +377,20 @@
   </v-item-group>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" block @click="dialog = false">Close Dialog</v-btn>
+          <v-btn color="primary"   @click="voteGroup()">Vote!</v-btn>
+          <v-btn color="primary"   @click="dialog = false">Close Dialog</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
   </v-container>
+  </div>
 </template>
 <script>
 import { useAppStore } from '@/store/app'
 import axios from 'axios' 
 import { DoughnutChart } from 'vue-chart-3';
 import { Chart, registerables } from "chart.js";
+import { selectSigner, calculFee } from "../libs/signer";
 import {
   Chart as ChartJS,
   Title,
@@ -372,6 +403,13 @@ import {
 import {Countdown} from 'vue3-flip-countdown'
 //import cosmosConfig from '~/cosmos.config'
 import moment from "moment"
+import {
+  defaultRegistryTypes,
+  assertIsDeliverTxSuccess,
+  SigningStargateClient,
+  GasPrice,
+  calculateFee,
+} from "@cosmjs/stargate";
 
 const fmt = "YYYY-MM-DD HH:mm:ss"
 
@@ -417,6 +455,9 @@ export default {
     loaded: false,
     period_end: '',
     dialog: false,
+    dialogRunExecutor: false,
+    moment: moment,
+    proposalAllVote: [],
   }),
   setup() {
     const store = useAppStore() 
@@ -434,12 +475,18 @@ export default {
     console.log('this.$route.params.id', this.$route.params.id_prop)
     await this.store.getGroupProposalsId(this.$route.params.id_prop)
     try {
-      
-        /* await this.$store.dispatch('data/getSingleProposal', this.$route.params.id)
-        await this.$store.dispatch('data/getChartProposalData', this.$route.params.id)
-
-        console.log(moment(this.proposal.voting_period_end).format(fmt))
-        this.period_end = moment(this.proposal.voting_period_end).format(fmt) */
+      axios.get('https://api.chihuahua.wtf/cosmos/group/v1/votes_by_proposal/' + this.$route.params.id_prop)
+        .then(response => {
+          console.log(response.data)
+          this.proposalAllVote = response.data.votes
+        })
+        .catch(error => {
+          console.log(error)
+        })
+        .finally(() => {
+          //this.loading = false
+        }) 
+ 
         this.loaded = true
     } catch (e) {
       console.error(e)
@@ -447,6 +494,7 @@ export default {
     console.log(this.proposal)
   },
   filters: {
+
     formatDate: (dateStr) =>
       Intl.DateTimeFormat("us-EN",
         {
@@ -473,6 +521,78 @@ export default {
     },
   },
   methods: {
+    async runExecutor() {
+      console.log('run executor')
+
+      let signer = await selectSigner(this.store.setChainSelected)   
+
+      const foundMsgType = defaultRegistryTypes.find(
+        (element) =>
+          element[0] ===
+          "/cosmos.group.v1.MsgExec"
+      );
+      console.log(foundMsgType) // /cosmos.group.v1.MsgExec
+      const finalMsg = {
+        typeUrl: foundMsgType[0],
+        value: foundMsgType[1].fromPartial({
+          proposalId: this.$route.params.id_prop,
+          executor: signer.accounts[0].address
+        }),
+      }     
+      console.log('/cosmos.group.v1.MsgExec', finalMsg)  
+      
+      try {          
+          const result = await signer.client.signAndBroadcast(signer.accounts[0].address, [finalMsg], 'auto', '')
+          assertIsDeliverTxSuccess(result)
+          console.log(result)
+          this.txResult = result
+          this.step3 = false;
+          this.step4 = true;
+        } catch (error) {
+          console.error(error); 
+          this.step3 = false;
+          this.step2 = true;
+        }        
+
+
+      this.dialogRunExecutor = false
+    },
+    async voteGroup() {
+      console.log('vote group')
+      
+
+      let signer = await selectSigner(this.store.setChainSelected)   
+
+      const foundMsgType = defaultRegistryTypes.find(
+        (element) =>
+          element[0] ===
+          "/cosmos.group.v1.MsgVote"
+      );
+      console.log(foundMsgType) // /cosmos.group.v1.MsgVote
+
+      const finalMsg = {
+          typeUrl: foundMsgType[0],
+            value: foundMsgType[1].fromPartial({
+              proposalId: 2,
+              voter: signer.accounts[0].address,
+              option: 1,
+              metadata: ''
+            }),
+          }     
+          console.log('/cosmos.group.v1.MsgVote', finalMsg)   
+        try {          
+          const result = await signer.client.signAndBroadcast(signer.accounts[0].address, [finalMsg], 'auto', '')
+          assertIsDeliverTxSuccess(result)
+          console.log(result)
+          this.txResult = result
+          this.step3 = false;
+          this.step4 = true;
+        } catch (error) {
+          console.error(error); 
+          this.step3 = false;
+          this.step2 = true;
+        }             
+    },
     voteNow() {
       console.log('vote!')
       this.dialog = true

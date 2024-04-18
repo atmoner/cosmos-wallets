@@ -107,8 +107,13 @@
                 :key="key"                
               >    
                           
-                <td>{{ key }}</td>
-                <td v-if="key === 'amount'">{{ value[0].amount / 1000000 }} 
+                <td>
+                  
+                  {{ key }}
+                
+
+                </td>
+                <td v-if="key === 'amount'">{{ value[0]?.amount / 1000000 }} 
                   <strong :style="'color:' + foundChain.color">
                     {{ foundChain.coinLookup.viewDenom }}
                   </strong>

@@ -8,24 +8,24 @@ export function setMsgGroup(data) {
  
   switch (finalType) {
     case "/cosmos.bank.v1beta1.MsgSend":
-      console.log('data.value', data.value)
+      console.log('data.value', data)
       titleMsg = "Send"
       finalData = {
         from: {
-          data: data.value.fromAddress,
+          data: data.fromAddress,
           name: "From",
         },
         to: {
-          data: data.value.toAddress,
+          data: data.toAddress,
           name: "To",
         },
-        amount: {
+        /* amount: {
           data: {
-            amount: data.value.amount[0].amount,
-            denom: data.value.amount[0].denom
+            amount: data.amount[0].amount,
+            denom: data.amount[0].denom
           },
           name: "Amount",
-        }
+        } */
       };
       //console.log(finalData) 
       break;

@@ -14,8 +14,7 @@
       v-for="n in finalGroupData" :key="n.id"
       justify="space-around"
     >
-      <v-col
-      v-if="n.id > 1"        
+      <v-col       
       > 
       <v-card :to="n.slut" >
         <v-img

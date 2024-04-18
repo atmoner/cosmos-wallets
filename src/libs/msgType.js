@@ -1,4 +1,4 @@
-export function setMsg(data, timestamp, txhash, all) { 
+export function setMsg(data, addrGet, timestamp, txhash, all) { 
   let finalType = data["@type"];
   let finalData = '';
   let titleMsg = ""; 
@@ -8,8 +8,10 @@ export function setMsg(data, timestamp, txhash, all) {
   // console.log(all)
  
   switch (finalType) {
-    case "/cosmos.bank.v1beta1.MsgSend":
-      titleMsg = "Send"
+    case "/cosmos.bank.v1beta1.MsgSend": 
+      if (data.to_address === addrGet) {
+        titleMsg = "Receive";
+      } else titleMsg = "Send";
       finalData = {
         from: {
           data: data.from_address,
@@ -164,6 +166,26 @@ export function setMsg(data, timestamp, txhash, all) {
     titleMsg = "Create Group With Policy"
     //console.log(finalData)
     break;
+
+    case "/cosmos.group.v1.MsgExec":  
+    titleMsg = "Proposal group Exec"
+    //console.log(finalData)
+    break;
+
+    case "/cosmos.group.v1.MsgCreateGroupPolicy":  
+    titleMsg = "Create Group Policy"
+    //console.log(finalData)
+    break;
+
+    case "/cosmos.group.v1.MsgVote":  
+    titleMsg = "Group Vote"
+    //console.log(finalData)
+    break;
+    
+    case "/cosmos.group.v1.MsgUpdateGroupMembers":  
+    titleMsg = "Update Group Members"
+    //console.log(finalData)
+    break;    
     
     default:
       console.log("Sorry, dont know " + finalType + ".");

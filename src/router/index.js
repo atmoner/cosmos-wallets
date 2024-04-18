@@ -184,6 +184,16 @@ const routes = [
     ],
   }, 
   {
+    path: '/group/:id/authz',
+    children: [
+      {
+        path: '',
+        name: 'GroupDetailAuhtz',
+        component: () => import('@/views/GroupDetailAuhtz.vue'),
+      },
+    ],
+  },   
+  {
     path: '/group/:id/proposal/:id_prop',
     children: [
       {
